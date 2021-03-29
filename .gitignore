@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+*.swp
+*.tmp
+.env
+.DS_Store
+
+.now
