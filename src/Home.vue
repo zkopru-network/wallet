@@ -12,7 +12,7 @@
       <div>
         <h4>Sync info:</h4>
         <div>
-          Status: {{ status }}
+          Status: <span style="font-weight: bold">{{ status }}</span>
         </div>
         <div>
           Proposal Count: {{ proposalCount }}
