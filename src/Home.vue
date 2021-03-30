@@ -1,8 +1,7 @@
 <template>
   <div>
-    <h2>Zkopru Browser</h2>
+    <h2>Zkopru Browser Node</h2>
     <div v-if="client">
-      <div>Connected to: <span style="font-weight: bold">{{ client.config.url }}</span></div>
       <div>
         Address:
         <a :href="`https://goerli.etherscan.io/address/${client.node.layer1.address}`">
@@ -43,7 +42,10 @@ export default class Home extends Vue {
   proposalCount = 0
   status = 'on syncing'
   async mounted() {
-    this.client = await ZkopruClient.create('https://zkopru.goerli.rollupscan.io')
+    this.client = await ZkopruClient.create({
+      websocket: 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa',
+      rpcUrl: 'https://zkopru.goerli.rollupscan.io',
+    })
     await this.client.start()
     this.client.node.synchronizer.on('onFetched', async () => this.update())
     this.client.node.synchronizer.on('status', async () => this.update())
@@ -55,6 +57,11 @@ export default class Home extends Vue {
 
   async update() {
     this.status = this.client.node.synchronizer.status
+    const highestProposal = await this.client.node.db.findOne('Proposal', {
+      where: {},
+      orderBy: { proposalNum: 'desc' },
+    })
+    this.proposalCount = highestProposal.proposalNum
     const latestBlockHash = await this.client.node.layer2.latestBlock()
     const latestBlock = await this.client.node.layer2.getProposal(
       latestBlockHash,
@@ -64,11 +71,6 @@ export default class Home extends Vue {
       throw new Error('Latest block does not include canonical number')
     }
     this.latestBlock = latestBlock.canonicalNum
-    const highestProposal = await this.client.node.db.findOne('Proposal', {
-      where: {},
-      orderBy: { proposalNum: 'desc' },
-    })
-    this.proposalCount = highestProposal.proposalNum
   }
 }
 </script>
