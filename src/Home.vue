@@ -1,7 +1,10 @@
 <template>
   <div>
     <h2>Zkopru Browser Node</h2>
-    <div v-if="client">
+    <div v-if="!client">
+      <span style="font-weight: bold">Loading...</span>
+    </div>
+    <div v-if="client && client.node">
       <div>
         Address:
         <a :href="`https://goerli.etherscan.io/address/${client.node.layer1.address}`">
@@ -20,6 +23,16 @@
           Current Block: {{ latestBlock }}
         </div>
       </div>
+      <div>
+        <h4>Wallet</h4>
+        <div v-if="!wallet">
+          <button v-on:click="createWallet">Create Wallet</button>
+        </div>
+        <div v-if="wallet">
+          <div>{{ wallet.account.ethAddress }}</div>
+          <div>{{ wallet.account.zkAddress.address }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -27,7 +40,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import ZkopruClient from '@zkopru/client/browser'
+import Zkopru from '@zkopru/client/browser'
 
 @Component({
   name: 'Home',
@@ -41,10 +54,10 @@ export default class Home extends Vue {
   latestBlock = 0
   proposalCount = 0
   status = 'on syncing'
+  wallet = null
   async mounted() {
-    this.client = await ZkopruClient.create({
+    this.client = new Zkopru.Node({
       websocket: 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa',
-      rpcUrl: 'https://zkopru.goerli.rollupscan.io',
     })
     await this.client.start()
     this.client.node.synchronizer.on('onFetched', async () => this.update())
@@ -71,6 +84,15 @@ export default class Home extends Vue {
       throw new Error('Latest block does not include canonical number')
     }
     this.latestBlock = latestBlock.canonicalNum
+  }
+
+  createWallet() {
+    const _privateKey = []
+    for (let i = 0; i < 64; i++) {
+      privateKey.push(Math.floor(Math.random() * 16))
+    }
+    const privateKey = `0x${_privateKey.map(n => n.toString(16)).join('')}`
+    console.log(privateKey)
   }
 }
 </script>
