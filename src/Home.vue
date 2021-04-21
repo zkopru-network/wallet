@@ -1,36 +1,36 @@
 <template>
   <div>
     <h2>Zkopru Browser Node</h2>
-    <div v-if="!client">
+    <div v-if="!$store.state.zkopru.client">
       <span style="font-weight: bold">Loading...</span>
     </div>
-    <div v-if="client && client.node">
+    <div v-if="$store.state.zkopru.client && $store.state.zkopru.client.node">
       <div>
         Address:
-        <a :href="`https://goerli.etherscan.io/address/${client.node.layer1.address}`">
-          {{ client.node.layer1.address }}
+        <a :href="`https://goerli.etherscan.io/address/${$store.state.zkopru.client.node.layer1.address}`">
+          {{ $store.state.zkopru.client.node.layer1.address }}
         </a>
       </div>
       <div>
         <h4>Sync info:</h4>
         <div>
-          Status: <span style="font-weight: bold">{{ status }}</span>
+          Status: <span style="font-weight: bold">{{ $store.state.zkopru.status }}</span>
         </div>
         <div>
-          Proposal Count: {{ proposalCount }}
+          Proposal Count: {{ $store.state.zkopru.proposalCount }}
         </div>
         <div>
-          Current Block: {{ latestBlock }}
+          Current Block: {{ $store.state.zkopru.latestBlock }}
         </div>
       </div>
       <div>
         <h4>Wallet</h4>
-        <div v-if="!wallet">
+        <div v-if="!$store.state.zkopru.wallet">
           <button v-on:click="createWallet">Create Wallet</button>
         </div>
-        <div v-if="wallet">
-          <div>{{ wallet.account.ethAddress }}</div>
-          <div>{{ wallet.account.zkAddress.address }}</div>
+        <div v-if="$store.state.zkopru.wallet">
+          <div>{{ $store.state.zkopru.wallet.account.ethAddress }}</div>
+          <div>{{ $store.state.zkopru.wallet.account.zkAddress.address }}</div>
         </div>
       </div>
     </div>
@@ -50,40 +50,8 @@ import Zkopru from '@zkopru/client/browser'
   },
 })
 export default class Home extends Vue {
-  client = null
-  latestBlock = 0
-  proposalCount = 0
-  status = 'on syncing'
-  wallet = null
   async mounted() {
-    this.client = new Zkopru.Node({
-      websocket: 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa',
-    })
-    await this.client.start()
-    this.client.node.synchronizer.on('onFetched', async () => this.update())
-    this.client.node.synchronizer.on('status', async () => this.update())
-    setInterval(async () => {
-      await this.update()
-    }, 5000)
-    await this.update()
-  }
-
-  async update() {
-    this.status = this.client.node.synchronizer.status
-    const highestProposal = await this.client.node.db.findOne('Proposal', {
-      where: {},
-      orderBy: { proposalNum: 'desc' },
-    })
-    this.proposalCount = highestProposal.proposalNum
-    const latestBlockHash = await this.client.node.layer2.latestBlock()
-    const latestBlock = await this.client.node.layer2.getProposal(
-      latestBlockHash,
-    )
-    if (!latestBlock) throw new Error(`Unable to find hash: ${latestBlockHash}`)
-    if (typeof latestBlock.canonicalNum !== 'number') {
-      throw new Error('Latest block does not include canonical number')
-    }
-    this.latestBlock = latestBlock.canonicalNum
+    await this.$store.dispatch('startSync')
   }
 
   createWallet() {
