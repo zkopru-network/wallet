@@ -7,7 +7,15 @@ export default {
     client: null,
     latestBlock: 0,
     proposalCount: 0,
+    syncPercent: 0,
     status: 'on syncing',
+  },
+  getters: {
+    percent: state => {
+      const { latestBlock, proposalCount } = state
+      if (!proposalCount) return 0
+      return 100 * latestBlock / proposalCount
+    }
   },
   mutations: {
 
@@ -39,7 +47,8 @@ export default {
       if (typeof latestBlock.canonicalNum !== 'number') {
         throw new Error('Latest block does not include canonical number')
       }
-      this.latestBlock = latestBlock.canonicalNum
+      state.latestBlock = latestBlock.canonicalNum
+      state.syncPercent = 100 * state.latestBlock / state.proposalCount
     }
   },
 }

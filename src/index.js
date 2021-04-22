@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import Meta from 'vue-meta'
 import App from './App'
 import Home from './Home'
+import Wallet from './Wallet'
 import ZkopruStore from './stores/zkopru'
 
 Vue.use(VueRouter)
@@ -25,6 +26,7 @@ const router = new VueRouter({
   mode: 'history',
   routes: [
     { path: '/', component: Home },
+    { path: '/wallet', component: Wallet },
   ]
 })
 const app = new Vue({
