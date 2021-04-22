@@ -34,10 +34,10 @@ module.exports = {
         ]
       },
       {
-        test: /\.(png|svg|jpg|gif)$/,
+        test: /\.(png|svg|jpg|gif|ttf)$/,
         loader: 'file-loader',
         options: {
-          publicPath: 'build',
+          // publicPath: 'build',
           esModule: false,
         }
       }
