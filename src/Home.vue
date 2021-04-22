@@ -1,7 +1,6 @@
 <template>
   <div class="container">
-    <div class="header-container">
-      <div class="background-text" />
+    <div class="header-container" v-if="!showingConnect">
       <div class="header-text-container">
         <div class="header-name">
           zkopru wallet
@@ -20,7 +19,7 @@
         Private and affordable transactions on the Ethereum blockchain.
       </div>
       <div spacer style="height: 60px" />
-      <Button>
+      <Button :onClick="() => showingConnect = true">
         Open a wallet
       </Button>
       <div spacer style="height: 48px" />
@@ -31,6 +30,29 @@
         <div spacer style="height: 16px" />
         <img src="../assets/arrow_down.svg" />
       </div>
+      <div class="background-text" />
+    </div>
+    <div class="header-container" v-if="showingConnect" style="align-items: center">
+      <div class="header-text-container" style="justify-content: center">
+        <div class="header-name">
+          zkopru wallet
+        </div>
+      </div>
+      <div spacer style="height: 120px" />
+      <div style="font-size: 48px; color: white; font-weight: bold">
+        Get started
+      </div>
+      <div spacer style="height: 26px" />
+      <img src="../assets/metamask.png" width="200px" height="200px" />
+      <div spacer style="height: 32px" />
+      <Button :onClick="() => {}">
+        Connect Metamask
+      </Button>
+      <div spacer style="height: 48px" />
+      <div class="underline-button" v-on:click="showingConnect = false">
+        Cancel
+      </div>
+      <div class="background-text" />
     </div>
   </div>
 </template>
@@ -48,8 +70,7 @@ import Button from './components/Button'
   },
 })
 export default class Home extends Vue {
-  async mounted() {
-  }
+  showingConnect = false
 }
 </script>
 
@@ -94,7 +115,7 @@ export default class Home extends Vue {
   background-image: url('../assets/zkopru.svg');
   background-repeat: no-repeat;
   background-size: cover;
-  background-blend-mode: overlay;
+  z-index: -1;
 }
 .title-text {
   font-size: 64px;
@@ -110,5 +131,11 @@ export default class Home extends Vue {
   color: #D0FFF7;
   font-size: 18px;
   align-self: center;
+}
+.underline-button {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #D0FFF7;
+  font-size: 18px;
 }
 </style>

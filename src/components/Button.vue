@@ -1,6 +1,6 @@
 <template>
   <div class="outer-container">
-    <div class="button-container">
+    <div class="button-container" v-on:click="_onClick()">
       <div class="button-text">
         <slot></slot>
       </div>
@@ -14,8 +14,16 @@ import Component from 'vue-class-component'
 
 @Component({
   name: 'Button',
+  props: [ 'onClick', ],
 })
-export default class Button extends Vue {}
+export default class Button extends Vue {
+  _onClick() {
+    if (this.onClick) {
+      // execute
+      this.onClick()
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -34,9 +42,11 @@ export default class Button extends Vue {}
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 }
 .button-text {
   font-weight: 500;
   font-size: 24px;
+  user-select: none;
 }
 </style>
