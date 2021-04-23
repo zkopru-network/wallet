@@ -52,8 +52,8 @@
       <div class="underline-button" v-on:click="showingConnect = false">
         Cancel
       </div>
-      <div class="background-text" />
     </div>
+    <ZkopruBackground />
   </div>
 </template>
 
@@ -61,10 +61,11 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Button from './components/Button'
+import ZkopruBackground from './components/ZkopruBackground'
 
 @Component({
   name: 'Home',
-  components: { Button, },
+  components: { Button, ZkopruBackground, },
   metaInfo: {
     title: 'Zkopru Wallet',
   },
@@ -77,7 +78,7 @@ export default class Home extends Vue {
       await this.$store.dispatch('connectMetamask')
       this.$router.push('/wallet')
     } catch (err) {
-      
+
     }
   }
 }
@@ -92,11 +93,6 @@ export default class Home extends Vue {
   width: 100vw;
   height: 100vh;
   min-height: 600px;
-  background: radial-gradient(
-    127.44% 155.53% at 93.41% 11.94%,
-    rgba(14, 41, 54, 0.65) 73.7%,
-    rgba(0, 255, 209, 0.15) 100%
-  );
   /* background-blend-mode: hard-light; */
   display: flex;
   flex-direction: column;
@@ -115,17 +111,6 @@ export default class Home extends Vue {
   font-weight: bold;
   font-size: 32px;
   color: white;
-}
-.background-text {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  background-image: url('../assets/zkopru.svg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  z-index: -1;
 }
 .title-text {
   font-size: 64px;

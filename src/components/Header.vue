@@ -41,7 +41,6 @@ export default class Header extends Vue {
   display: flex;
   justify-content: space-between;
   padding: 24px;
-  width: 100%;
 }
 .header-title-text {
   font-weight: bold;
