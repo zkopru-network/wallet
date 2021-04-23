@@ -45,7 +45,7 @@
       <div spacer style="height: 26px" />
       <img src="../assets/metamask.png" width="200px" height="200px" />
       <div spacer style="height: 32px" />
-      <Button :onClick="() => {}">
+      <Button :onClick="() => connectMetamask()">
         Connect Metamask
       </Button>
       <div spacer style="height: 48px" />
@@ -71,6 +71,15 @@ import Button from './components/Button'
 })
 export default class Home extends Vue {
   showingConnect = false
+
+  async connectMetamask() {
+    try {
+      await this.$store.dispatch('connectMetamask')
+      this.$router.push('/wallet')
+    } catch (err) {
+      
+    }
+  }
 }
 </script>
 
@@ -82,6 +91,7 @@ export default class Home extends Vue {
 .header-container {
   width: 100vw;
   height: 100vh;
+  min-height: 600px;
   background: radial-gradient(
     127.44% 155.53% at 93.41% 11.94%,
     rgba(14, 41, 54, 0.65) 73.7%,
