@@ -6,7 +6,8 @@ import App from './App'
 import Home from './Home'
 import Wallet from './Wallet'
 import ZkopruStore from './stores/zkopru'
-import EthAccount from './stores/eth-account'
+import EthAccountStore from './stores/eth-account'
+import WalletStore from './stores/wallet'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -21,7 +22,8 @@ const store = new Vuex.Store({
   actions: {},
   modules: {
     zkopru: ZkopruStore,
-    account: EthAccount,
+    account: EthAccountStore,
+    wallet: WalletStore,
   },
 })
 const router = new VueRouter({

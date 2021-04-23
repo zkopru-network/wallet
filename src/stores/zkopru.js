@@ -9,6 +9,7 @@ export default {
     proposalCount: 0,
     syncPercent: 0,
     status: 'on syncing',
+    syncing: false,
   },
   getters: {
     percent: state => {
@@ -27,6 +28,7 @@ export default {
         state.client = new Zkopru.Node({
           websocket: URL,
         })
+        state.syncing = true
         await state.client.start()
         state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))

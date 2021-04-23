@@ -10,7 +10,7 @@
     <div style="display: flex; align-items: center">
       <!-- progress bar and stuff -->
       <div style="color: white">
-        {{ syncStatus }}
+        {{ $store.state.zkopru.syncing ? syncStatus : 'Not synchronizing' }}
       </div>
       <ProgressBar :percent="$store.state.zkopru.syncPercent" :showPercent="true" style="width: 240px" />
     </div>

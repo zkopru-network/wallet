@@ -50,10 +50,6 @@ import Zkopru from '@zkopru/client/browser'
   },
 })
 export default class LoggedIn extends Vue {
-  async mounted() {
-    await this.$store.dispatch('startSync')
-  }
-
   createWallet() {
     const _privateKey = []
     for (let i = 0; i < 64; i++) {

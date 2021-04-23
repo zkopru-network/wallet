@@ -12,6 +12,11 @@
       <div class="horizontal-divider" />
     </div>
     <ZkopruBackground />
+    <StartSyncPopup
+      :visible="showingSyncPrompt"
+      :onCancel="() => showingSyncPrompt = false"
+      :startSync="startSync"
+    />
   </div>
 </template>
 
@@ -20,15 +25,28 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import Header from './components/Header'
 import ZkopruBackground from './components/ZkopruBackground'
+import Button from './components/Button'
+import StartSyncPopup from './components/StartSyncPopup'
 
 @Component({
   name: 'Wallet',
-  components: { Header, ZkopruBackground, },
+  components: { Header, ZkopruBackground, Button, StartSyncPopup, },
 })
 export default class Wallet extends Vue {
   address = '75a...987'
+  showingSyncPrompt = true
+  autosyncEnabled = true
+
   mounted() {
-    this.$store.dispatch('startSync')
+    if (this.$store.state.wallet.autosyncEnabled) {
+      this.showingSyncPrompt = false
+    }
+  }
+
+  async startSync() {
+    this.showingSyncPrompt = false
+    this.$store.state.wallet.autosyncEnabled = this.autosyncEnabled
+    await this.$store.dispatch('startSync')
   }
 }
 </script>
