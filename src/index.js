@@ -19,13 +19,17 @@ const store = new Vuex.Store({
   mutations: {
 
   },
-  actions: {},
+  actions: {
+    loadState: () => {},
+    saveState: () => {},
+  },
   modules: {
     zkopru: ZkopruStore,
     account: EthAccountStore,
     wallet: WalletStore,
   },
 })
+store.dispatch('loadState')
 const router = new VueRouter({
   mode: 'history',
   routes: [

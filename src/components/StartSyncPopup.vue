@@ -12,7 +12,12 @@
       Yes, sync now.
     </Button>
     <div spacer style="height: 64px" />
-    <Checkbox style="align-self: center" text="Allow future syncs to happen automatically." />
+    <Checkbox
+      style="align-self: center"
+      text="Allow future syncs to happen automatically."
+      v-model:checked="$store.state.wallet.autosyncEnabled"
+      :onChange="() => $store.dispatch('saveState')"
+    />
     <div spacer style="height: 16px" />
     <div class="popup-footer">
       Change your preferences at any time in settings.

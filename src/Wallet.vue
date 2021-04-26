@@ -34,18 +34,23 @@ import StartSyncPopup from './components/StartSyncPopup'
 })
 export default class Wallet extends Vue {
   address = '75a...987'
-  showingSyncPrompt = true
-  autosyncEnabled = true
+  showingSyncPrompt = false
 
-  mounted() {
-    if (this.$store.state.wallet.autosyncEnabled) {
-      this.showingSyncPrompt = false
+  async mounted() {
+    if (
+      !this.$store.state.wallet.autosyncEnabled ||
+      !this.$store.state.wallet.autosyncPromptShown
+    ) {
+      this.showingSyncPrompt = true
+    } else if (this.$store.state.wallet.autosyncEnabled) {
+      await this.$store.dispatch('startSync')
     }
   }
 
   async startSync() {
     this.showingSyncPrompt = false
-    this.$store.state.wallet.autosyncEnabled = this.autosyncEnabled
+    this.$store.state.wallet.autosyncPromptShown = true
+    this.$store.dispatch('saveState')
     await this.$store.dispatch('startSync')
   }
 }

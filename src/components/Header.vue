@@ -29,9 +29,6 @@ import ProgressBar from './ProgressBar'
 export default class Header extends Vue {
   syncStatus = 'Checking validity using L1Provider'
   mounted() {
-    setInterval( () => {
-    console.log(this.$store.getters)
-  }, 5000)
   }
 }
 </script>

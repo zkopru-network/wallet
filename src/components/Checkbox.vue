@@ -17,13 +17,16 @@ import Component from 'vue-class-component'
 
 @Component({
   name: 'Checkbox',
-  props: [ 'onChange', 'text', ]
+  props: [ 'text', 'checked', 'onChange', ],
+  model: {
+    prop: 'checked',
+    event: 'checkChanged',
+  }
 })
 export default class Checkbox extends Vue {
-  checked = false
   checkboxClicked(e) {
     e.stopPropagation()
-    this.checked = !this.checked
+    this.$emit('checkChanged', !this.checked)
     if (typeof this.onChange === 'function') {
       this.onChange()
     }
