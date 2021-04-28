@@ -10,6 +10,21 @@
         {{ address }}
       </div>
       <div class="horizontal-divider" />
+      <div style="display: flex">
+        <div style="display: flex; flex-direction: column">
+          <WalletHeader
+            v-model:mode="walletMode"
+          />
+          <div spacer style="height: 40px" />
+          <Deposit v-if="walletMode === 0" />
+          <Transfer v-if="walletMode === 1" />
+          <Withdraw v-if="walletMode === 2" />
+        </div>
+        <img
+          src="../assets/wallet_animation.png"
+          style="padding: 75px"
+        />
+      </div>
     </div>
     <ZkopruBackground />
     <StartSyncPopup
@@ -27,16 +42,27 @@ import Header from './components/Header'
 import ZkopruBackground from './components/ZkopruBackground'
 import Button from './components/Button'
 import StartSyncPopup from './components/StartSyncPopup'
+import WalletHeader from './components/WalletHeader'
+import Deposit from './components/Deposit'
 
 @Component({
   name: 'Wallet',
-  components: { Header, ZkopruBackground, Button, StartSyncPopup, },
+  components: {
+    Header,
+    ZkopruBackground,
+    Button,
+    StartSyncPopup,
+    WalletHeader,
+    Deposit,
+  },
 })
 export default class Wallet extends Vue {
   address = '75a...987'
   showingSyncPrompt = false
+  walletMode = 0
 
   async mounted() {
+    await this.$store.dispatch('connectMetamask')
     if (
       !this.$store.state.wallet.autosyncEnabled ||
       !this.$store.state.wallet.autosyncPromptShown
@@ -53,6 +79,7 @@ export default class Wallet extends Vue {
     this.$store.dispatch('saveState')
     await this.$store.dispatch('startSync')
   }
+
 }
 </script>
 
@@ -72,6 +99,8 @@ export default class Wallet extends Vue {
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+  align-self: center;
+
 }
 .wallet-title {
   color: white;
