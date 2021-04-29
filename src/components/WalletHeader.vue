@@ -1,11 +1,11 @@
 <template>
   <div class="wallet-header-container">
     <div class="balance-title">
-      1.06 ETH
+      {{ $store.state.account.balance === null ? '-' : $store.state.account.balance }} ETH
     </div>
     <div spacer style="height: 16px" />
     <div class="balance-subtitle">
-      $2,269.65 USD
+      $0 USD
     </div>
     <div spacer style="height: 16px" />
     <div class="button-container">

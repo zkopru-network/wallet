@@ -16,9 +16,9 @@
             v-model:mode="walletMode"
           />
           <div spacer style="height: 40px" />
-          <Deposit v-if="walletMode === 0" />
-          <Transfer v-if="walletMode === 1" />
-          <Withdraw v-if="walletMode === 2" />
+          <WalletDeposit v-if="walletMode === 0" />
+          <WalletTransfer v-if="walletMode === 1" />
+          <WalletWithdraw v-if="walletMode === 2" />
         </div>
         <img
           src="../assets/wallet_animation.png"
@@ -43,7 +43,9 @@ import ZkopruBackground from './components/ZkopruBackground'
 import Button from './components/Button'
 import StartSyncPopup from './components/StartSyncPopup'
 import WalletHeader from './components/WalletHeader'
-import Deposit from './components/Deposit'
+import WalletDeposit from './components/WalletDeposit'
+import WalletTransfer from './components/WalletTransfer'
+import WalletWithdraw from './components/WalletWithdraw'
 
 @Component({
   name: 'Wallet',
@@ -53,7 +55,9 @@ import Deposit from './components/Deposit'
     Button,
     StartSyncPopup,
     WalletHeader,
-    Deposit,
+    WalletDeposit,
+    WalletTransfer,
+    WalletWithdraw,
   },
 })
 export default class Wallet extends Vue {
@@ -100,7 +104,6 @@ export default class Wallet extends Vue {
   display: flex;
   flex-direction: column;
   align-self: center;
-
 }
 .wallet-title {
   color: white;

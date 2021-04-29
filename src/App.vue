@@ -33,6 +33,12 @@ export default class App extends Vue {}
   font-weight: 500;
   src: url('../assets/fonts/Inter-Medium.ttf');
 }
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  src: url('../assets/fonts/Inter-Light.ttf');
+}
 body {
   margin: 0px;
   background: #081B24;
