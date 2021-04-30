@@ -27,6 +27,9 @@ export default class DepositAmountPopup extends Vue {
 
   async commitDeposit() {
     try {
+      if (!this.$store.state.zkopru.wallet) {
+        await this.$store.dispatch('loadWallet')
+      }
       const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
         toWei(this.etherAmount),
         toWei('0.01'),
@@ -42,6 +45,7 @@ export default class DepositAmountPopup extends Vue {
         }]
       })
       await onComplete()
+      await this.$store.dispatch('loadL2Balance')
       this.onComplete()
     } catch (err) {
       console.log(err)

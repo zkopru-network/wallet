@@ -1,7 +1,7 @@
 <template>
   <div class="wallet-header-container">
     <div class="balance-title">
-      {{ $store.state.account.balance === null ? '-' : $store.state.account.balance }} ETH
+      {{ $store.state.zkopru.balance === null ? '-' : $store.state.zkopru.balance }} ETH
     </div>
     <div spacer style="height: 16px" />
     <div class="balance-subtitle">

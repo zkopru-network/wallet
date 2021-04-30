@@ -1,5 +1,6 @@
 import Zkopru from '@zkopru/client/browser'
 import { sha512_256 } from 'js-sha512'
+import { fromWei } from '../utils/wei'
 
 const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
 
@@ -14,6 +15,8 @@ export default {
     wallet: null,
     zkAddress: null,
     shortZkAddress: null,
+    lockedBalance: null,
+    balance: null,
   },
   getters: {
     percent: state => {
@@ -61,7 +64,7 @@ export default {
       state.latestBlock = latestBlock.canonicalNum
       state.syncPercent = 100 * state.latestBlock / state.proposalCount
     },
-    loadWallet: async ({ state, rootState, commit }) => {
+    loadWallet: async ({ state, rootState, commit, dispatch }) => {
       const msgParams = JSON.stringify({
         domain: {
           chainId: 5,
@@ -92,13 +95,27 @@ export default {
       )
       const { address } = state.wallet.wallet.account.zkAddress
       commit('setZkAddress', address)
+      await dispatch('loadL2Balance')
     },
-    depositEther: async ({ state, dispatch }, { weiAmount, weiFee }) => {
+    loadL2Balance: async ({ state }) => {
       if (!state.wallet) {
         await dispatch('loadWallet')
       }
-      const success = await state.wallet.wallet.depositEther(weiAmount, weiFee)
-      if (!success) throw new Error('Deposit failed')
+      const [
+        spendable,
+        locked,
+      ] = await Promise.all([
+        state.wallet.wallet.getSpendableAmount(),
+        state.wallet.wallet.getLockedAmount(),
+      ])
+      {
+        const { erc20, erc721, eth } = spendable
+        state.balance = fromWei(eth.toString())
+      }
+      {
+        const { erc20, erc721, eth } = locked
+        state.lockedBalance = fromWei(eth.toString())
+      }
     }
   },
 }
