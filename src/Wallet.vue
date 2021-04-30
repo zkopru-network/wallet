@@ -7,7 +7,7 @@
       </div>
       <div spacer style="height: 8px" />
       <div class="wallet-subtitle">
-        {{ address }}
+        {{ $store.state.zkopru.shortZkAddress }}
       </div>
       <div class="horizontal-divider" />
       <div style="display: flex">

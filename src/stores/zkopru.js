@@ -1,4 +1,5 @@
 import Zkopru from '@zkopru/client/browser'
+import { sha512_256 } from 'js-sha512'
 
 const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
 
@@ -10,6 +11,9 @@ export default {
     syncPercent: 0,
     status: 'on syncing',
     syncing: false,
+    wallet: null,
+    zkAddress: null,
+    shortZkAddress: null,
   },
   getters: {
     percent: state => {
@@ -19,7 +23,11 @@ export default {
     }
   },
   mutations: {
-
+    setZkAddress: (state, address) => {
+      state.zkAddress = address
+      const length = 7
+      state.shortZkAddress = `${address.slice(0, length)}...${address.slice(-1 * length)}`
+    }
   },
   actions: {
     startSync: async ({ state, dispatch }) => {
@@ -32,6 +40,7 @@ export default {
         await state.client.start()
         state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
+        await dispatch('loadWallet')
       }
     },
     updateStatus: async ({ state }) => {
@@ -51,6 +60,38 @@ export default {
       }
       state.latestBlock = latestBlock.canonicalNum
       state.syncPercent = 100 * state.latestBlock / state.proposalCount
-    }
+    },
+    loadWallet: async ({ state, rootState, commit }) => {
+      const msgParams = JSON.stringify({
+        domain: {
+          chainId: 5,
+          name: 'Zkopru Testnet',
+          version: '0',
+        },
+        message: {
+          info: 'Unlock Zkopru wallet',
+          warning: 'This signature is your private key, only sign on official Zkopru websites!',
+        },
+        primaryType: 'ZkopruKey',
+        types: {
+          ZkopruKey: [
+            { name: 'info', type: 'string', },
+            { name: 'warning', type: 'string', },
+          ]
+        }
+      })
+      const signedData = await window.ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [rootState.account.accounts[0], msgParams]
+      })
+      const key = sha512_256(signedData)
+      state.wallet = new Zkopru.Wallet(
+        state.client,
+        key,
+        'http://localhost:8888'
+      )
+      const { address } = state.wallet.wallet.account.zkAddress
+      commit('setZkAddress', address)
+    },
   },
 }

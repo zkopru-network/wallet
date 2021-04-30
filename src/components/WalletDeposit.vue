@@ -17,7 +17,7 @@
     </div>
     <div spacer style="height: 8px" />
     <div class="deposit-text">
-      75av86YRG34MG9297388723987
+      {{ $store.state.zkopru.shortZkAddress }}
     </div>
     <div spacer style="height: 32px" />
     <Button>
