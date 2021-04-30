@@ -3,7 +3,13 @@
     <div class="popup-title">
       Deposit Ether
     </div>
-    <input type="text" v-model="etherAmount" /> Ether
+    <div spacer style="height: 32px" />
+    <input type="text" v-model="etherAmount" /> <span style="color: white">Ether</span>
+    <div spacer style="height: 32px" />
+    <div style="color: white">
+      0.01 Ether will be used for the coordinator fee.
+    </div>
+    <div spacer style="height: 32px" />
     <Button :onClick="() => commitDeposit()">
       Send
     </Button>
