@@ -10,7 +10,7 @@ export default {
     latestBlock: 0,
     proposalCount: 0,
     syncPercent: 0,
-    status: 'on syncing',
+    status: 'Not synchronizing',
     syncing: false,
     wallet: null,
     zkAddress: null,
@@ -43,11 +43,17 @@ export default {
         await state.client.start()
         state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
+        state.client.node.blockProcessor.on('processed', async () => dispatch('updateStatus'))
         await dispatch('loadWallet')
       }
     },
-    updateStatus: async ({ state }) => {
-      state.status = state.client.node.synchronizer.status
+    updateStatus: async ({ state, dispatch }) => {
+      const { status } = state.client.node.synchronizer
+      if (status === 'on syncing') {
+        state.status = 'Checking validity using L1Provider'
+      } else if (status === 'fully synced') {
+        state.status = 'Fully synced'
+      }
       const highestProposal = await state.client.node.db.findOne('Proposal', {
         where: {},
         orderBy: { proposalNum: 'desc' },
@@ -62,7 +68,12 @@ export default {
         throw new Error('Latest block does not include canonical number')
       }
       state.latestBlock = latestBlock.canonicalNum
-      state.syncPercent = 100 * state.latestBlock / state.proposalCount
+      const newPercent = 100 * +state.latestBlock / +state.proposalCount
+      if (newPercent === 100 && state.syncPercent < 100) {
+        // load the l2 balance
+        dispatch('loadL2Balance')
+      }
+      state.syncPercent = newPercent
     },
     loadWallet: async ({ state, rootState, commit, dispatch }) => {
       const msgParams = JSON.stringify({
@@ -97,10 +108,7 @@ export default {
       commit('setZkAddress', address)
       await dispatch('loadL2Balance')
     },
-    loadL2Balance: async ({ state }) => {
-      if (!state.wallet) {
-        await dispatch('loadWallet')
-      }
+    loadL2Balance: async ({ state, dispatch }) => {
       const [
         spendable,
         locked,

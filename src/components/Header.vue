@@ -10,7 +10,7 @@
     <div style="display: flex; align-items: center">
       <!-- progress bar and stuff -->
       <div style="color: white">
-        {{ $store.state.zkopru.syncing ? syncStatus : 'Not synchronizing' }}
+        {{ $store.state.zkopru.syncing ? $store.state.zkopru.status : 'Not synchronizing' }}
       </div>
       <ProgressBar :percent="$store.state.zkopru.syncPercent" :showPercent="true" style="width: 240px" />
     </div>
@@ -26,11 +26,7 @@ import ProgressBar from './ProgressBar'
   name: 'Header',
   components: { ProgressBar, },
 })
-export default class Header extends Vue {
-  syncStatus = 'Checking validity using L1Provider'
-  mounted() {
-  }
-}
+export default class Header extends Vue {}
 </script>
 
 <style scoped>
