@@ -1,16 +1,4 @@
-import BN from 'bn.js'
-
-function fromWei(amount) {
-  let bnAmount
-  if (typeof amount === 'string' && amount.indexOf('0x') === 0) {
-    bnAmount = new BN(amount.slice(2), 16)
-  } else {
-    bnAmount = new BN(amount)
-  }
-  const finney = bnAmount.div(new BN(`${10 ** 15}`)).toString()
-  const ether = +finney / (10 ** 3)
-  return ether
-}
+import { fromWei } from '../utils/wei'
 
 export default {
   state: {

@@ -20,9 +20,14 @@
       {{ $store.state.zkopru.shortZkAddress }}
     </div>
     <div spacer style="height: 32px" />
-    <Button>
+    <Button :onClick="() => showDeposit()">
       Add
     </Button>
+    <DepositAmountPopup
+      :visible="showingDeposit"
+      :onCancel="() => showingDeposit = false"
+      :onComplete="() => showingDeposit = false"
+    />
   </div>
 </template>
 
@@ -30,12 +35,18 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Button from './Button'
+import DepositAmountPopup from './DepositAmountPopup'
 
 @Component({
   name: 'WalletDeposit',
-  components: { Button, },
+  components: { Button, DepositAmountPopup, },
 })
-export default class WalletDeposit extends Vue {}
+export default class WalletDeposit extends Vue {
+  showingDeposit = false
+  showDeposit() {
+    this.showingDeposit = true
+  }
+}
 </script>
 
 <style scoped>

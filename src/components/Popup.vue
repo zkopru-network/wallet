@@ -48,4 +48,21 @@ export default class Popup extends Vue {
   max-width: 575px;
   padding: 72px;
 }
+.popup-title {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+.popup-body {
+  font-size: 18px;
+  color: white;
+  text-align: center;
+}
+.popup-footer {
+  color: #95A7AE;
+  font-size: 16px;
+  text-align: center;
+}
 </style>

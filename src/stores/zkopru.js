@@ -93,5 +93,12 @@ export default {
       const { address } = state.wallet.wallet.account.zkAddress
       commit('setZkAddress', address)
     },
+    depositEther: async ({ state, dispatch }, { weiAmount, weiFee }) => {
+      if (!state.wallet) {
+        await dispatch('loadWallet')
+      }
+      const success = await state.wallet.wallet.depositEther(weiAmount, weiFee)
+      if (!success) throw new Error('Deposit failed')
+    }
   },
 }
