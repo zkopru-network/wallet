@@ -1,7 +1,7 @@
 <template>
   <Popup :visible="visible" :onCancel="onCancel" :onComplete="onComplete">
     <div class="popup-title">
-      Withdraw Ether
+      Transfer
     </div>
     <div spacer style="height: 32px" />
     <div>
@@ -10,15 +10,9 @@
     <div>
       <input type="text" v-model="gweiPerByte" /> <span style="color: white">Gwei per byte</span>
     </div>
-    <div>
-      <input type="text" v-model="prepayEtherFee" /> <span style="color: white">Prepay fee (Ether) (optional)</span>
-    </div>
     <div spacer style="height: 32px" />
-    <!-- <div style="color: white">
-      0.01 Ether will be used for the coordinator fee.
-    </div> -->
     <div spacer style="height: 32px" />
-    <Button :onClick="() => commitWithdraw()">
+    <Button :onClick="() => transfer()">
       Send
     </Button>
   </Popup>
@@ -32,26 +26,23 @@ import Button from './Button'
 import { toWei } from '../utils/wei'
 
 @Component({
-  name: 'WithdrawAmountPopup',
+  name: 'TransferAmountPopup',
   components: { Popup, Button, },
-  props: ['visible', 'onCancel', 'onComplete',],
+  props: [ 'visible', 'onCancel', 'onComplete', 'recipient' ],
 })
-export default class WithdrawAmountPopup extends Vue {
+export default class TransferAmountPopup extends Vue {
   etherAmount = ''
   gweiPerByte = '200'
-  prepayEtherFee = ''
-
-  async commitWithdraw() {
+  async transfer() {
     try {
       if (!this.$store.state.zkopru.wallet) {
         await this.$store.dispatch('loadWallet')
       }
       // generate an l2 tx
-      const tx = await this.$store.state.zkopru.wallet.generateWithdrawal(
-        this.$store.state.account.accounts[0],
+      const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
+        this.recipient,
         toWei(this.etherAmount),
-        (+this.gweiPerByte * (10 ** 9)).toString(),
-        toWei(this.prepayEtherFee || '0')
+        (+this.gweiPerByte * (10 ** 9)).toString()
       )
       await this.$store.state.zkopru.wallet.wallet.sendTx({ tx })
       await this.$store.dispatch('loadL2Balance')
