@@ -110,7 +110,7 @@ export default {
       state.wallet = new Zkopru.Wallet(
         state.client,
         key,
-        'http://localhost:8888'
+        'https://zkopru.goerli.rollupscan.io'
       )
       const { address } = state.wallet.wallet.account.zkAddress
       commit('setZkAddress', address)
