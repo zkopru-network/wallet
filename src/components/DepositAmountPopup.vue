@@ -44,7 +44,6 @@ export default class DepositAmountPopup extends Vue {
         method: 'eth_sendTransaction',
         params: [{
           data,
-          value,
           to,
           value,
           from: this.$store.state.account.accounts[0],

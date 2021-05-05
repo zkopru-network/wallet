@@ -20,6 +20,7 @@ export default {
       window.ethereum.removeAllListeners('accountsChanged')
       window.ethereum.on('chainChanged', (chainId) => {
         state.chainId = chainId
+        dispatch('reloadState')
       })
       window.ethereum.on('connect', () => {
         state.metamaskConnected = window.ethereum.isConnected()
@@ -29,11 +30,19 @@ export default {
       })
       window.ethereum.on('accountsChanged', (accounts) => {
         state.accounts = accounts
+        dispatch('reloadState')
       })
       state.accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       })
       await dispatch('loadBalance')
+    },
+    reloadState: async ({ state, dispatch }) => {
+      await Promise.all([
+        dispatch('loadBalance'),
+        // reset the zkopru wallet state
+        dispatch('resetWallet', null, { root: true }),
+      ])
     },
     loadBalance: async ({ state }) => {
       const hexBalance = await window.ethereum.request({

@@ -47,6 +47,14 @@ export default {
         await dispatch('loadWallet')
       }
     },
+    resetWallet: async ({ state, dispatch }) => {
+      state.wallet = null
+      state.zkAddress = null
+      state.shortZkAddress = null
+      state.lockedBalance = null
+      state.balance = null
+      await dispatch('loadWallet').catch(console.log)
+    },
     updateStatus: async ({ state, dispatch }) => {
       const { status } = state.client.node.synchronizer
       if (status === 'on syncing') {
