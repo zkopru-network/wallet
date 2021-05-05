@@ -7,7 +7,9 @@
       </div>
       <div spacer style="height: 8px" />
       <div class="wallet-subtitle">
-        {{ $store.state.zkopru.shortZkAddress }}
+        <Copyable :fullText="$store.state.zkopru.zkAddress">
+          {{ $store.state.zkopru.shortZkAddress }}
+        </Copyable>
       </div>
       <div class="horizontal-divider" />
       <div style="display: flex">
@@ -46,6 +48,7 @@ import WalletHeader from './components/WalletHeader'
 import WalletDeposit from './components/WalletDeposit'
 import WalletTransfer from './components/WalletTransfer'
 import WalletWithdraw from './components/WalletWithdraw'
+import Copyable from './components/Copyable'
 
 @Component({
   name: 'Wallet',
@@ -58,6 +61,7 @@ import WalletWithdraw from './components/WalletWithdraw'
     WalletDeposit,
     WalletTransfer,
     WalletWithdraw,
+    Copyable,
   },
 })
 export default class Wallet extends Vue {
