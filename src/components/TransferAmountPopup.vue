@@ -32,7 +32,7 @@ import { toWei } from '../utils/wei'
 })
 export default class TransferAmountPopup extends Vue {
   etherAmount = ''
-  gweiPerByte = '200'
+  gweiPerByte = '2000'
   async transfer() {
     try {
       if (!this.$store.state.zkopru.wallet) {
