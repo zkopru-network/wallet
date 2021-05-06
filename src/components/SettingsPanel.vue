@@ -39,6 +39,10 @@
             :onChange="() => $store.dispatch('saveState')"
           />
         </div>
+        <div spacer style="flex: 1" />
+        <div class="build-number">
+          build {{ currentbuild }}
+        </div>
       </div>
     </transition>
   </div>
@@ -48,6 +52,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Checkbox from './Checkbox'
+import buildnum from '../buildnum'
 
 @Component({
   name: 'SettingsPanel',
@@ -55,6 +60,8 @@ import Checkbox from './Checkbox'
   props: [ 'onClose', 'visible', ],
 })
 export default class SettingsPanel extends Vue {
+  currentbuild = buildnum
+
   _onClose() {
     if (typeof this.onClose === 'function') {
       this.onClose()
@@ -73,6 +80,8 @@ export default class SettingsPanel extends Vue {
   background-color: #081B24;
   padding: 16px;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
 }
 .settings-header-text {
   font-size: 32px;
@@ -99,6 +108,10 @@ export default class SettingsPanel extends Vue {
   font-size: 18px;
   max-width: 100%;
   word-break: break-all;
+}
+.build-number {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
 }
 .horizontal-divider {
   height: 1px;

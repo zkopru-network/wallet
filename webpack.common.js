@@ -1,8 +1,9 @@
 const { VueLoaderPlugin } = require('vue-loader')
-const wbepack = require('webpack')
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')
 const path = require('path')
+const { exec } = require('child_process')
 
 module.exports = {
   entry: ['./src/index.js'],
@@ -44,6 +45,16 @@ module.exports = {
     ]
   },
   plugins: [
+    {
+      apply: (compiler) => compiler.hooks.watchRun.tapAsync('watchRun', (params, cb) => {
+        exec('npm run buildnum', (err, stdout, stderr) => {
+          if (stdout) process.stdout.write(stdout)
+          if (stderr) process.stderr.write(stderr)
+          cb()
+        })
+      })
+    },
+    new webpack.WatchIgnorePlugin([path.join(__dirname, 'src/buildnum.js')]),
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
       template: 'static/index.ejs',
