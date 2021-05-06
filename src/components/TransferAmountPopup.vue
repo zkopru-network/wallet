@@ -44,7 +44,10 @@ export default class TransferAmountPopup extends Vue {
         toWei(this.etherAmount),
         (+this.gweiPerByte * (10 ** 9)).toString()
       )
-      await this.$store.state.zkopru.wallet.wallet.sendTx({ tx })
+      await this.$store.state.zkopru.wallet.wallet.sendTx({
+        tx,
+        encryptTo: this.recipient,
+      })
       await this.$store.dispatch('loadL2Balance')
       this.onComplete()
     } catch (err) {
