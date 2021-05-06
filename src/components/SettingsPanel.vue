@@ -25,7 +25,7 @@
         </div>
         <div spacer style="height: 26px" />
         <div class="settings-account-address">
-          {{ $store.state.zkopru.zkAddress }}
+          {{ $store.state.zkopru.zkAddress || 'No address authenticated' }}
         </div>
         <div spacer style="height: 18px" />
         <div class="horizontal-divider" />
@@ -72,6 +72,7 @@ export default class SettingsPanel extends Vue {
   bottom: 0px;
   background-color: #081B24;
   padding: 16px;
+  z-index: 10;
 }
 .settings-header-text {
   font-size: 32px;
@@ -91,6 +92,7 @@ export default class SettingsPanel extends Vue {
   right: 0px;
   bottom: 0px;
   top: 0px;
+  z-index: 10;
 }
 .settings-account-address {
   color: white;
