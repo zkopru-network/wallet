@@ -17,6 +17,8 @@
             style="cursor: pointer"
             src="../../assets/close-settings.svg"
             v-on:click="_onClose"
+            width="20px"
+            height="auto"
           />
         </div>
         <div spacer style="height: 26px" />
@@ -39,6 +41,14 @@
             :onChange="() => $store.dispatch('saveState')"
           />
         </div>
+        <div spacer style="height: 24px" />
+        <Button :onClick="() => showingClearDataPopup = true">
+          Clear Data
+        </Button>
+        <ClearDataPopup
+          :visible="showingClearDataPopup"
+          :onCancel="() => showingClearDataPopup = false"
+        />
         <div spacer style="flex: 1" />
         <div class="build-number">
           build {{ currentbuild }}
@@ -52,15 +62,18 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Checkbox from './Checkbox'
+import Button from './Button'
+import ClearDataPopup from './ClearDataPopup'
 import buildnum from '../buildnum'
 
 @Component({
   name: 'SettingsPanel',
-  components: { Checkbox, },
+  components: { Checkbox, Button, ClearDataPopup, },
   props: [ 'onClose', 'visible', ],
 })
 export default class SettingsPanel extends Vue {
   currentbuild = buildnum
+  showingClearDataPopup = false
 
   _onClose() {
     if (typeof this.onClose === 'function') {

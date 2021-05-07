@@ -132,6 +132,22 @@ export default {
         const { erc20, erc721, eth } = locked
         state.lockedBalance = fromWei(eth.toString())
       }
+    },
+    resetDB: async ({ state, dispatch }) => {
+      // take the db and empty it
+      if (!state.client) {
+        state.client = new Zkopru.Node({
+          websocket: URL,
+        })
+      }
+      await state.client.stop()
+      await state.client.resetDB()
+      state.syncing = false
+      state.latestBlock = 0
+      state.proposalCount = 0
+      state.syncPercent = 0
+      state.status = 'Not synchronizing'
+      window.location.reload(false)
     }
   },
 }
