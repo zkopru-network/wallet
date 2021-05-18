@@ -9,6 +9,7 @@ export default {
     client: null,
     latestBlock: 0,
     proposalCount: 0,
+    uncleCount: 0,
     syncPercent: 0,
     status: 'Not synchronizing',
     syncing: false,
@@ -66,7 +67,11 @@ export default {
         where: {},
         orderBy: { proposalNum: 'desc' },
       })
+      const uncleCount = await state.client.node.db.count('Proposal', {
+        isUncle: true,
+      })
       state.proposalCount = highestProposal.proposalNum
+      state.uncleCount = uncleCount
       const latestBlockHash = await state.client.node.layer2.latestBlock()
       const latestBlock = await state.client.node.layer2.getProposal(
         latestBlockHash,
@@ -76,7 +81,7 @@ export default {
         throw new Error('Latest block does not include canonical number')
       }
       state.latestBlock = latestBlock.canonicalNum
-      const newPercent = 100 * +state.latestBlock / +state.proposalCount
+      const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount)
       if (newPercent === 100 && state.syncPercent < 100) {
         // load the l2 balance
         dispatch('loadL2Balance')
