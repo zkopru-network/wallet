@@ -1,8 +1,11 @@
 <template>
   <div class="outer-container">
     <div class="button-container" v-on:click="_onClick()">
-      <div class="button-text">
+      <div v-if="!loading" class="button-text">
         <slot></slot>
+      </div>
+      <div v-if="loading" class="button-text">
+        {{ loadingText || 'Loading...' }}
       </div>
     </div>
   </div>
@@ -14,13 +17,22 @@ import Component from 'vue-class-component'
 
 @Component({
   name: 'Button',
-  props: [ 'onClick', ],
+  props: [ 'onClick', 'loadingText' ],
 })
 export default class Button extends Vue {
-  _onClick() {
+  loading = false
+  async _onClick() {
     if (this.onClick) {
       // execute
-      this.onClick()
+      if (this.loading) return
+      try {
+        this.loading = true
+        await this.onClick()
+        this.loading = false
+      } catch (err) {
+        this.loading = false
+        throw err
+      }
     }
   }
 }
