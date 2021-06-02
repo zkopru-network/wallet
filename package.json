@@ -8,7 +8,6 @@
     "dev": "webpack-dev-server",
     "buildnum": "node scripts/buildversion",
     "build": "webpack --config webpack.prod.js --progress",
-    "build:server": "npm run build && webpack --config webpack.server.js --progress",
     "server": "node server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
