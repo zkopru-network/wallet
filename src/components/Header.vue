@@ -1,13 +1,7 @@
 <template>
   <div class="header-container">
-    <div style="display: flex; align-items: center">
-      <div class="header-title-text">
-        zkopru wallet
-      </div>
-      <div spacer style="width: 17px" />
-      <div class="clickable" v-on:click="showSettings">
-        <img src="../../assets/settings_cog.svg" />
-      </div>
+    <div class="header-text">
+      Zkopru Wallet
     </div>
     <div style="display: flex; align-items: center">
       <!-- progress bar and stuff -->
@@ -15,6 +9,13 @@
         {{ $store.state.zkopru.syncing ? $store.state.zkopru.status : 'Not synchronizing' }}
       </div>
       <ProgressBar :percent="$store.state.zkopru.syncPercent" :showPercent="true" style="width: 240px" />
+    </div>
+    <div
+      class="header-text"
+      style="cursor: pointer"
+      v-on:click="showingSettings = true"
+    >
+      Settings
     </div>
     <SettingsPanel
       :visible="showingSettings"
@@ -47,10 +48,9 @@ export default class Header extends Vue {
   justify-content: space-between;
   padding: 24px;
 }
-.header-title-text {
-  font-weight: bold;
-  font-size: 32px;
-  color: #D0FFF7;
+.header-text {
+  font-size: 16px;
+  color: #FFF;
 }
 .clickable {
   cursor: pointer;

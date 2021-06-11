@@ -1,40 +1,42 @@
 <template>
-  <div class="container">
-    <Header />
-    <div class="wallet-body">
-      <div class="wallet-title">
-        Account
-      </div>
-      <div spacer style="height: 8px" />
-      <div class="wallet-subtitle">
-        <Copyable :fullText="$store.state.zkopru.zkAddress">
-          {{ $store.state.zkopru.shortZkAddress }}
-        </Copyable>
-      </div>
-      <div class="horizontal-divider" />
-      <div style="display: flex">
-        <div style="display: flex; flex-direction: column">
-          <WalletHeader
-            v-model:mode="walletMode"
-          />
-          <div spacer style="height: 40px" />
-          <WalletDeposit v-if="walletMode === 0" />
-          <WalletTransfer v-if="walletMode === 1" />
-          <WalletWithdraw v-if="walletMode === 2" />
+  <BlurOverlay :blurred="!$store.state.zkopru.wallet">
+    <div class="container">
+      <Header />
+      <div class="wallet-body">
+        <div class="wallet-title">
+          Account
         </div>
-        <img
-          src="../assets/wallet_animation.png"
-          style="padding: 75px"
-        />
+        <div spacer style="height: 8px" />
+        <div class="wallet-subtitle">
+          <Copyable :fullText="$store.state.zkopru.zkAddress">
+            {{ $store.state.zkopru.shortZkAddress }}
+          </Copyable>
+        </div>
+        <div class="horizontal-divider" />
+        <div style="display: flex">
+          <div style="display: flex; flex-direction: column">
+            <WalletHeader
+              v-model:mode="walletMode"
+            />
+            <div spacer style="height: 40px" />
+            <WalletDeposit v-if="walletMode === 0" />
+            <WalletTransfer v-if="walletMode === 1" />
+            <WalletWithdraw v-if="walletMode === 2" />
+          </div>
+          <img
+            src="../assets/wallet_animation.png"
+            style="padding: 75px"
+          />
+        </div>
       </div>
+      <ZkopruBackground />
+      <StartSyncPopup
+        :visible="showingSyncPrompt"
+        :onCancel="() => showingSyncPrompt = false"
+        :startSync="startSync"
+      />
     </div>
-    <ZkopruBackground />
-    <StartSyncPopup
-      :visible="showingSyncPrompt"
-      :onCancel="() => showingSyncPrompt = false"
-      :startSync="startSync"
-    />
-  </div>
+  </BlurOverlay>
 </template>
 
 <script>
@@ -49,6 +51,7 @@ import WalletDeposit from './components/WalletDeposit'
 import WalletTransfer from './components/WalletTransfer'
 import WalletWithdraw from './components/WalletWithdraw'
 import Copyable from './components/Copyable'
+import BlurOverlay from './components/BlurOverlay'
 
 @Component({
   name: 'Wallet',
@@ -62,6 +65,7 @@ import Copyable from './components/Copyable'
     WalletTransfer,
     WalletWithdraw,
     Copyable,
+    BlurOverlay,
   },
 })
 export default class Wallet extends Vue {
