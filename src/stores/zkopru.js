@@ -43,6 +43,7 @@ export default {
           websocket: URL,
         })
         state.syncing = true
+        state.status = 'Preparing to synchronize'
         await state.client.start()
         state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
@@ -119,7 +120,7 @@ export default {
       state.walletKey = sha512_256(signedData)
       return state.walletKey
     },
-    loadWallet: async ({ state, rootState, commit, dispatch }) => {
+    loadWallet: async ({ state, commit, dispatch }) => {
       const key = await dispatch('loadWalletKey')
       state.wallet = new Zkopru.Wallet(
         state.client,
