@@ -26,11 +26,16 @@ import Component from 'vue-class-component'
 @Component({
   name: 'SwitchSelector',
   props: ['options', 'onChange']
+  model: {
+    prop: 'selected',
+    event: 'selectionChanged',
+  }
 })
 export default class SwitchSelector extends Vue {
   selectedOption = 0
   selectOption(index) {
     this.selectedOption = index
+    this.$emit('selectionChanged', this.selectedOption)
     if (typeof this.onChange === 'function') {
       this.onChange(index)
     }

@@ -64,6 +64,7 @@
             inactiveImage: require('../assets/sort_grid_black.svg'),
           }
         ]"
+        v-model="displayMode"
       />
       <div spacer style="width: 16px" />
       <Button>
@@ -104,6 +105,7 @@ export default class Wallet extends Vue {
   allAssets = ['CRO', 'USDC', 'UNI', 'AAVE', 'LINK', 'ZRX']
   filteredAssets = [...this.allAssets]
   filterText = ''
+  displayMode = 1
 
   async mounted() {
     await this.$store.dispatch('connectMetamask')
