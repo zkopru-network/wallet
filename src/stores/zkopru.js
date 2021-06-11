@@ -124,8 +124,7 @@ export default {
       const key = await dispatch('loadWalletKey')
       state.wallet = new Zkopru.Wallet(
         state.client,
-        key,
-        'https://zkopru.goerli.rollupscan.io'
+        key
       )
       const { address } = state.wallet.wallet.account.zkAddress
       commit('setZkAddress', address)
