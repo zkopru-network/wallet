@@ -35,7 +35,7 @@ export default {
       state.accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       })
-      await dispatch('loadBalance')
+      dispatch('loadBalance').catch(console.log)
     },
     reloadState: async ({ state, dispatch }) => {
       await Promise.all([

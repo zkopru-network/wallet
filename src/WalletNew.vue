@@ -1,5 +1,5 @@
 <template>
-  <BlurOverlay :blurred="!$store.state.zkopru.wallet">
+  <BlurOverlay :blurred="!$store.state.zkopru.walletKey">
     <div class="container">
       <Header />
       <div spacer style="height: 90px" />

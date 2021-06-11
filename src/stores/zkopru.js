@@ -14,6 +14,7 @@ export default {
     status: 'Not synchronizing',
     syncing: false,
     wallet: null,
+    walletKey: null,
     zkAddress: null,
     shortZkAddress: null,
     lockedBalance: null,
@@ -36,6 +37,7 @@ export default {
   actions: {
     startSync: async ({ state, dispatch }) => {
       if (!state.client) {
+        await dispatch('loadWalletKey')
         // initialize the client if it doesn't already exist
         state.client = new Zkopru.Node({
           websocket: URL,
@@ -88,7 +90,10 @@ export default {
       }
       state.syncPercent = newPercent
     },
-    loadWallet: async ({ state, rootState, commit, dispatch }) => {
+    loadWalletKey: async ({ state, rootState }) => {
+      if (state.walletKey) {
+        return state.walletKey
+      }
       const msgParams = JSON.stringify({
         domain: {
           chainId: 5,
@@ -111,7 +116,11 @@ export default {
         method: 'eth_signTypedData_v4',
         params: [rootState.account.accounts[0], msgParams]
       })
-      const key = sha512_256(signedData)
+      state.walletKey = sha512_256(signedData)
+      return state.walletKey
+    },
+    loadWallet: async ({ state, rootState, commit, dispatch }) => {
+      const key = await dispatch('loadWalletKey')
       state.wallet = new Zkopru.Wallet(
         state.client,
         key,
