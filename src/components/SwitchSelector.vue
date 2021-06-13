@@ -9,11 +9,12 @@
         <span v-if="typeof option === 'string' || option && option.text" style="margin-right: 10px">
           {{ typeof option === 'string' ? option : option.text }}
         </span>
-        <img
-          v-if="typeof option === 'object' && option.activeImage && option.inactiveImage"
-          :src="index === selectedOption ? option.activeImage : option.inactiveImage"
+        <ColorImage
+          v-if="typeof option === 'object' && option.image || (option.activeImage && option.inactiveImage)"
+          :src="option.image || (index === selectedOption ? option.activeImage : option.inactiveImage)"
           :width="option.imageWidth || 'auto'"
           :height="option.imageHeight || 'auto'"
+          :color="option.color || index === selectedOption ? option.activeColor : option.inactiveColor"
         />
       </div>
     </div>
@@ -22,9 +23,11 @@
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import ColorImage from './ColorImage'
 
 @Component({
   name: 'SwitchSelector',
+  components: { ColorImage, },
   props: {
     options: {
       type: Array,

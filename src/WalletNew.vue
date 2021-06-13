@@ -10,13 +10,15 @@
             :options="[
               {
                 text: 'Tokens',
-                activeImage: require('../assets/shield_black.svg'),
-                inactiveImage: require('../assets/shield_white.svg'),
+                image: require('../assets/shield_black.svg'),
+                activeColor: 'black',
+                inactiveColor: 'white',
               },
               {
                 text: 'NFTs',
-                activeImage: require('../assets/shield_black.svg'),
-                inactiveImage: require('../assets/shield_white.svg'),
+                image: require('../assets/shield_black.svg'),
+                activeColor: 'black',
+                inactiveColor: 'white',
               },
             ]"
             v-model="assetType"
@@ -59,12 +61,14 @@
           <SwitchSelector
             :options="[
               {
-                activeImage: require('../assets/sort_row_white.svg'),
-                inactiveImage: require('../assets/sort_row_white.svg'),
+                image: require('../assets/sort_row_white.svg'),
+                activeColor: 'black',
+                inactiveColor: 'white',
               },
               {
-                activeImage: require('../assets/sort_grid_black.svg'),
-                inactiveImage: require('../assets/sort_grid_black.svg'),
+                image: require('../assets/sort_grid_black.svg'),
+                activeColor: 'black',
+                inactiveColor: 'white',
               }
             ]"
             v-model="displayMode"

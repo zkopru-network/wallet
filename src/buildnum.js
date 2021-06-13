@@ -1,1 +1,1 @@
-export default 502
+export default 588
