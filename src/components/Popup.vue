@@ -43,10 +43,13 @@ export default class Popup extends Vue {
   align-items: center;
 }
 .popup-container {
-  background-color: #081824;
+  background-color: #0E2936;
   border: 1px solid #5D7078;
+  border-radius: 8px;
   max-width: 575px;
-  padding: 72px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
 }
 .popup-title {
   color: white;

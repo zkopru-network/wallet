@@ -30,7 +30,7 @@
               <img :src="require('../assets/shield_black.svg')" />
             </Button>
             <div spacer style="width: 23px" />
-            <Button buttonStyle="background: #fff; color: black">
+            <Button buttonStyle="background: #fff; color: black" :onClick="() => showingAddressPopup = true">
               <span>Receive</span>
               <div spacer style="width: 10px" />
               <img :src="require('../assets/shield_black.svg')" />
@@ -55,7 +55,12 @@
               class="search-text-input"
               v-model="filterText"
             />
-            <img style="position: absolute; left: 7px; top: 13px" :src="require('../assets/search_icon.svg')" />
+            <img
+              style="position: absolute; left: 7px; top: 10px"
+              :src="require('../assets/search_icon.svg')"
+              height="25px"
+              width="25px"
+            />
           </div>
           <div spacer style="width: 16px" />
           <SwitchSelector
@@ -96,6 +101,10 @@
       :onCancel="() => showingSyncPrompt = false"
       :startSync="startSync"
     />
+    <AddressPopup
+      :visible="showingAddressPopup"
+      :onCancel="() => showingAddressPopup = false"
+    />
   </div>
 </template>
 <script>
@@ -108,10 +117,11 @@ import AssetCell from './components/AssetCell'
 import BlurOverlay from './components/BlurOverlay'
 import StartSyncPopup from './components/StartSyncPopup'
 import ZkopruBackground from './components/ZkopruBackground'
+import AddressPopup from './components/AddressPopup'
 
 @Component({
   name: 'Wallet',
-  components: { Header, SwitchSelector, Button, AssetCell, BlurOverlay, StartSyncPopup, ZkopruBackground, },
+  components: { Header, SwitchSelector, Button, AssetCell, BlurOverlay, StartSyncPopup, ZkopruBackground, AddressPopup, },
   watch: {
     filterText: function() {
       this.filter()
@@ -120,6 +130,7 @@ import ZkopruBackground from './components/ZkopruBackground'
 })
 export default class Wallet extends Vue {
   showingSyncPrompt = false
+  showingAddressPopup = false
   allAssets = ['CRO', 'USDC', 'UNI', 'AAVE', 'LINK', 'ZRX']
   filteredAssets = [...this.allAssets]
   filterText = ''
@@ -164,7 +175,7 @@ export default class Wallet extends Vue {
   border-radius: 4px;
   border: 0px solid white;
   color: white;
-  font-size: 45px;
+  font-size: 38px;
   text-indent: 39px;
   flex: 1;
 }

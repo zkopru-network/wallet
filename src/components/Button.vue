@@ -47,7 +47,7 @@ export default class Button extends Vue {
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
   color: #EDF2F2;
-  padding: 16px 32px;
+  padding: 12px 32px;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -63,7 +63,7 @@ export default class SwitchSelector extends Vue {
 .select-element {
   background-color: #0e2936;
   border-radius: 4px;
-  padding: 16px 32px;
+  padding: 12px 32px;
   font-weight: bold;
   color: #edf2f2;
   font-size: 24px;
