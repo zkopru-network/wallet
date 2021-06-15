@@ -24,7 +24,7 @@
             v-model="assetType"
           />
           <div style="display: flex">
-            <Button buttonStyle="background: #fff; color: black">
+            <Button buttonStyle="background: #fff; color: black" :onClick="() => $router.push({ path: '/wallet/transfer' })">
               <span>Send</span>
               <div spacer style="width: 10px" />
               <img :src="require('../assets/shield_black.svg')" />

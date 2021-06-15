@@ -1,6 +1,11 @@
 <template>
   <div class="header-container">
-    <div class="header-text">
+    <div v-if="!showBackButton" class="header-text">
+      Zkopru Wallet
+    </div>
+    <div v-if="showBackButton" class="header-text back" v-on:click="prevPath && $router.push({ path: prevPath })">
+      <img :src="require('../../assets/back_arrows.svg')" />
+      <div spacer style="width: 10px" />
       Zkopru Wallet
     </div>
     <div style="display: flex; align-items: center">
@@ -33,6 +38,7 @@ import SettingsPanel from './SettingsPanel'
 @Component({
   name: 'Header',
   components: { ProgressBar, SettingsPanel, },
+  props: ['showBackButton', 'prevPath'],
 })
 export default class Header extends Vue {
   showingSettings = false
@@ -51,6 +57,11 @@ export default class Header extends Vue {
 .header-text {
   font-size: 16px;
   color: #FFF;
+  display: flex;
+  align-items: center;
+}
+.header-text.back {
+  cursor: pointer;
 }
 .clickable {
   cursor: pointer;
