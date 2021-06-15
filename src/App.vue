@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <router-view />
+    <BlurOverlay :blurred="!$store.state.zkopru.walletKey">
+      <router-view />
+    </BlurOverlay>
     <StartSyncPopup
       :visible="showingSyncPrompt"
       :onCancel="() => showingSyncPrompt = false"
@@ -13,10 +15,11 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import StartSyncPopup from './components/StartSyncPopup'
+import BlurOverlay from './components/BlurOverlay'
 
 @Component({
   name: 'App',
-  components: { StartSyncPopup, },
+  components: { StartSyncPopup, BlurOverlay, },
 })
 export default class App extends Vue {
   showingSyncPrompt = false

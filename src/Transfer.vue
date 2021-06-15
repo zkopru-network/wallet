@@ -3,7 +3,7 @@
     <Header showBackButton=true prevPath="/wallet" />
     <div spacer style="height: 44px" />
     <AssetDropdown />
-    <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center">
+    <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center; font-size: 12px">
       <div style="flex: 1; max-width: 462px">
         <div spacer style="height: 55px" />
         <div>
@@ -73,6 +73,5 @@ export default class Transfer extends Vue {
   padding-left: 8px;
   padding-right: 8px;
   color: #95A7AE;
-  font-size: 12px;
 }
 </style>
