@@ -1,17 +1,45 @@
 <template>
   <div id="app">
     <router-view />
+    <StartSyncPopup
+      :visible="showingSyncPrompt"
+      :onCancel="() => showingSyncPrompt = false"
+      :startSync="startSync"
+    />
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import StartSyncPopup from './components/StartSyncPopup'
 
 @Component({
   name: 'App',
+  components: { StartSyncPopup, },
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+  showingSyncPrompt = false
+
+  async mounted() {
+    await this.$store.dispatch('connectMetamask')
+    if (
+      !this.$store.state.wallet.autosyncEnabled ||
+      !this.$store.state.wallet.autosyncPromptShown
+    ) {
+      this.showingSyncPrompt = true
+    } else if (this.$store.state.wallet.autosyncEnabled) {
+      await this.$store.dispatch('startSync')
+    }
+  }
+
+  async startSync() {
+    this.showingSyncPrompt = false
+    this.$store.state.wallet.autosyncPromptShown = true
+    this.$store.dispatch('saveState')
+    await this.$store.dispatch('startSync')
+  }
+}
 </script>
 
 <style>

@@ -96,11 +96,6 @@
         </div>
       </div>
     </BlurOverlay>
-    <StartSyncPopup
-      :visible="showingSyncPrompt"
-      :onCancel="() => showingSyncPrompt = false"
-      :startSync="startSync"
-    />
     <AddressPopup
       :visible="showingAddressPopup"
       :onCancel="() => showingAddressPopup = false"
@@ -115,13 +110,12 @@ import SwitchSelector from './components/SwitchSelector'
 import Button from './components/Button'
 import AssetCell from './components/AssetCell'
 import BlurOverlay from './components/BlurOverlay'
-import StartSyncPopup from './components/StartSyncPopup'
 import ZkopruBackground from './components/ZkopruBackground'
 import AddressPopup from './components/AddressPopup'
 
 @Component({
   name: 'Wallet',
-  components: { Header, SwitchSelector, Button, AssetCell, BlurOverlay, StartSyncPopup, ZkopruBackground, AddressPopup, },
+  components: { Header, SwitchSelector, Button, AssetCell, BlurOverlay, ZkopruBackground, AddressPopup, },
   watch: {
     filterText: function() {
       this.filter()
@@ -129,32 +123,12 @@ import AddressPopup from './components/AddressPopup'
   }
 })
 export default class Wallet extends Vue {
-  showingSyncPrompt = false
   showingAddressPopup = false
   allAssets = ['CRO', 'USDC', 'UNI', 'AAVE', 'LINK', 'ZRX']
   filteredAssets = [...this.allAssets]
   filterText = ''
   displayMode = 1
   assetType = 0
-
-  async mounted() {
-    await this.$store.dispatch('connectMetamask')
-    if (
-      !this.$store.state.wallet.autosyncEnabled ||
-      !this.$store.state.wallet.autosyncPromptShown
-    ) {
-      this.showingSyncPrompt = true
-    } else if (this.$store.state.wallet.autosyncEnabled) {
-      await this.$store.dispatch('startSync')
-    }
-  }
-
-  async startSync() {
-    this.showingSyncPrompt = false
-    this.$store.state.wallet.autosyncPromptShown = true
-    this.$store.dispatch('saveState')
-    await this.$store.dispatch('startSync')
-  }
 
   filter() {
     this.filteredAssets = this.allAssets.filter((symbol) => {
