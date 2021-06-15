@@ -7,10 +7,10 @@
     </div>
     <div style="display: flex; align-items: center; justify-content: center;">
       <img
-        :src="require(`../../assets/token_icons/${(symbol || 'eth').toLowerCase()}.svg`)"
+        :src="require(`../../assets/token_icons/${(symbol || 'eth').toUpperCase()}.svg`)"
         width="93px"
         height="93px"
-        style="background-color: white;border-radius: 50%; object-fit: contain"
+        style="background-color: white; border-radius: 50%; object-fit: contain; border: 1px solid black"
       />
     </div>
     <div spacer style="height: 23px" />
