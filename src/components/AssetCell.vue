@@ -1,7 +1,7 @@
 <template>
   <div class="cell-container">
     <div style="display: flex; justify-content: flex-end">
-      <div style="cursor: pointer">
+      <div style="cursor: pointer" v-on:click="transfer">
         <img :src="require('../../assets/top_up.svg')" />
       </div>
     </div>
@@ -44,7 +44,11 @@ import Button from './Button'
   props: ['symbol'],
   components: { Button, },
 })
-export default class AssetCell extends Vue {}
+export default class AssetCell extends Vue {
+  transfer() {
+    this.$router.push({ path: `/wallet/transfer?asset=${this.symbol}` })
+  }
+}
 </script>
 <style scoped>
 .cell-container {

@@ -94,6 +94,12 @@ export default class AssetDropdown extends Vue {
   activeAsset = this.assets[0]
   highlightedAsset = ''
 
+  mounted() {
+    if (this.$route.query.asset) {
+      this.activeAsset = this.$route.query.asset.toUpperCase()
+    }
+  }
+
   filterAssets() {
     this.filteredAssets = this.assets.filter(name => {
       return name.toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1
