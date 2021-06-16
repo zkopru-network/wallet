@@ -104,7 +104,7 @@ export default class AssetDropdown extends Vue {
     this.dropdownVisible = !this.dropdownVisible
     if (this.dropdownVisible) {
       this.searchText = ''
-      this.activeAsset = this.assets[0]
+      this.highlightedAsset = ''
       Vue.nextTick(() => this.$refs.search.focus())
     }
   }
