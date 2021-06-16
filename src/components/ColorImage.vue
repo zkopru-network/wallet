@@ -4,6 +4,7 @@
     :style="`
       mask-image: url(${src});
       mask-repeat: no-repeat;
+      mask-size: contain;
       background-color: ${color || 'white'};
       width: ${calculatedWidth};
       height: ${calculatedHeight};
