@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <BlurOverlay :blurred="!$store.state.zkopru.walletKey">
+    <BlurOverlay :blurred="inWalletApp ? !$store.state.zkopru.walletKey : false">
       <router-view />
     </BlurOverlay>
     <StartSyncPopup
@@ -20,12 +20,30 @@ import BlurOverlay from './components/BlurOverlay'
 @Component({
   name: 'App',
   components: { StartSyncPopup, BlurOverlay, },
+  watch: {
+    '$route' (to, from) {
+      this.inWalletApp = this.$route.path.indexOf('/wallet') === 0
+      this.startSyncIfNeeded()
+    }
+  }
 })
 export default class App extends Vue {
   showingSyncPrompt = false
+  inWalletApp = false
+  needsSyncStart = true
 
   async mounted() {
+    // only show popup on the actual wallet
+    this.inWalletApp = this.$route.path.indexOf('/wallet') === 0
+    await this.startSyncIfNeeded()
+  }
+
+  async startSyncIfNeeded() {
+    if (!this.inWalletApp || !this.needsSyncStart) {
+      return
+    }
     await this.$store.dispatch('connectMetamask')
+    this.needsSyncStart = false
     if (
       !this.$store.state.wallet.autosyncEnabled ||
       !this.$store.state.wallet.autosyncPromptShown
