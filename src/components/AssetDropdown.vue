@@ -41,7 +41,7 @@
             :style="index === (searchText ? filteredAssets : assets).length - 1 ? 'border-bottom-left-radius: 8px; border-bottom-right-radius: 8px' : ''"
             v-on:mouseenter="highlightedAsset = asset"
             v-on:mouseleave="highlightedAsset = ''"
-            v-on:click="activeAsset = asset"
+            v-on:click="selectAsset(asset)"
           >
             <img
               :src="tryLoadAssetIcon(asset)"
@@ -66,7 +66,12 @@ import ColorImage from './ColorImage'
 @Component({
   name: 'AssetDropdown',
   components: { ColorImage, },
-  props: ['selectedAsset'],
+  props: {
+    activeAsset: {
+      type: String,
+      default: 'ETH',
+    }
+  },
   computed: {
     assets() {
       return ['ETH', ...this.$store.state.zkopru.registeredTokens]
@@ -80,19 +85,24 @@ import ColorImage from './ColorImage'
       this.filterAssets()
     }
   },
+  model: {
+    prop: 'activeAsset',
+    event: 'assetChanged',
+  }
 })
 export default class AssetDropdown extends Vue {
   dropdownVisible = false
   searchText = ''
   filteredAssets = []
-  activeAsset =  'ETH'
+  // activeAsset =  'ETH'
   highlightedAsset = ''
 
   mounted() {
-    if (this.$route.query.asset) {
-      this.activeAsset = this.$route.query.asset.toUpperCase()
-    }
     this.filterAssets()
+  }
+
+  selectAsset(asset) {
+    this.$emit('assetChanged', asset)
   }
 
   filterAssets() {

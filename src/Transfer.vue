@@ -2,9 +2,12 @@
   <div class="container">
     <Header showBackButton=true prevPath="/wallet" />
     <div spacer style="height: 44px" />
-    <AssetDropdown />
+    <AssetDropdown
+      :activeAsset="activeAsset"
+      v-model="activeAsset"
+    />
     <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center; font-size: 12px">
-      <div style="flex: 1; max-width: 462px">
+      <div style="flex: 1; max-width: 559px">
         <div spacer style="height: 55px" />
         <div>
           Send
@@ -13,7 +16,7 @@
         <div style="display: flex; width: 100%">
           00.00
           <div spacer style="flex: 1" />
-          CRO
+          {{activeAsset}}
         </div>
         <div style="height: 1px; background: #95A7AE; margin-top: 4.5px; margin-bottom: 3px" />
         <div style="display: flex; width: 100%; font-size: 9px">
@@ -37,12 +40,6 @@
         <Button buttonStyle="background: #00FFD1; color: #0E2936">
           SEND
         </Button>
-        <div spacer style="height: 39px" />
-        <div style="display: flex; align-items: center">
-          Remaining balance
-          <div style="height: 1px; flex: 1; background: #5D7078; margin: 0px 8px" />
-          0 CRO
-        </div>
       </div>
     </div>
   </div>
@@ -60,8 +57,11 @@ import AddressField from './components/AddressField'
   components: { Header, AssetDropdown, Button, AddressField, },
 })
 export default class Transfer extends Vue {
-  async mounted() {
-
+  activeAsset = 'ETH'
+  mounted() {
+    if (this.$route.query.asset) {
+      this.activeAsset = this.$route.query.asset.toUpperCase()
+    }
   }
 }
 </script>
