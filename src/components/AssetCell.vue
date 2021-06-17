@@ -1,7 +1,7 @@
 <template>
-  <div class="cell-container" v-on:click="deposit">
+  <div class="cell-container" v-on:click="transfer">
     <div style="display: flex; justify-content: flex-end">
-      <div style="cursor: pointer" v-on:click="deposit">
+      <div style="cursor: pointer" v-on:click.stop="deposit">
         <img :src="require('../../assets/top_up.svg')" />
       </div>
     </div>
