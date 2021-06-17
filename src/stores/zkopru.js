@@ -14,10 +14,13 @@ export default {
     status: 'Not synchronizing',
     syncing: false,
     wallet: null,
+    walletKey: null,
     zkAddress: null,
     shortZkAddress: null,
     lockedBalance: null,
     balance: null,
+    tokenBalances: {},
+    registeredTokens: [],
   },
   getters: {
     percent: state => {
@@ -36,16 +39,19 @@ export default {
   actions: {
     startSync: async ({ state, dispatch }) => {
       if (!state.client) {
+        await dispatch('loadWalletKey')
         // initialize the client if it doesn't already exist
         state.client = new Zkopru.Node({
           websocket: URL,
         })
         state.syncing = true
+        state.status = 'Preparing to synchronize'
+        await state.client.initNode()
+        await dispatch('loadWallet')
         await state.client.start()
         state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
         state.client.node.blockProcessor.on('processed', async () => dispatch('updateStatus'))
-        await dispatch('loadWallet')
       }
     },
     resetWallet: async ({ state, dispatch }) => {
@@ -82,13 +88,16 @@ export default {
       }
       state.latestBlock = latestBlock.canonicalNum
       const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount)
-      if (newPercent === 100 && state.syncPercent < 100) {
+      // if (newPercent === 100 && state.syncPercent < 100) {
         // load the l2 balance
         dispatch('loadL2Balance')
-      }
+      // }
       state.syncPercent = newPercent
     },
-    loadWallet: async ({ state, rootState, commit, dispatch }) => {
+    loadWalletKey: async ({ state, rootState }) => {
+      if (state.walletKey) {
+        return state.walletKey
+      }
       const msgParams = JSON.stringify({
         domain: {
           chainId: 5,
@@ -111,11 +120,14 @@ export default {
         method: 'eth_signTypedData_v4',
         params: [rootState.account.accounts[0], msgParams]
       })
-      const key = sha512_256(signedData)
+      state.walletKey = sha512_256(signedData)
+      return state.walletKey
+    },
+    loadWallet: async ({ state, commit, dispatch }) => {
+      const key = await dispatch('loadWalletKey')
       state.wallet = new Zkopru.Wallet(
         state.client,
-        key,
-        'https://zkopru.goerli.rollupscan.io'
+        key
       )
       const { address } = state.wallet.wallet.account.zkAddress
       commit('setZkAddress', address)
@@ -125,13 +137,17 @@ export default {
       const [
         spendable,
         locked,
+        erc20Info,
       ] = await Promise.all([
         state.wallet.wallet.getSpendableAmount(),
         state.wallet.wallet.getLockedAmount(),
+        state.client.node.loadERC20Info(),
       ])
       {
         const { erc20, erc721, eth } = spendable
         state.balance = fromWei(eth.toString())
+        // state.tokenBalances = erc20
+        state.registeredTokens = erc20Info.map(({ symbol }) => symbol)
       }
       {
         const { erc20, erc721, eth } = locked
@@ -153,6 +169,6 @@ export default {
       state.syncPercent = 0
       state.status = 'Not synchronizing'
       window.location.reload(false)
-    }
+    },
   },
 }

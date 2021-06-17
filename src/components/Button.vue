@@ -1,9 +1,7 @@
 <template>
   <div class="outer-container">
-    <div class="button-container" v-on:click="_onClick()">
-      <div v-if="!loading" class="button-text">
-        <slot></slot>
-      </div>
+    <div :style="buttonStyle" class="button-container" v-on:click="_onClick()">
+      <slot v-if="!loading"></slot>
       <div v-if="loading" class="button-text">
         {{ loadingText || 'Loading...' }}
       </div>
@@ -17,7 +15,7 @@ import Component from 'vue-class-component'
 
 @Component({
   name: 'Button',
-  props: [ 'onClick', 'loadingText' ],
+  props: [ 'onClick', 'loadingText', 'buttonStyle' ],
 })
 export default class Button extends Vue {
   loading = false
@@ -41,23 +39,20 @@ export default class Button extends Vue {
 <style scoped>
 .outer-container {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 .button-container {
-  background-color: #00FFD1;
+  background-color: #0E2936;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
-  padding-top: 9.5px;
-  padding-bottom: 9.5px;
-  padding-left: 64px;
-  padding-right: 64px;
+  color: #EDF2F2;
+  padding: 12px 32px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-}
-.button-text {
-  font-weight: 500;
+  font-weight: bold;
   font-size: 24px;
   user-select: none;
 }

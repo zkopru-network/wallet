@@ -1,132 +1,167 @@
 <template>
   <div class="container">
     <Header />
-    <div class="wallet-body">
-      <div class="wallet-title">
-        Account
-      </div>
-      <div spacer style="height: 8px" />
-      <div class="wallet-subtitle">
-        <Copyable :fullText="$store.state.zkopru.zkAddress">
-          {{ $store.state.zkopru.shortZkAddress }}
-        </Copyable>
-      </div>
-      <div class="horizontal-divider" />
+    <div spacer style="height: 90px" />
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap">
+      <!-- subheader buttons-->
+      <SwitchSelector
+        :options="[
+          {
+            text: 'Tokens',
+            image: require('../assets/shield_black.svg'),
+            activeColor: 'black',
+            inactiveColor: 'white',
+          },
+          {
+            text: 'NFTs',
+            image: require('../assets/shield_black.svg'),
+            activeColor: 'black',
+            inactiveColor: 'white',
+          },
+        ]"
+        v-model="assetType"
+      />
       <div style="display: flex">
-        <div style="display: flex; flex-direction: column">
-          <WalletHeader
-            v-model:mode="walletMode"
-          />
-          <div spacer style="height: 40px" />
-          <WalletDeposit v-if="walletMode === 0" />
-          <WalletTransfer v-if="walletMode === 1" />
-          <WalletWithdraw v-if="walletMode === 2" />
-        </div>
-        <img
-          src="../assets/wallet_animation.png"
-          style="padding: 75px"
-        />
+        <Button buttonStyle="background: #fff; color: black" :onClick="() => $router.push({ path: '/wallet/transfer' })">
+          <span>Send</span>
+          <div spacer style="width: 10px" />
+          <img :src="require('../assets/shield_black.svg')" />
+        </Button>
+        <div spacer style="width: 23px" />
+        <Button buttonStyle="background: #fff; color: black" :onClick="() => showingAddressPopup = true">
+          <span>Receive</span>
+          <div spacer style="width: 10px" />
+          <img :src="require('../assets/shield_black.svg')" />
+        </Button>
+      </div>
+      <div style="display: flex">
+        <Button :onClick="() => $router.push({ path: '/wallet/deposit' })">
+          Top Up
+        </Button>
+        <div spacer style="width: 23px" />
+        <Button>
+          Withdraw
+        </Button>
       </div>
     </div>
-    <ZkopruBackground />
-    <StartSyncPopup
-      :visible="showingSyncPrompt"
-      :onCancel="() => showingSyncPrompt = false"
-      :startSync="startSync"
+    <div spacer style="height: 32px" />
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+      <!-- search bar and sort options -->
+      <div style="position: relative; display: flex; flex: 1">
+        <input
+          type="text"
+          class="search-text-input"
+          v-model="filterText"
+        />
+        <img
+          style="position: absolute; left: 7px; top: 10px"
+          :src="require('../assets/search_icon.svg')"
+          height="25px"
+          width="25px"
+        />
+      </div>
+      <div spacer style="width: 16px" />
+      <SwitchSelector
+        :options="[
+          {
+            image: require('../assets/sort_row_white.svg'),
+            activeColor: 'black',
+            inactiveColor: 'white',
+          },
+          {
+            image: require('../assets/sort_grid_black.svg'),
+            activeColor: 'black',
+            inactiveColor: 'white',
+          }
+        ]"
+        v-model="displayMode"
+      />
+      <div spacer style="width: 16px" />
+      <Button>
+        <span>Recently Added</span>
+        <div spacer style="width: 10px" />
+        <img :src="require('../assets/dropdown.svg')" />
+      </Button>
+    </div>
+    <div spacer style="height: 32px" />
+    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+      <!-- token table -->
+      <AssetCell
+        v-for="asset in filteredAssets"
+        :symbol="asset"
+        :key="asset"
+      />
+    </div>
+    <AddressPopup
+      :visible="showingAddressPopup"
+      :onCancel="() => showingAddressPopup = false"
     />
   </div>
 </template>
-
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Header from './components/Header'
-import ZkopruBackground from './components/ZkopruBackground'
+import SwitchSelector from './components/SwitchSelector'
 import Button from './components/Button'
-import StartSyncPopup from './components/StartSyncPopup'
-import WalletHeader from './components/WalletHeader'
-import WalletDeposit from './components/WalletDeposit'
-import WalletTransfer from './components/WalletTransfer'
-import WalletWithdraw from './components/WalletWithdraw'
-import Copyable from './components/Copyable'
+import AssetCell from './components/AssetCell'
+import ZkopruBackground from './components/ZkopruBackground'
+import AddressPopup from './components/AddressPopup'
 
 @Component({
   name: 'Wallet',
-  components: {
-    Header,
-    ZkopruBackground,
-    Button,
-    StartSyncPopup,
-    WalletHeader,
-    WalletDeposit,
-    WalletTransfer,
-    WalletWithdraw,
-    Copyable,
+  components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, AddressPopup, },
+  watch: {
+    filterText: function() {
+      this.filterAssets()
+    },
+    assets() {
+      this.filterAssets()
+    }
   },
-})
-export default class Wallet extends Vue {
-  address = '75a...987'
-  showingSyncPrompt = false
-  walletMode = 0
-
-  async mounted() {
-    await this.$store.dispatch('connectMetamask')
-    if (
-      !this.$store.state.wallet.autosyncEnabled ||
-      !this.$store.state.wallet.autosyncPromptShown
-    ) {
-      this.showingSyncPrompt = true
-    } else if (this.$store.state.wallet.autosyncEnabled) {
-      await this.$store.dispatch('startSync')
+  computed: {
+    assets() {
+      return ['ETH', ...this.$store.state.zkopru.registeredTokens]
     }
   }
+})
+export default class Wallet extends Vue {
+  showingAddressPopup = false
+  filteredAssets = []
+  filterText = ''
+  displayMode = 1
+  assetType = 0
 
-  async startSync() {
-    this.showingSyncPrompt = false
-    this.$store.state.wallet.autosyncPromptShown = true
-    this.$store.dispatch('saveState')
-    await this.$store.dispatch('startSync')
+  mounted() {
+    this.filterAssets()
   }
 
+  filterAssets() {
+    this.filteredAssets = this.assets.filter((symbol) => {
+      return symbol.toLowerCase().indexOf(this.filterText.toLowerCase()) !== -1
+    })
+  }
 }
 </script>
-
 <style scoped>
 .container {
   display: flex;
   flex-direction: column;
+  padding-left: 8px;
+  padding-right: 8px;
 }
-.wallet-body {
-  max-width: 1282px;
-  margin-left: 80px;
-  margin-right: 80px;
-  padding-top: 36px;
-  padding-bottom: 36px;
-  background-color: rgba(8, 27, 36, 0.7);
-  border: 1px solid #5D7078;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-self: center;
-}
-.wallet-title {
+.search-text-input {
+  background: #0e2936;
+  border-radius: 4px;
+  border: 0px solid white;
   color: white;
-  font-weight: bold;
-  font-size: 24px;
-  align-self: center;
-  letter-spacing: 0.1em;
+  font-size: 38px;
+  text-indent: 39px;
+  flex: 1;
 }
-.wallet-subtitle {
-  color: white;
-  font-size: 18px;
-  align-self: center;
-}
-.horizontal-divider {
-  height: 1px;
-  background-color: #5D7078;
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 38px;
-  margin-bottom: 28px;
+.search-text-input:focus {
+  border-color: rgba(0, 0, 0, 0);
+  border: 0px solid rgba(0, 0, 0, 0);
+  outline: 0px solid rgba(0, 0, 0, 0);
 }
 </style>

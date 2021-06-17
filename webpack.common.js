@@ -60,6 +60,7 @@ module.exports = {
       template: 'static/index.ejs',
       filename: 'index.html',
       inlineSource: '.(js|css)',
+      favicon: './assets/favicon.png',
     }),
     // new HtmlWebpackInlineSourcePlugin(),
   ]

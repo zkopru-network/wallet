@@ -89,7 +89,7 @@ export default class SettingsPanel extends Vue {
   position: fixed;
   top: 0px;
   left: 0px;
-  bottom: 0px;
+  height: calc(100vh - 32px);
   background-color: #081B24;
   padding: 16px;
   z-index: 10;
