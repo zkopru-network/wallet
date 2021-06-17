@@ -10,6 +10,7 @@ import ZkopruStore from './stores/zkopru'
 import EthAccountStore from './stores/eth-account'
 import WalletStore from './stores/wallet'
 import Transfer from './Transfer'
+import Deposit from './Deposit'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -39,6 +40,7 @@ const router = new VueRouter({
     { path: '/wallet_old', component: Wallet },
     { path: '/wallet', component: WalletNew },
     { path: '/wallet/transfer', component: Transfer },
+    { path: '/wallet/deposit', component: Deposit }
   ]
 })
 const app = new Vue({

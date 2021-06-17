@@ -5,7 +5,8 @@
         class="asset-input"
         type="text"
         placeholder="Max: 0"
-        v-model="amount"
+        :value="amount"
+        v-on:input="$emit('amountChanged', $event.target.value)"
       />
       <div class="asset-text">{{asset}}</div>
       <div v-if="amountState === 0" class="fee-underline" style="background: #95A7AE" />
@@ -29,33 +30,34 @@ import Zkopru from '@zkopru/client/browser'
 
 @Component({
   name: 'AssetAmountField',
-  props: ['asset'],
-  watch: {
-    amount() {
-      this.updateAmountState()
+  props: [
+    'asset',
+    'loadBalance',
+    'assetAmountState',
+    'amount',
+  ],
+  computed: {
+    // 0 = empty, 1 = valid, 2 = invalid
+    amountState() {
+      if (typeof this.assetAmountState !== 'undefined') {
+        return this.assetAmountState
+      }
+      if (this.amount === '' || this.amount === '0') {
+        return 0
+      }
+      if (isNaN(+this.amount)) {
+        return 2
+      } else {
+        return 1
+      }
     }
+  },
+  model: {
+    prop: 'amount',
+    event: 'amountChanged',
   }
 })
 export default class AssetAmountField extends Vue {
-  amount = ''
-  // 0 = empty, 1 = valid, 2 = invalid
-  amountState = 0
-
-  mounted() {
-    this.updateAmountState()
-  }
-
-  updateAmountState() {
-    if (this.amount === '' || this.amount === '0') {
-      this.amountState = 0
-      return
-    }
-    if (isNaN(+this.amount)) {
-      this.amountState = 2
-    } else {
-      this.amountState = 1
-    }
-  }
 }
 </script>
 <style scoped>

@@ -70,6 +70,10 @@ import ColorImage from './ColorImage'
     activeAsset: {
       type: String,
       default: 'ETH',
+    },
+    loadBalance: {
+      type: Function,
+      required: false,
     }
   },
   computed: {
@@ -126,6 +130,9 @@ export default class AssetDropdown extends Vue {
   }
 
   balanceText(symbol) {
+    if (typeof this.loadBalance === 'function') {
+      return this.loadBalance(symbol)
+    }
     if (symbol.toUpperCase() === 'ETH') {
       return `${this.$store.state.zkopru.balance || '0'} | USD $0`
     }

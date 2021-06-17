@@ -13,7 +13,11 @@
           Send
         </div>
         <div spacer style="height: 20px" />
-        <AssetAmountField :asset="activeAsset" />
+        <AssetAmountField
+          :asset="activeAsset"
+          v-model="transferAmount"
+          :assetAmountState="amountState"
+        />
         <div spacer style="height: 42px" />
         <div>
           to Zkopru address
@@ -72,9 +76,24 @@ import AssetAmountField from './components/AssetAmountField'
 @Component({
   name: 'Transfer',
   components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, },
+  watch: {
+    transferAmount() {
+      if (this.transferAmount === '') {
+        this.amountState = 0
+      } else if (isNaN(this.transferAmount)) {
+        this.amountState = 2
+      } else if (this.activeAsset === 'ETH') {
+        this.amountState = +this.transferAmount > this.$store.state.zkopru.balance ? 2 : 1
+      } else {
+        this.amountState = 0
+      }
+    }
+  }
 })
 export default class Transfer extends Vue {
   activeAsset = 'ETH'
+  transferAmount = ''
+  amountState = 0
   mounted() {
     if (this.$route.query.asset) {
       this.activeAsset = this.$route.query.asset.toUpperCase()
