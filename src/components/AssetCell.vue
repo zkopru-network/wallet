@@ -7,7 +7,7 @@
     </div>
     <div style="display: flex; align-items: center; justify-content: center;">
       <img
-        :src="require(`../../assets/token_icons/${(symbol || 'eth').toUpperCase()}.svg`)"
+        :src="tryLoadAssetIcon(symbol)"
         width="93px"
         height="93px"
         style="background-color: white; border-radius: 50%; object-fit: contain; border: 1px solid black"
@@ -16,10 +16,10 @@
     <div spacer style="height: 23px" />
     <div style="display: flex; justify-content: space-between" class="cell-text">
       <div>
-        1
+        {{balance(symbol)}}
       </div>
       <div>
-        {{ symbol || 'ETH' }}
+        {{ symbol.toUpperCase() }}
       </div>
     </div>
     <div style="align-self: center; color: rgba(150, 150, 150, 0.65)" class="cell-text">
@@ -27,7 +27,7 @@
     </div>
     <div style="display: flex; justify-content: space-between" class="cell-text">
       <div>
-        1
+        0
       </div>
       <div>
         USD
@@ -47,6 +47,22 @@ import Button from './Button'
 export default class AssetCell extends Vue {
   transfer() {
     this.$router.push({ path: `/wallet/transfer?asset=${this.symbol}` })
+  }
+
+  balance(symbol) {
+    if (symbol.toUpperCase() === 'ETH') {
+      return this.$store.state.zkopru.balance || '0'
+    }
+    const tokenBalance = this.$store.state.zkopru.tokenBalances[symbol.toUpperCase()]
+    return tokenBalance || '0'
+  }
+
+  tryLoadAssetIcon(symbol) {
+    try {
+      return require(`../../assets/token_icons/${symbol.toUpperCase()}.svg`)
+    } catch (_) {
+      return require('../../assets/token_no_icon.png')
+    }
   }
 }
 </script>

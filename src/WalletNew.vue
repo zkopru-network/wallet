@@ -113,20 +113,31 @@ import AddressPopup from './components/AddressPopup'
   components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, AddressPopup, },
   watch: {
     filterText: function() {
-      this.filter()
+      this.filterAssets()
+    },
+    assets() {
+      this.filterAssets()
+    }
+  },
+  computed: {
+    assets() {
+      return ['ETH', ...this.$store.state.zkopru.registeredTokens]
     }
   }
 })
 export default class Wallet extends Vue {
   showingAddressPopup = false
-  allAssets = ['CRO', 'USDC', 'UNI', 'AAVE', 'LINK', 'ZRX']
-  filteredAssets = [...this.allAssets]
+  filteredAssets = []
   filterText = ''
   displayMode = 1
   assetType = 0
 
-  filter() {
-    this.filteredAssets = this.allAssets.filter((symbol) => {
+  mounted() {
+    this.filterAssets()
+  }
+
+  filterAssets() {
+    this.filteredAssets = this.assets.filter((symbol) => {
       return symbol.toLowerCase().indexOf(this.filterText.toLowerCase()) !== -1
     })
   }

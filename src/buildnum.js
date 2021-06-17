@@ -1,1 +1,1 @@
-export default 950
+export default 1020

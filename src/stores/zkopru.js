@@ -19,6 +19,8 @@ export default {
     shortZkAddress: null,
     lockedBalance: null,
     balance: null,
+    tokenBalances: {},
+    registeredTokens: [],
   },
   getters: {
     percent: state => {
@@ -44,11 +46,12 @@ export default {
         })
         state.syncing = true
         state.status = 'Preparing to synchronize'
+        await state.client.initNode()
+        await dispatch('loadWallet')
         await state.client.start()
         state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
         state.client.node.blockProcessor.on('processed', async () => dispatch('updateStatus'))
-        await dispatch('loadWallet')
       }
     },
     resetWallet: async ({ state, dispatch }) => {
@@ -85,10 +88,10 @@ export default {
       }
       state.latestBlock = latestBlock.canonicalNum
       const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount)
-      if (newPercent === 100 && state.syncPercent < 100) {
+      // if (newPercent === 100 && state.syncPercent < 100) {
         // load the l2 balance
         dispatch('loadL2Balance')
-      }
+      // }
       state.syncPercent = newPercent
     },
     loadWalletKey: async ({ state, rootState }) => {
@@ -134,13 +137,17 @@ export default {
       const [
         spendable,
         locked,
+        erc20Info,
       ] = await Promise.all([
         state.wallet.wallet.getSpendableAmount(),
         state.wallet.wallet.getLockedAmount(),
+        state.client.node.loadERC20Info(),
       ])
       {
         const { erc20, erc721, eth } = spendable
         state.balance = fromWei(eth.toString())
+        // state.tokenBalances = erc20
+        state.registeredTokens = erc20Info.map(({ symbol }) => symbol)
       }
       {
         const { erc20, erc721, eth } = locked
@@ -162,6 +169,6 @@ export default {
       state.syncPercent = 0
       state.status = 'Not synchronizing'
       window.location.reload(false)
-    }
+    },
   },
 }

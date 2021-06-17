@@ -7,14 +7,14 @@
     >
       <div style="display: flex; align-items: center">
         <img
-          :src="require(`../../assets/token_icons/${activeAsset.toUpperCase()}.svg`)"
+          :src="tryLoadAssetIcon(activeAsset)"
           width="23px"
           height="23px"
         />
         <div spacer style="width: 23px" />
         <span class="asset-symbol-text">{{activeAsset.toUpperCase()}}</span>
         <div spacer style="width: 8px" />
-        0.10000000000000009 | USD $280.00
+        {{balanceText(activeAsset)}}
       </div>
       <div spacer style="display: flex; flex: 1" />
       <img :src="require('../../assets/asset_dropdown.svg')" />
@@ -38,34 +38,21 @@
           <div
             v-for="(asset, index) of (searchText ? filteredAssets : assets)"
             :class="`asset-dropdown-row ${asset === highlightedAsset ? 'active' : ''}`"
-            :style="index === asset.length - 1 ? 'border-bottom-left-radius: 8px; border-bottom-right-radius: 8px' : ''"
+            :style="index === (searchText ? filteredAssets : assets).length - 1 ? 'border-bottom-left-radius: 8px; border-bottom-right-radius: 8px' : ''"
             v-on:mouseenter="highlightedAsset = asset"
             v-on:mouseleave="highlightedAsset = ''"
             v-on:click="activeAsset = asset"
           >
             <img
-              :src="require(`../../assets/token_icons/${asset.toUpperCase()}.svg`)"
+              :src="tryLoadAssetIcon(asset)"
               width="23px"
               height="23px"
             />
             <div spacer style="width: 23px" />
             <span class="asset-symbol-text">{{asset.toUpperCase()}}</span>
             <div spacer style="width: 8px" />
-            0.10000000009 | USD $280.00
+            {{balanceText(asset)}}
           </div>
-        </div>
-        <div class="asset-dropdown-footer">
-          <img
-            :src="require(`../../assets/token_icons/ETH.svg`)"
-            width="23px"
-            height="23px"
-          />
-          <div spacer style="width: 23px" />
-          <span class="asset-symbol-text">ETH</span>
-          <div spacer style="width: 8px" />
-          0.10000000009 | USD $280.00
-          <div spacer style="flex: 1" />
-          <span class="asset-symbol-text">Funds available for coordinator fee</span>
         </div>
       </div>
     </div>
@@ -80,24 +67,32 @@ import ColorImage from './ColorImage'
   name: 'AssetDropdown',
   components: { ColorImage, },
   props: ['selectedAsset'],
+  computed: {
+    assets() {
+      return ['ETH', ...this.$store.state.zkopru.registeredTokens]
+    }
+  },
   watch: {
-    searchText: function () {
+    searchText() {
+      this.filterAssets()
+    },
+    assets() {
       this.filterAssets()
     }
-  }
+  },
 })
 export default class AssetDropdown extends Vue {
   dropdownVisible = false
   searchText = ''
-  assets = ['ETH', 'CRO', 'DAI', 'AAVE', 'UNI']
   filteredAssets = []
-  activeAsset = this.assets[0]
+  activeAsset =  'ETH'
   highlightedAsset = ''
 
   mounted() {
     if (this.$route.query.asset) {
       this.activeAsset = this.$route.query.asset.toUpperCase()
     }
+    this.filterAssets()
   }
 
   filterAssets() {
@@ -118,6 +113,22 @@ export default class AssetDropdown extends Vue {
   searchFieldClick(e) {
     e.stopPropagation()
     this.$refs.search.focus()
+  }
+
+  balanceText(symbol) {
+    if (symbol.toUpperCase() === 'ETH') {
+      return `${this.$store.state.zkopru.balance || '0'} | USD $0`
+    }
+    const tokenBalance = this.$store.state.zkopru.tokenBalances[symbol.toUpperCase()]
+    return `${tokenBalance || '0'} | USD $0`
+  }
+
+  tryLoadAssetIcon(symbol) {
+    try {
+      return require(`../../assets/token_icons/${symbol.toUpperCase()}.svg`)
+    } catch (_) {
+      return require('../../assets/token_no_icon.png')
+    }
   }
 }
 </script>
