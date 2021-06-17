@@ -176,6 +176,7 @@ export default class AssetDropdown extends Vue {
   border: 1px solid #192C35;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
+  z-index: 10;
 }
 .asset-dropdown-scroll-container {
   max-height: 300px;

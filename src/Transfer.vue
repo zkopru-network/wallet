@@ -13,17 +13,7 @@
           Send
         </div>
         <div spacer style="height: 20px" />
-        <div style="display: flex; width: 100%">
-          00.00
-          <div spacer style="flex: 1" />
-          {{activeAsset}}
-        </div>
-        <div style="height: 1px; background: #95A7AE; margin-top: 4.5px; margin-bottom: 3px" />
-        <div style="display: flex; width: 100%; font-size: 9px">
-          00.00
-          <div spacer style="flex: 1" />
-          USD
-        </div>
+        <AssetAmountField :asset="activeAsset" />
         <div spacer style="height: 42px" />
         <div>
           to Zkopru address
@@ -31,15 +21,40 @@
         <div spacer style="height: 21px" />
         <AddressField />
         <div spacer style="height: 32px" />
-        <div style="display: flex; align-items: center">
-          Transaction Fee
-          <div style="height: 1px; flex: 1; background: #5D7078; margin: 0px 8px" />
-          200 Gwei
+        <div style="display: flex; flex-direction: column; justify-content: center">
+          <div>Transaction fee per byte</div>
+          <div spacer style="height: 20px" />
+          <FeeField
+          />
+          <div spacer style="height: 10px" />
+          <div class="small-text">
+            Suggested fee is calculated based on the current gas market.
+          </div>
         </div>
         <div spacer style="height: 39px" />
         <Button buttonStyle="background: #00FFD1; color: #0E2936">
           SEND
         </Button>
+        <div spacer style="height: 37px" />
+        <div style="display: flex; justify-content: space-between; color: white; border-bottom: 0.5px solid #2a3d46; padding-bottom: 5px">
+          <div style="display: flex; flex-direction: column">
+            <div>Transaction Total</div>
+            <div>Fee Total</div>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <div>0 {{activeAsset}}</div>
+            <div>0 ETH</div>
+          </div>
+        </div>
+        <div spacer style="height: 45px" />
+        <div style="display: flex; justify-content: center">
+          <div
+            style="font-weight: bold; font-size: 14px; text-decoration: underline; cursor: pointer"
+            v-on:click="$router.push({ path: '/wallet' })"
+          >
+            Cancel
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -51,10 +66,12 @@ import Header from './components/Header'
 import AssetDropdown from './components/AssetDropdown'
 import Button from './components/Button'
 import AddressField from './components/AddressField'
+import FeeField from './components/FeeField'
+import AssetAmountField from './components/AssetAmountField'
 
 @Component({
   name: 'Transfer',
-  components: { Header, AssetDropdown, Button, AddressField, },
+  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, },
 })
 export default class Transfer extends Vue {
   activeAsset = 'ETH'
@@ -73,5 +90,8 @@ export default class Transfer extends Vue {
   padding-left: 8px;
   padding-right: 8px;
   color: #95A7AE;
+}
+.small-text {
+  font-size: 9px;
 }
 </style>
