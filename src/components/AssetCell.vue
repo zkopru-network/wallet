@@ -1,7 +1,7 @@
 <template>
-  <div class="cell-container">
+  <div class="cell-container" v-on:click="deposit">
     <div style="display: flex; justify-content: flex-end">
-      <div style="cursor: pointer" v-on:click="transfer">
+      <div style="cursor: pointer" v-on:click="deposit">
         <img :src="require('../../assets/top_up.svg')" />
       </div>
     </div>
@@ -49,6 +49,10 @@ export default class AssetCell extends Vue {
     this.$router.push({ path: `/wallet/transfer?asset=${this.symbol}` })
   }
 
+  deposit() {
+    this.$router.push({ path: `/wallet/deposit?asset=${this.symbol}` })
+  }
+
   balance(symbol) {
     if (symbol.toUpperCase() === 'ETH') {
       return this.$store.state.zkopru.balance || '0'
@@ -78,6 +82,7 @@ export default class AssetCell extends Vue {
   height: 288px;
   padding: 10px;
   margin: 13px;
+  cursor: pointer;
 }
 .cell-text {
   font-size: 24px;

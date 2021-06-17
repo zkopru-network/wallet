@@ -57,6 +57,12 @@ export default class Deposit extends Vue {
   amountState = 0
   depositAmount = ''
 
+  mounted() {
+    if (this.$route.query.asset) {
+      this.activeAsset = this.$route.query.asset.toUpperCase()
+    }
+  }
+
   loadBalance(symbol) {
     if (symbol === 'ETH') {
       return `${this.$store.state.account.balance || '-'} | USD $-`
