@@ -49,20 +49,16 @@
           :visible="showingClearDataPopup"
           :onCancel="() => showingClearDataPopup = false"
         />
-        <div spacer style="height: 18px" />
-        <div class="horizontal-divider" />
-        <div spacer style="height: 18px" />
-        <input type="text" v-model="mintAmount" />
+        <div spacer style="height: 40px" />
+        <DarkTextField placeholder="Number of TT tokens to send to you" v-model="mintAmount" />
         <div spacer style="height: 24px" />
-        <Button :onClick="() => $store.dispatch('mint', mintAmount)">
+        <Button :onClick="mintTokens.bind(this)">
           Mint Test Tokens
         </Button>
-        <div spacer style="height: 18px" />
-        <div class="horizontal-divider" />
-        <div spacer style="height: 18px" />
-        <input type="text" v-model="tokenAddress" />
+        <div spacer style="height: 40px" />
+        <DarkTextField placeholder="Token address to register" v-model="tokenAddress" />
         <div spacer style="height: 24px" />
-        <Button :onClick="() => $store.dispatch('registerERC20', tokenAddress)">
+        <Button :onClick="registerToken.bind(this)">
           Register Token
         </Button>
         <div spacer style="height: 18px" />
@@ -87,10 +83,11 @@ import Checkbox from './Checkbox'
 import Button from './Button'
 import ClearDataPopup from './ClearDataPopup'
 import buildnum from '../buildnum'
+import DarkTextField from './DarkTextField'
 
 @Component({
   name: 'SettingsPanel',
-  components: { Checkbox, Button, ClearDataPopup, },
+  components: { Checkbox, Button, ClearDataPopup, DarkTextField, },
   props: [ 'onClose', 'visible', ],
 })
 export default class SettingsPanel extends Vue {
@@ -103,6 +100,16 @@ export default class SettingsPanel extends Vue {
     if (typeof this.onClose === 'function') {
       this.onClose()
     }
+  }
+
+  async registerToken() {
+    await this.$store.dispatch('registerERC20', this.tokenAddress)
+    this.tokenAddress = ''
+  }
+
+  async mintTokens() {
+    await this.$store.dispatch('mint', this.mintAmount)
+    this.mintAmount = ''
   }
 }
 </script>
