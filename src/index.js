@@ -8,6 +8,7 @@ import WalletOld from './WalletOld'
 import Wallet from './Wallet'
 import ZkopruStore from './stores/zkopru'
 import EthAccountStore from './stores/eth-account'
+import TestTokenStore from './stores/test-token'
 import WalletStore from './stores/wallet'
 import Transfer from './Transfer'
 import Deposit from './Deposit'
@@ -30,6 +31,7 @@ const store = new Vuex.Store({
     zkopru: ZkopruStore,
     account: EthAccountStore,
     wallet: WalletStore,
+    testToken: TestTokenStore,
   },
 })
 store.dispatch('loadState')
