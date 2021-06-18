@@ -21,6 +21,7 @@ export default {
     balance: null,
     tokenBalances: {},
     registeredTokens: [],
+    tokensByAddress: {},
   },
   getters: {
     percent: state => {
@@ -144,10 +145,26 @@ export default {
         state.client.node.loadERC20Info(),
       ])
       {
+        state.registeredTokens = erc20Info
+        state.tokensByAddress = erc20Info.reduce((acc, token) => {
+          return {
+            [token.address.toLowerCase()]: token,
+            ...acc
+          }
+        }, {})
         const { erc20, erc721, eth } = spendable
         state.balance = fromWei(eth.toString())
+        for (const _address of Object.keys(erc20)) {
+          const token = state.tokensByAddress[_address.toLowerCase()]
+          if (!token) continue
+          state.tokenBalances = {
+            ...state.tokenBalances,
+            [token.symbol]: (+erc20[_address].toString()/(10**(+token.decimals)))
+          }
+        }
         // state.tokenBalances = erc20
-        state.registeredTokens = erc20Info.map(({ symbol }) => symbol)
+        // load l1 token balances
+        dispatch('loadTokenBalances', { root: true })
       }
       {
         const { erc20, erc721, eth } = locked
@@ -170,5 +187,16 @@ export default {
       state.status = 'Not synchronizing'
       window.location.reload(false)
     },
+    registerERC20: async ({ state, rootState }, address) => {
+      const data = await state.client.registerERC20Tx(address)
+      await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          data,
+          to: state.client.node.layer1.address,
+          from: rootState.account.accounts[0],
+        }]
+      })
+    }
   },
 }

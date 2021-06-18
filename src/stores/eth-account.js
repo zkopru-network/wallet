@@ -5,7 +5,8 @@ export default {
     metamaskConnected: false,
     chainId: -1,
     accounts: [],
-    balance: null,
+    balance: 0,
+    tokenBalances: {},
   },
   actions: {
     connectMetamask: async ({ state, dispatch }) => {
@@ -36,10 +37,12 @@ export default {
         method: 'eth_requestAccounts'
       })
       dispatch('loadBalance').catch(console.log)
+      dispatch('loadTokenBalances').catch(console.log)
     },
     reloadState: async ({ state, dispatch }) => {
       await Promise.all([
         dispatch('loadBalance'),
+        dispatch('loadTokenBalances'),
         // reset the zkopru wallet state
         dispatch('resetWallet', null, { root: true }),
       ])
@@ -50,6 +53,14 @@ export default {
         params: [state.accounts[0], 'latest'],
       })
       state.balance = fromWei(hexBalance).toString()
+    },
+    loadTokenBalances: async ({ state, rootState }) => {
+      for (const { address, symbol } of rootState.zkopru.registeredTokens) {
+        const tokenContract = await rootState.zkopru.client.getERC20Contract(address)
+        const myAddress = state.accounts[0]
+        const balance = await tokenContract.methods.balanceOf(myAddress).call()
+        state.tokenBalances = { ...state.tokenBalances, [symbol]: balance }
+      }
     }
   }
 }

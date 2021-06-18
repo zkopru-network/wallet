@@ -121,7 +121,7 @@ import AddressPopup from './components/AddressPopup'
   },
   computed: {
     assets() {
-      return ['ETH', ...this.$store.state.zkopru.registeredTokens]
+      return ['ETH', ...this.$store.state.zkopru.registeredTokens.map(({ symbol }) => symbol)]
     }
   }
 })

@@ -57,6 +57,20 @@
         <Button :onClick="() => $store.dispatch('mint', mintAmount)">
           Mint Test Tokens
         </Button>
+        <div spacer style="height: 18px" />
+        <div class="horizontal-divider" />
+        <div spacer style="height: 18px" />
+        <input type="text" v-model="tokenAddress" />
+        <div spacer style="height: 24px" />
+        <Button :onClick="() => $store.dispatch('registerERC20', tokenAddress)">
+          Register Token
+        </Button>
+        <div spacer style="height: 18px" />
+        <div class="horizontal-divider" />
+        <div spacer style="height: 18px" />
+        <Button :onClick="() => $store.dispatch('registerAddress')">
+          Alias Address
+        </Button>
         <div spacer style="flex: 1" />
         <div class="build-number">
           build {{ currentbuild }}
@@ -82,7 +96,8 @@ import buildnum from '../buildnum'
 export default class SettingsPanel extends Vue {
   currentbuild = buildnum
   showingClearDataPopup = false
-  mintAmount = 0
+  mintAmount = ''
+  tokenAddress = ''
 
   _onClose() {
     if (typeof this.onClose === 'function') {

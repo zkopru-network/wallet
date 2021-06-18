@@ -17,6 +17,7 @@
     "axios": "^0.20.0",
     "compression": "^1.7.4",
     "especial": "0.0.4",
+    "eth-ens-namehash": "^2.0.8",
     "express": "^4.17.1",
     "js-sha512": "^0.8.0",
     "route-cache": "^0.4.5",

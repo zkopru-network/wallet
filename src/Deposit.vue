@@ -67,15 +67,47 @@ export default class Deposit extends Vue {
     if (symbol === 'ETH') {
       return `${this.$store.state.account.balance || '-'} | USD $-`
     }
-    return `0 | USD $-`
+    return `${this.$store.state.account.tokenBalances[symbol] || '0'} | USD $-`
   }
 
   async deposit() {
     if (this.activeAsset === 'ETH' && this.amountState === 1) {
       const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
         toWei(this.depositAmount),
+        toWei('0.1'),
+      )
+      await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          data,
+          to,
+          value,
+          from: this.$store.state.account.accounts[0],
+        }]
+      })
+      await onComplete()
+      await this.$store.dispatch('loadL2Balance')
+    } else {
+      const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeAsset)
+      const amountDecimals = `${(+this.depositAmount)*(10**(+token.decimals))}`
+      const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
+        toWei(0),
+        token.address,
+        amountDecimals,
         toWei('0.01'),
       )
+      const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(token.address)
+      const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
+      const tx = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          data: transferData,
+          to: token.address,
+          value: '0',
+          from: this.$store.state.account.accounts[0],
+        }]
+      })
+      console.log(tx)
       await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{

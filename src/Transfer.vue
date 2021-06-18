@@ -23,7 +23,14 @@
           to Zkopru address
         </div>
         <div spacer style="height: 21px" />
-        <AddressField />
+        <AddressField
+          v-model="addressInfo"
+          :addressInfo="addressInfo"
+        />
+        <div spacer style="height: 2px" />
+        <div class="small-text">
+          {{addressInfo.aliased && addressInfo.zkAddress || ''}}
+        </div>
         <div spacer style="height: 32px" />
         <div style="display: flex; flex-direction: column; justify-content: center">
           <div>Transaction fee per byte</div>
@@ -94,6 +101,10 @@ export default class Transfer extends Vue {
   activeAsset = 'ETH'
   transferAmount = ''
   amountState = 0
+  addressInfo = {
+    zkAddress: '',
+    aliased: false,
+  }
   mounted() {
     if (this.$route.query.asset) {
       this.activeAsset = this.$route.query.asset.toUpperCase()

@@ -12,6 +12,7 @@ import TestTokenStore from './stores/test-token'
 import WalletStore from './stores/wallet'
 import Transfer from './Transfer'
 import Deposit from './Deposit'
+import AddressBookStore from './stores/address-book'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -32,6 +33,7 @@ const store = new Vuex.Store({
     account: EthAccountStore,
     wallet: WalletStore,
     testToken: TestTokenStore,
+    addressBook: AddressBookStore,
   },
 })
 store.dispatch('loadState')

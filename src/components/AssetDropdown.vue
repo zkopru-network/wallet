@@ -78,7 +78,7 @@ import ColorImage from './ColorImage'
   },
   computed: {
     assets() {
-      return ['ETH', ...this.$store.state.zkopru.registeredTokens]
+      return ['ETH', ...this.$store.state.zkopru.registeredTokens.map(({ symbol }) => symbol)]
     }
   },
   watch: {
