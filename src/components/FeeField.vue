@@ -4,7 +4,8 @@
       class="fee-input"
       type="text"
       placeholder="3"
-      v-model="fee"
+      :value="fee"
+      v-on:input="$emit('feeChanged', $event.target.value)"
     />
     <div class="gwei-text">GWEI</div>
     <div v-if="feeState === 0" class="fee-underline" style="background: #95A7AE" />
@@ -19,14 +20,18 @@ import Zkopru from '@zkopru/client/browser'
 
 @Component({
   name: 'FeeField',
+  props: ['fee'],
   watch: {
     fee: function () {
       this.updateFeeState()
     }
+  },
+  model: {
+    prop: 'fee',
+    event: 'feeChanged',
   }
 })
 export default class AddressField extends Vue {
-  fee= '5'
   // 0 = empty, 1 = valid, 2 = invalid
   feeState = 0
 

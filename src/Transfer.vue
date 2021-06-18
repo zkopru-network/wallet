@@ -36,6 +36,7 @@
           <div>Transaction fee per byte</div>
           <div spacer style="height: 20px" />
           <FeeField
+            v-model="fee"
           />
           <div spacer style="height: 10px" />
           <div class="small-text">
@@ -43,7 +44,7 @@
           </div>
         </div>
         <div spacer style="height: 39px" />
-        <Button buttonStyle="background: #00FFD1; color: #0E2936">
+        <Button buttonStyle="background: #00FFD1; color: #0E2936" :onClick="() => sendTx()">
           SEND
         </Button>
         <div spacer style="height: 37px" />
@@ -53,8 +54,8 @@
             <div>Fee Total</div>
           </div>
           <div style="display: flex; flex-direction: column">
-            <div>0 {{activeAsset}}</div>
-            <div>0 ETH</div>
+            <div>{{transferAmount || '0'}} {{activeAsset}}</div>
+            <div>{{totalFee}} ETH</div>
           </div>
         </div>
         <div spacer style="height: 45px" />
@@ -79,12 +80,15 @@ import Button from './components/Button'
 import AddressField from './components/AddressField'
 import FeeField from './components/FeeField'
 import AssetAmountField from './components/AssetAmountField'
+import { toWei, fromWei } from './utils/wei'
+import BN from 'bn.js'
 
 @Component({
   name: 'Transfer',
   components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, },
   watch: {
     transferAmount() {
+      this.generateTx()
       if (this.transferAmount === '') {
         this.amountState = 0
       } else if (isNaN(this.transferAmount)) {
@@ -94,8 +98,14 @@ import AssetAmountField from './components/AssetAmountField'
       } else {
         this.amountState = 0
       }
+    },
+    addressInfo() {
+      this.generateTx()
+    },
+    fee() {
+      this.generateTx()
     }
-  }
+  },
 })
 export default class Transfer extends Vue {
   activeAsset = 'ETH'
@@ -105,10 +115,53 @@ export default class Transfer extends Vue {
     zkAddress: '',
     aliased: false,
   }
+  fee = '200'
+  totalFee = '-'
+  tx = undefined
+
   mounted() {
     if (this.$route.query.asset) {
       this.activeAsset = this.$route.query.asset.toUpperCase()
     }
+  }
+
+  paramString() {
+    return `${this.addressInfo.zkAddress}-${this.fee}-${this.transferAmount}`
+  }
+
+  async generateTx() {
+    if (
+      !this.addressInfo.zkAddress ||
+      !this.fee ||
+      !this.transferAmount
+    ) {
+      this.totalFee = '-'
+      this.tx = undefined
+      return
+    }
+    const params = this.paramString()
+    const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
+      this.addressInfo.zkAddress,
+      toWei(this.transferAmount),
+      (+this.fee * (10 ** 9)).toString()
+    )
+    // params changed during tx calc
+    if (this.paramString() !== params) return
+
+    this.totalFee = fromWei(tx.fee.toString(), 8)
+    this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
+    this.tx = tx
+  }
+
+  async sendTx() {
+    if (!this.tx) return
+    await this.$store.state.zkopru.wallet.wallet.sendTx({
+      tx: this.tx,
+      encryptTo: this.addressInfo.zkAddress,
+    })
+    await this.$store.dispatch('loadL2Balance')
+    this.$route.push({ path: '/wallet' })
+
   }
 }
 </script>
