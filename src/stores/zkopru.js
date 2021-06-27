@@ -2,8 +2,8 @@ import Zkopru from '@zkopru/client/browser'
 import { sha512_256 } from 'js-sha512'
 import { fromWei } from '../utils/wei'
 
-// const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
-const URL = 'ws://localhost:8546'
+const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
+// const URL = 'ws://localhost:8546'
 
 export default {
   state: {
