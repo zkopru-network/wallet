@@ -2,7 +2,7 @@
   <div class="container">
     <Header showBackButton=true prevPath="/wallet" />
     <div spacer style="height: 44px" />
-    <div container style="display: flex; flex-direction: column; align-items: center;/*justify-content: center; flex: 1; width: 100vw; align-self: center;*/ font-size: 12px">
+    <div container style="display: flex; flex-direction: column; align-items: center;/*justify-content: center; flex: 1; width: 100vw; align-self: center;*/ font-size: 11px">
       <div class="section-container">
         <div style="color: white; font-size: 11px">Deposit</div>
         <div spacer style="height: 23px" />

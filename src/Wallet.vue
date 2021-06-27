@@ -36,7 +36,7 @@
       </div>
       <div style="display: flex">
         <Button :onClick="() => $router.push({ path: '/wallet/deposit' })">
-          Top Up
+          Deposit
         </Button>
         <div spacer style="width: 23px" />
         <Button>

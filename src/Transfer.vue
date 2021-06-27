@@ -185,5 +185,6 @@ export default class Transfer extends Vue {
   background-color: #192C35;
   border-radius: 8px;
   padding: 16px;
+  font-size: 11px;
 }
 </style>
