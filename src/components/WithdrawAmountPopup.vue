@@ -14,9 +14,6 @@
       <input type="text" v-model="prepayEtherFee" /> <span style="color: white">Prepay fee (Ether) (optional)</span>
     </div>
     <div spacer style="height: 32px" />
-    <!-- <div style="color: white">
-      0.01 Ether will be used for the coordinator fee.
-    </div> -->
     <div spacer style="height: 32px" />
     <Button :onClick="() => commitWithdraw()">
       Send

@@ -164,7 +164,7 @@ export default class Transfer extends Vue {
       encryptTo: this.zkAddress,
     })
     await this.$store.dispatch('loadL2Balance')
-    this.$route.push({ path: '/wallet' })
+    this.$router.push({ path: '/wallet' })
 
   }
 }

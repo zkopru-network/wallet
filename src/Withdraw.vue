@@ -183,7 +183,7 @@ export default class Withdraw extends Vue {
       tx: this.tx,
     })
     await this.$store.dispatch('loadL2Balance')
-    this.$route.push({ path: '/wallet' })
+    this.$router.push({ path: '/wallet' })
   }
 }
 </script>
