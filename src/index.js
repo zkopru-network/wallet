@@ -13,6 +13,7 @@ import WalletStore from './stores/wallet'
 import Transfer from './Transfer'
 import Deposit from './Deposit'
 import AddressBookStore from './stores/address-book'
+import Withdraw from './Withdraw'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -44,7 +45,8 @@ const router = new VueRouter({
     { path: '/wallet_old', component: WalletOld },
     { path: '/wallet', component: Wallet },
     { path: '/wallet/transfer', component: Transfer },
-    { path: '/wallet/deposit', component: Deposit }
+    { path: '/wallet/deposit', component: Deposit },
+    { path: '/wallet/withdraw', component: Withdraw },
   ]
 })
 const app = new Vue({

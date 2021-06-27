@@ -39,7 +39,7 @@
           Deposit
         </Button>
         <div spacer style="width: 23px" />
-        <Button>
+        <Button :onClick="() => $router.push({ path: '/wallet/withdraw' })">
           Withdraw
         </Button>
       </div>
