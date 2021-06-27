@@ -4,17 +4,17 @@
       <input
         class="asset-input"
         type="text"
-        placeholder="Max: 0"
         :value="amount"
         v-on:input="$emit('amountChanged', $event.target.value)"
       />
       <div class="asset-text">{{asset}}</div>
+      <div spacer style="height: 4px" />
       <div v-if="amountState === 0" class="fee-underline" style="background: #95A7AE" />
-      <div v-if="amountState === 1" class="fee-underline" style="background: green" />
-      <div v-if="amountState === 2" class="fee-underline" style="background: red" />
+      <div v-if="amountState === 1" class="fee-underline" style="background: #00FFD1" />
+      <div v-if="amountState === 2" class="fee-underline" style="background: #F49F2F" />
     </div>
-    <div spacer style="height: 2px" />
-    <div style="display: flex; width: 100%; font-size: 9px;">
+    <div spacer style="height: 5px" />
+    <div style="display: flex; width: 100%; font-size: 12px; color: white">
       <div spacer style="width: 2px" />
       <div>0.00</div>
       <div spacer style="flex: 1" />
@@ -78,10 +78,11 @@ export default class AssetAmountField extends Vue {
   color: white;
   width: 100%;
   font-family: Inter;
-  font-size: 12px;
+  font-size: 14px;
 }
-.asset-input:placeholder {
-  font-size: 9px;
+.asset-input::placeholder {
+  font-size: 14px;
+  color: #95A7AE;
 }
 .asset-input:focus {
   border: 0px;

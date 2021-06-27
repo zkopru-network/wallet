@@ -1,8 +1,7 @@
 <template>
   <div class="grow-container">
     <div
-      class="asset-dropdown-container"
-      :style="dropdownVisible ? 'border-bottom-left-radius: 0px; border-bottom-right-radius: 0px' : ''"
+      :class="`asset-dropdown-container ${dropdownVisible ? 'active' : ''}`"
       v-on:click="dropdownClicked"
     >
       <div style="display: flex; align-items: center">
@@ -157,20 +156,27 @@ export default class AssetDropdown extends Vue {
 }
 .asset-dropdown-container {
   position: relative;
-  background-color: #0E2936;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  background-color: #081B24;
   border-radius: 8px;
   max-width: 543px;
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 23px;
+  padding: 13px;
   align-self: center;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   flex: 1;
   user-select: none;
+  border: 1px solid transparent;
+  border-bottom: 0px solid #3B4E56;
+}
+.asset-dropdown-container.active {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border: 1px solid #3B4E56;
+  border-bottom: 0px solid #3B4E56;
 }
 .asset-symbol-text {
   color: #00FFD1;
@@ -178,9 +184,11 @@ export default class AssetDropdown extends Vue {
 .asset-dropdown {
   position: absolute;
   top: 100%;
-  left: 0px;
-  width: calc(100% - 2px);
-  border: 1px solid #192C35;
+  /* -1px to account for 1px border */
+  left: -1px;
+  right: -1px;
+  border: 1px solid #3B4E56;
+  border-top: 0px solid #3B4E56;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   z-index: 10;
@@ -210,11 +218,11 @@ export default class AssetDropdown extends Vue {
 .asset-dropdown-row {
   background-color: #081B24;
   color: white;
-  font-size: 12px;
+  font-size: 14px;
   display: flex;
   align-items: center;
-  width: calc(100% - 23px - 23px);
-  padding: 23px;
+  width: calc(100% - 13px - 13px);
+  padding: 13px;
 }
 .asset-dropdown-row.active {
   background-color: #192C35;
@@ -222,7 +230,7 @@ export default class AssetDropdown extends Vue {
 .asset-dropdown-footer {
   background-color: #192C35;
   color: white;
-  font-size: 12px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   width: calc(100% - 23px - 23px);

@@ -8,9 +8,10 @@
       v-on:input="$emit('feeChanged', $event.target.value)"
     />
     <div class="gwei-text">GWEI</div>
+    <div spacer style="height: 4px" />
     <div v-if="feeState === 0" class="fee-underline" style="background: #95A7AE" />
-    <div v-if="feeState === 1" class="fee-underline" style="background: green" />
-    <div v-if="feeState === 2" class="fee-underline" style="background: red" />
+    <div v-if="feeState === 1" class="fee-underline" style="background: #00FFD1" />
+    <div v-if="feeState === 2" class="fee-underline" style="background: #F49F2F" />
   </div>
 </template>
 <script>
@@ -70,10 +71,11 @@ export default class AddressField extends Vue {
   color: white;
   width: 100%;
   font-family: Inter;
-  font-size: 12px;
+  font-size: 14px;
 }
-.fee-input:placeholder {
-  font-size: 9px;
+.fee-input::placeholder {
+  font-size: 14px;
+  color: #95A7AE;
 }
 .fee-input:focus {
   border: 0px;

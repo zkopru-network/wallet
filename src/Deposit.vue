@@ -2,27 +2,43 @@
   <div class="container">
     <Header showBackButton=true prevPath="/wallet" />
     <div spacer style="height: 44px" />
-    <AssetDropdown
-      :activeAsset="activeAsset"
-      v-model="activeAsset"
-      :loadBalance="loadBalance.bind(this)"
-    />
-    <div spacer style="height: 55px" />
-    <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center; font-size: 12px">
-      <div style="flex: 1; max-width: 559px">
-        <AssetAmountField
-          :asset="activeAsset"
-          v-model="depositAmount"
-          :assetAmountState="amountState"
+    <div container style="display: flex; flex-direction: column; align-items: center;/*justify-content: center; flex: 1; width: 100vw; align-self: center;*/ font-size: 12px">
+      <div class="section-container">
+        <div style="color: white; font-size: 11px">Deposit</div>
+        <div spacer style="height: 23px" />
+        <AssetDropdown
+          :activeAsset="activeAsset"
+          v-model="activeAsset"
+          :loadBalance="loadBalance.bind(this)"
         />
-        <div spacer style="height: 20px" />
-        <Button
-          :onClick="deposit.bind(this)"
-          buttonStyle="background: #00FFD1; color: #0E2936"
-        >
-          Deposit
-        </Button>
+        <div spacer style="height: 55px" />
+        <div style="flex: 1; max-width: 559px">
+          <AssetAmountField
+            :asset="activeAsset"
+            v-model="depositAmount"
+            :assetAmountState="amountState"
+          />
+        </div>
       </div>
+      <div spacer style="height: 16px" />
+      <div class="section-container">
+        <div style="color: white; font-size: 11px">Coordinator Fee</div>
+        <div spacer style="height: 23px" />
+        <div style="flex: 1; max-width: 559px">
+          <AssetAmountField
+            asset="ETH"
+            v-model="feeAmount"
+            :assetAmountState="feeAmountState"
+          />
+        </div>
+      </div>
+      <div spacer style="height: 20px" />
+      <Button
+        :onClick="deposit.bind(this)"
+        buttonStyle="background: #00FFD1; color: #0E2936"
+      >
+        Deposit
+      </Button>
     </div>
   </div>
 </template>
@@ -49,13 +65,26 @@ import { toWei } from './utils/wei'
       } else {
         this.amountState = 0
       }
+    },
+    feeAmount() {
+      if (this.feeAmount === '') {
+        this.feeAmountState = 0
+      } else if (isNaN(this.feeAmount)) {
+        this.feeAmountState = 2
+      } else if (+this.feeAmount > 0) {
+        this.feeAmountState = 1
+      } else {
+        this.feeAmountState = 2
+      }
     }
   }
 })
 export default class Deposit extends Vue {
   activeAsset = 'ETH'
   amountState = 0
-  depositAmount = ''
+  depositAmount = '0'
+  feeAmount = ''
+  feeAmountState = 0
 
   mounted() {
     if (this.$route.query.asset) {
@@ -74,7 +103,7 @@ export default class Deposit extends Vue {
     if (this.activeAsset === 'ETH' && this.amountState === 1) {
       const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
         toWei(this.depositAmount),
-        toWei('0.1'),
+        toWei(this.feeAmount),
       )
       await window.ethereum.request({
         method: 'eth_sendTransaction',
@@ -94,11 +123,11 @@ export default class Deposit extends Vue {
         toWei(0),
         token.address,
         amountDecimals,
-        toWei('0.01'),
+        toWei(this.feeAmount),
       )
       const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(token.address)
       const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
-      const tx = await window.ethereum.request({
+      const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
           data: transferData,
@@ -107,7 +136,6 @@ export default class Deposit extends Vue {
           from: this.$store.state.account.accounts[0],
         }]
       })
-      console.log(tx)
       await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
@@ -120,6 +148,7 @@ export default class Deposit extends Vue {
       await onComplete()
       await this.$store.dispatch('loadL2Balance')
     }
+    this.$router.push({ path: '/wallet' })
   }
 }
 </script>
@@ -131,5 +160,14 @@ export default class Deposit extends Vue {
   padding-left: 8px;
   padding-right: 8px;
   color: #95A7AE;
+}
+.section-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 452px;
+  width: 100vw;
+  background-color: #192C35;
+  border-radius: 8px;
+  padding: 16px;
 }
 </style>

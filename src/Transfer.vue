@@ -2,17 +2,17 @@
   <div class="container">
     <Header showBackButton=true prevPath="/wallet" />
     <div spacer style="height: 44px" />
-    <AssetDropdown
-      :activeAsset="activeAsset"
-      v-model="activeAsset"
-    />
-    <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center; font-size: 12px">
-      <div style="flex: 1; max-width: 559px">
-        <div spacer style="height: 55px" />
+    <div container style="display: flex; flex-direction: column; align-items: center; font-size: 12px">
+      <div class="section-container">
         <div>
           Send
         </div>
-        <div spacer style="height: 20px" />
+        <div spacer style="height: 23px" />
+        <AssetDropdown
+          :activeAsset="activeAsset"
+          v-model="activeAsset"
+        />
+        <div spacer style="height: 27px" />
         <AssetAmountField
           :asset="activeAsset"
           v-model="transferAmount"
@@ -24,14 +24,12 @@
         </div>
         <div spacer style="height: 21px" />
         <AddressField
-          v-model="addressInfo"
-          :addressInfo="addressInfo"
+          v-model="zkAddress"
+          :address="zkAddress"
         />
-        <div spacer style="height: 2px" />
-        <div class="small-text">
-          {{addressInfo.aliased && addressInfo.zkAddress || ''}}
-        </div>
-        <div spacer style="height: 32px" />
+      </div>
+      <div spacer style="height: 32px" />
+      <div class="section-container">
         <div style="display: flex; flex-direction: column; justify-content: center">
           <div>Transaction fee per byte</div>
           <div spacer style="height: 20px" />
@@ -43,28 +41,32 @@
             Suggested fee is calculated based on the current gas market.
           </div>
         </div>
-        <div spacer style="height: 39px" />
-        <Button buttonStyle="background: #00FFD1; color: #0E2936" :onClick="() => sendTx()">
-          SEND
-        </Button>
-        <div spacer style="height: 37px" />
-        <div style="display: flex; justify-content: space-between; color: white; border-bottom: 0.5px solid #2a3d46; padding-bottom: 5px">
-          <div style="display: flex; flex-direction: column">
-            <div>Transaction Total</div>
-            <div>Fee Total</div>
+      </div>
+      <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center; font-size: 12px">
+        <div style="flex: 1; max-width: 452px">
+          <div spacer style="height: 37px" />
+          <div style="display: flex; justify-content: space-between; color: white; border-bottom: 0.5px solid #2a3d46; padding-bottom: 5px">
+            <div style="display: flex; flex-direction: column">
+              <div>Transaction Total</div>
+              <div>Fee Total</div>
+            </div>
+            <div style="display: flex; flex-direction: column">
+              <div>{{transferAmount || '0'}} {{activeAsset}}</div>
+              <div>{{totalFee}} ETH</div>
+            </div>
           </div>
-          <div style="display: flex; flex-direction: column">
-            <div>{{transferAmount || '0'}} {{activeAsset}}</div>
-            <div>{{totalFee}} ETH</div>
-          </div>
-        </div>
-        <div spacer style="height: 45px" />
-        <div style="display: flex; justify-content: center">
-          <div
-            style="font-weight: bold; font-size: 14px; text-decoration: underline; cursor: pointer"
-            v-on:click="$router.push({ path: '/wallet' })"
-          >
-            Cancel
+          <div spacer style="height: 45px" />
+          <Button buttonStyle="background: #00FFD1; color: #0E2936" :onClick="() => sendTx()">
+            SEND
+          </Button>
+          <div spacer style="height: 39px" />
+          <div style="display: flex; justify-content: center">
+            <div
+              style="font-weight: bold; font-size: 14px; text-decoration: underline; cursor: pointer"
+              v-on:click="$router.push({ path: '/wallet' })"
+            >
+              Cancel
+            </div>
           </div>
         </div>
       </div>
@@ -99,7 +101,7 @@ import BN from 'bn.js'
         this.amountState = 0
       }
     },
-    addressInfo() {
+    zkAddress() {
       this.generateTx()
     },
     fee() {
@@ -109,12 +111,9 @@ import BN from 'bn.js'
 })
 export default class Transfer extends Vue {
   activeAsset = 'ETH'
-  transferAmount = ''
+  transferAmount = '0'
   amountState = 0
-  addressInfo = {
-    zkAddress: '',
-    aliased: false,
-  }
+  zkAddress = ''
   fee = '200'
   totalFee = '-'
   tx = undefined
@@ -126,12 +125,12 @@ export default class Transfer extends Vue {
   }
 
   paramString() {
-    return `${this.addressInfo.zkAddress}-${this.fee}-${this.transferAmount}`
+    return `${this.zkAddress}-${this.fee}-${this.transferAmount}`
   }
 
   async generateTx() {
     if (
-      !this.addressInfo.zkAddress ||
+      !this.zkAddress ||
       !this.fee ||
       !this.transferAmount
     ) {
@@ -141,7 +140,7 @@ export default class Transfer extends Vue {
     }
     const params = this.paramString()
     const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
-      this.addressInfo.zkAddress,
+      this.zkAddress,
       toWei(this.transferAmount),
       (+this.fee * (10 ** 9)).toString()
     )
@@ -157,7 +156,7 @@ export default class Transfer extends Vue {
     if (!this.tx) return
     await this.$store.state.zkopru.wallet.wallet.sendTx({
       tx: this.tx,
-      encryptTo: this.addressInfo.zkAddress,
+      encryptTo: this.zkAddress,
     })
     await this.$store.dispatch('loadL2Balance')
     this.$route.push({ path: '/wallet' })
@@ -172,9 +171,19 @@ export default class Transfer extends Vue {
   flex: 1;
   padding-left: 8px;
   padding-right: 8px;
-  color: #95A7AE;
+  color: white;
+  font-size: 12px;
 }
 .small-text {
-  font-size: 9px;
+  font-size: 12px;
+}
+.section-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 452px;
+  width: 100vw;
+  background-color: #192C35;
+  border-radius: 8px;
+  padding: 16px;
 }
 </style>
