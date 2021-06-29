@@ -1,100 +1,107 @@
 <template>
   <div class="container">
-    <Header />
-    <div spacer style="height: 90px" />
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap">
-      <!-- subheader buttons-->
-      <SwitchSelector
-        :options="[
-          {
-            text: 'Tokens',
-            image: require('../assets/shield_black.svg'),
-            activeColor: 'black',
-            inactiveColor: 'white',
-          },
-          {
-            text: 'NFTs',
-            image: require('../assets/shield_black.svg'),
-            activeColor: 'black',
-            inactiveColor: 'white',
-          },
-        ]"
-        v-model="assetType"
-      />
-      <div style="display: flex">
-        <Button buttonStyle="background: #fff; color: black" :onClick="() => $router.push({ path: '/wallet/transfer' })">
-          <span>Send</span>
-          <div spacer style="width: 10px" />
-          <img :src="require('../assets/shield_black.svg')" />
-        </Button>
-        <div spacer style="width: 23px" />
-        <Button buttonStyle="background: #fff; color: black" :onClick="() => showingAddressPopup = true">
-          <span>Receive</span>
-          <div spacer style="width: 10px" />
-          <img :src="require('../assets/shield_black.svg')" />
-        </Button>
+    <div class="left-bar">
+      <div style="color: white;font-size:16px;font-weight:bold">
+        Zkopru
       </div>
-      <div style="display: flex">
-        <Button :onClick="() => $router.push({ path: '/wallet/deposit' })">
-          Deposit
-        </Button>
-        <div spacer style="width: 23px" />
-        <Button :onClick="() => $router.push({ path: '/wallet/withdraw' })">
-          Withdraw
-        </Button>
+      <div spacer style="height: 47px" />
+      <div class="left-bar-item" v-on:click="$router.push({ path: '/wallet/deposit' })">
+        <img :src="require('../assets/deposit_icon.svg')" />
+        <div spacer style="width: 12px" />
+        <div>Deposit</div>
+      </div>
+      <div spacer style="height: 30px" />
+      <div class="left-bar-item" v-on:click="$router.push({ path: '/wallet/withdraw'})">
+        <img :src="require('../assets/withdraw_icon.svg')" />
+        <div spacer style="width: 12px" />
+        <div>Withdraw</div>
+      </div>
+      <div spacer style="height: 30px" />
+      <div class="left-bar-item">
+        <img :src="require('../assets/register_token_icon.svg')" />
+        <div spacer style="width: 12px" />
+        <div>Register Token</div>
       </div>
     </div>
-    <div spacer style="height: 32px" />
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-      <!-- search bar and sort options -->
-      <div style="position: relative; display: flex; flex: 1">
-        <input
-          type="text"
-          class="search-text-input"
-          v-model="filterText"
-        />
-        <img
-          style="position: absolute; left: 7px; top: 10px"
-          :src="require('../assets/search_icon.svg')"
-          height="25px"
-          width="25px"
-        />
+    <div style="display: flex; flex-direction: column; width: 100%;">
+      <div style="display: flex; align-items: center; box-shadow: 0px 1px 0px #2A3D46;">
+        <div style="position: relative; display: flex; flex: 1">
+          <input
+            type="text"
+            class="search-text-input"
+            v-model="filterText"
+            placeholder="search"
+          />
+          <ColorImage
+            style="position: absolute; left: 7px; top: 10px"
+            :src="require('../assets/search_icon.svg')"
+            height="24px"
+            width="24px"
+            color="#5D7078"
+          />
+        </div>
+        <div class="header-button">
+          History
+        </div>
+        <div spacer style="width: 16px" />
+        <div class="header-button" v-on:click="showingSettings = true">
+          Settings
+        </div>
+        <div spacer style="width: 16px" />
+        <div class="header-button">
+          Support
+        </div>
+        <div spacer style="width: 32px" />
       </div>
-      <div spacer style="width: 16px" />
-      <SwitchSelector
-        :options="[
-          {
-            image: require('../assets/sort_row_white.svg'),
-            activeColor: 'black',
-            inactiveColor: 'white',
-          },
-          {
-            image: require('../assets/sort_grid_black.svg'),
-            activeColor: 'black',
-            inactiveColor: 'white',
-          }
-        ]"
-        v-model="displayMode"
-      />
-      <div spacer style="width: 16px" />
-      <Button>
-        <span>Recently Added</span>
+      <div class="subheader-container">
+        <div class="tokens-button">
+          Tokens
+        </div>
+        <div spacer style="flex: 1" />
+        <div class="receive-button" v-on:click="showingAddressPopup = true">
+          <img :src="require('../assets/receive_button_icon.svg')" />
+          <div spacer style="width: 13px" />
+          Receive
+        </div>
         <div spacer style="width: 10px" />
-        <img :src="require('../assets/dropdown.svg')" />
-      </Button>
-    </div>
-    <div spacer style="height: 32px" />
-    <div style="display: flex; flex-wrap: wrap; justify-content: center">
-      <!-- token table -->
-      <AssetCell
-        v-for="asset in filteredAssets"
-        :symbol="asset"
-        :key="asset"
-      />
+        <div class="send-button" v-on:click="$router.push({ path: '/wallet/transfer' })">
+          <img :src="require('../assets/send_button_icon.svg')" />
+          <div spacer style="width: 13px" />
+          Send
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; padding: 13px 21px">
+        <div style="display: flex; width: 100%; align-items: center">
+          <div class="detail-text">ETH</div>
+          <div spacer style="flex: 1" />
+          <div class="detail-text">Your wallet and Zkopru transactions are private</div>
+          <img :src="require('../assets/shield_icon.svg')" />
+        </div>
+        <div spacer style="height: 22px" />
+        <div style="display: flex">
+          <AssetCell
+            symbol="ETH"
+          />
+        </div>
+        <div spacer style="height: 54px" />
+        <div class="detail-text">Tokens</div>
+        <div spacer style="height: 22px" />
+        <div style="display: flex">
+          <AssetCell
+            v-for="asset in filteredAssets"
+            :symbol="asset"
+            :key="asset"
+          />
+        </div>
+      </div>
     </div>
     <AddressPopup
       :visible="showingAddressPopup"
       :onCancel="() => showingAddressPopup = false"
+    />
+    <SettingsPanel
+      :visible="showingSettings"
+      :onClose="() => showingSettings = false"
     />
   </div>
 </template>
@@ -107,10 +114,12 @@ import Button from './components/Button'
 import AssetCell from './components/AssetCell'
 import ZkopruBackground from './components/ZkopruBackground'
 import AddressPopup from './components/AddressPopup'
+import ColorImage from './components/ColorImage'
+import SettingsPanel from './components/SettingsPanel'
 
 @Component({
   name: 'Wallet',
-  components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, AddressPopup, },
+  components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, AddressPopup, ColorImage, SettingsPanel, },
   watch: {
     filterText: function() {
       this.filterAssets()
@@ -131,6 +140,7 @@ export default class Wallet extends Vue {
   filterText = ''
   displayMode = 1
   assetType = 0
+  showingSettings = false
 
   mounted() {
     this.filterAssets()
@@ -138,6 +148,7 @@ export default class Wallet extends Vue {
 
   filterAssets() {
     this.filteredAssets = this.assets.filter((symbol) => {
+      if (symbol === 'ETH') return false
       return symbol.toLowerCase().indexOf(this.filterText.toLowerCase()) !== -1
     })
   }
@@ -146,22 +157,85 @@ export default class Wallet extends Vue {
 <style scoped>
 .container {
   display: flex;
-  flex-direction: column;
-  padding-left: 8px;
-  padding-right: 8px;
 }
 .search-text-input {
-  background: #0e2936;
+  background: transparent;
   border-radius: 4px;
   border: 0px solid white;
   color: white;
-  font-size: 38px;
+  font-size: 14px;
   text-indent: 39px;
+  height: 47px;
   flex: 1;
 }
 .search-text-input:focus {
   border-color: rgba(0, 0, 0, 0);
   border: 0px solid rgba(0, 0, 0, 0);
   outline: 0px solid rgba(0, 0, 0, 0);
+}
+.search-text-input:placeholder {
+  font-size: 14px;
+  color: #5D7078;
+}
+.left-bar {
+  background-color: #05141A;
+  width: 200px;
+  height: 100vh;
+  padding-left: 32px;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.left-bar-item {
+  display: flex;
+  font-size: 14px;
+  color: #95A7AE;
+  cursor: pointer;
+  user-select: none;
+}
+.header-button {
+  color: white;
+  cursor: pointer;
+}
+.subheader-container {
+  box-shadow: 0px 1px 0px #2A3D46;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+}
+.tokens-button {
+  color: white;
+  font-size: 16px;
+  box-shadow: 0px 1px 0px #9EFFEE;
+  padding: 8px;
+}
+.receive-button {
+  border: 1px solid #85C7BD;
+  box-sizing: border-box;
+  border-radius: 20px;
+  color: #85C7BD;
+  font-size: 16px;
+  padding: 8px 24px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
+.send-button {
+  background: #A2EFE1;
+  border-radius: 20px;
+  color: black;
+  font-size: 16px;
+  padding: 8px 24px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.detail-text {
+  color: #95A7AE;
+  font-size: 11px;
 }
 </style>

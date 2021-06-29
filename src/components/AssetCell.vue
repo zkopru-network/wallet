@@ -1,36 +1,30 @@
 <template>
-  <div class="cell-container" v-on:click="transfer">
-    <div style="display: flex; justify-content: flex-end">
-      <div style="cursor: pointer" v-on:click.stop="deposit">
-        <img :src="require('../../assets/top_up.svg')" />
-      </div>
-    </div>
-    <div style="display: flex; align-items: center; justify-content: center;">
+  <div class="cell-container">
+    <div style="position: relative; background-color: #05141A; border-radius: 50%; width: 67px; height: 67px; display: flex; justify-content: center; align-items: center">
       <img
         :src="tryLoadAssetIcon(symbol)"
-        width="93px"
-        height="93px"
-        style="background-color: white; border-radius: 50%; object-fit: contain; border: 1px solid black"
-      />
-    </div>
-    <div spacer style="height: 23px" />
-    <div style="display: flex; justify-content: space-between" class="cell-text">
-      <div>
-        {{balance(symbol)}}
+        width="32px"
+        height="32px"
+        style="object-fit: contain; "
+        />
+        <div
+          style="cursor: pointer; user-select:none; position: absolute; width: 32px; height: 32px; bottom: 0px; right: -12px; border-radius: 50%; background: #A2EFE1; display: flex; justify-content: center; align-items: center"
+          v-on:click="transfer"
+        >
+          <img :src="require('../../assets/send_button_icon.svg')" width='16px' height='16px' />
+        </div>
       </div>
-      <div>
+    <div spacer style="width: 120px" />
+    <div style="display: flex; flex-direction: column">
+      <div style="color: white; font-size: 14px;">
+        {{balance(symbol)}}
         {{ symbol.toUpperCase() }}
       </div>
-    </div>
-    <div style="align-self: center; color: rgba(150, 150, 150, 0.65)" class="cell-text">
-      ---------------------
-    </div>
-    <div style="display: flex; justify-content: space-between" class="cell-text">
-      <div>
-        0
-      </div>
-      <div>
-        USD
+      <div spacer style="height: 5px" />
+      <div style="width: 100%; height: 1px; background-color: #2A3D46" />
+      <div spacer style="height: 5px" />
+      <div style="font-size: 11px; color:#95A7AE; text-align: right">
+        0 USD
       </div>
     </div>
   </div>
@@ -73,16 +67,15 @@ export default class AssetCell extends Vue {
 <style scoped>
 .cell-container {
   user-select: none;
-  background: #0e2936;
+  background: #192C35;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
   display: flex;
-  flex-direction: column;
-  width: 288px;
-  height: 288px;
-  padding: 10px;
+  height: 83px;
+  padding: 8px 16px;
   margin: 13px;
-  cursor: pointer;
+  justify-content: center;
+  align-items: center;
 }
 .cell-text {
   font-size: 24px;
