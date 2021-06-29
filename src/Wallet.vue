@@ -32,8 +32,8 @@
             v-model="filterText"
             placeholder="search"
           />
-          <ColorImage
-            style="position: absolute; left: 7px; top: 10px"
+          <img
+            style="position: absolute; left: 7px; top: 12px"
             :src="require('../assets/search_icon.svg')"
             height="24px"
             width="24px"
