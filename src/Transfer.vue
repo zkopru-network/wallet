@@ -4,7 +4,7 @@
     <div spacer style="height: 44px" />
     <div container style="display: flex; flex-direction: column; align-items: center; font-size: 12px">
       <div class="section-container">
-        <div>
+        <div class="title-text">
           Send
         </div>
         <div spacer style="height: 23px" />
@@ -19,8 +19,8 @@
           :assetAmountState="amountState"
         />
         <div spacer style="height: 42px" />
-        <div>
-          to Zkopru address
+        <div class="title-text">
+          To Zkopru address
         </div>
         <div spacer style="height: 21px" />
         <AddressField
@@ -31,13 +31,18 @@
       <div spacer style="height: 32px" />
       <div class="section-container">
         <div style="display: flex; flex-direction: column; justify-content: center">
-          <div>Transaction fee per byte</div>
+          <div class="title-text">
+            Transaction fee per byte
+          </div>
           <div spacer style="height: 20px" />
           <FeeField
             v-model="fee"
+            :fee="fee"
+            :buttons="['Suggested fee']"
+            :buttonClicked="suggestedFee.bind(this)"
           />
           <div spacer style="height: 10px" />
-          <div class="small-text">
+          <div class="detail-text">
             Suggested fee is calculated based on the current gas market.
           </div>
         </div>
@@ -48,11 +53,22 @@
           <div style="display: flex; justify-content: space-between; color: white; border-bottom: 0.5px solid #2a3d46; padding-bottom: 5px">
             <div style="display: flex; flex-direction: column">
               <div>Transaction Total</div>
-              <div>Fee Total</div>
+              <div spacer style="height: 10px" />
+              <div>Fee</div>
             </div>
             <div style="display: flex; flex-direction: column">
               <div>{{transferAmount || '0'}} {{activeAsset}}</div>
+              <div spacer style="height: 10px" />
               <div>{{totalFee}} ETH</div>
+            </div>
+          </div>
+          <div spacer style="height: 5px" />
+          <div style="display: flex; justify-content: space-between; color: white; padding-bottom: 5px">
+            <div style="display: flex; flex-direction: column">
+              <div>Total</div>
+            </div>
+            <div style="display: flex; flex-direction: column">
+              <div>{{activeAsset === 'ETH' ? '' : `${transferAmount} ${activeAsset} + `}}{{activeAsset === 'ETH' ? +transferAmount + +totalFee : totalFee}} ETH</div>
             </div>
           </div>
           <div spacer style="height: 45px" />
@@ -119,7 +135,7 @@ export default class Transfer extends Vue {
   transferAmount = '0'
   amountState = 0
   zkAddress = ''
-  fee = '200'
+  fee = '0'
   totalFee = '-'
   tx = undefined
 
@@ -131,6 +147,16 @@ export default class Transfer extends Vue {
 
   paramString() {
     return `${this.zkAddress}-${this.fee}-${this.transferAmount}`
+  }
+
+  async suggestedFee(clickedButton) {
+    if (clickedButton === 'Suggested fee') {
+      try {
+        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
+        this.fee = +weiPerByte / (10**9)
+      } catch (err) {
+      }
+    }
   }
 
   async generateTx() {
@@ -201,6 +227,15 @@ export default class Transfer extends Vue {
   background-color: #192C35;
   border-radius: 8px;
   padding: 16px;
+  font-size: 11px;
+}
+.title-text {
+  color: #F2F2F2;
+  font-size: 12px;
+  font-weight: 600;
+}
+.detail-text {
+  color: #95A7AE;
   font-size: 11px;
 }
 </style>

@@ -9,7 +9,7 @@
       rows="2"
     />
     <div spacer style="height: 4px" />
-    <div v-if="addressState === 0" class="address-underline" style="background: #95A7AE" />
+    <div v-if="addressState === 0" class="address-underline" style="background: #5D7078" />
     <div v-if="addressState === 1" class="address-underline" style="background: #00FFD1" />
     <div v-if="addressState === 2" class="address-underline" style="background: #F49F2F" />
     <div spacer v-if="addressState === 2" style="height: 26px" />

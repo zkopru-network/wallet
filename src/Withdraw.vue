@@ -4,7 +4,7 @@
     <div spacer style="height: 44px" />
     <div container style="display: flex; flex-direction: column; align-items: center; font-size: 12px">
       <div class="section-container">
-        <div>
+        <div class="title-text">
           Withdraw
         </div>
         <div spacer style="height: 23px" />
@@ -19,7 +19,7 @@
           :assetAmountState="amountState"
         />
         <div spacer style="height: 18px" />
-        <div class="small-text">
+        <div class="detail-text">
           Withdrawals take ~7 days
         </div>
         <div spacer style="height: 18px" />
@@ -36,7 +36,7 @@
         <div style="display: flex; align-items: center">
           <img :src="require('../assets/lightning_bolt.svg')" />
           <div spacer style="width: 17px" />
-          <div>Instant withdraw fee</div>
+          <div class="title-text">Instant withdraw fee</div>
         </div>
         <div spacer style="height: 27px" />
         <AssetAmountField
@@ -48,13 +48,16 @@
       <div spacer style="height: 16px" />
       <div class="section-container">
         <div style="display: flex; flex-direction: column; justify-content: center">
-          <div>Transaction fee per byte</div>
+          <div class="title-text">Transaction fee per byte</div>
           <div spacer style="height: 20px" />
           <FeeField
             v-model="fee"
+            :fee="fee"
+            :buttons="['Suggested fee']"
+            :buttonClicked="suggestedFee.bind(this)"
           />
           <div spacer style="height: 10px" />
-          <div class="small-text">
+          <div class="detail-text">
             Suggested fee is calculated based on the current gas market.
           </div>
         </div>
@@ -65,11 +68,23 @@
           <div style="display: flex; justify-content: space-between; color: white; border-bottom: 0.5px solid #2a3d46; padding-bottom: 5px">
             <div style="display: flex; flex-direction: column">
               <div>Withdraw Total</div>
-              <div>Fee Total</div>
+              <div>Fee</div>
             </div>
             <div style="display: flex; flex-direction: column">
               <div>{{withdrawAmount || '0'}} {{activeAsset}}</div>
               <div>{{totalFee}} ETH</div>
+            </div>
+          </div>
+          <div spacer style="height: 5px" />
+          <div style="display: flex; justify-content: space-between; color: white; padding-bottom: 5px">
+            <div style="display: flex; flex-direction: column">
+              <div>Total</div>
+            </div>
+            <div style="display: flex; flex-direction: column">
+              <div>
+                {{activeAsset === 'ETH' ? '' : `${withdrawAmount} ${activeAsset} + `}}
+                {{activeAsset === 'ETH' ? +withdrawAmount + totalEthFee : totalEthFee}} ETH
+              </div>
             </div>
           </div>
           <div spacer style="height: 45px" />
@@ -141,6 +156,18 @@ import BN from 'bn.js'
       this.fee = '200'
       this.instantWithdrawFee = ''
     }
+  },
+  computed: {
+    totalEthFee() {
+      let total = 0
+      if (this.useInstantWithdraw) {
+        total += +this.instantWithdrawFee
+      }
+      if (!isNaN(this.totalFee)) {
+        total += this.totalFee
+      }
+      return total
+    }
   }
 })
 export default class Withdraw extends Vue {
@@ -151,8 +178,18 @@ export default class Withdraw extends Vue {
   totalFee = '-'
   tx = undefined
   useInstantWithdraw = false
-  instantWithdrawFee = ''
+  instantWithdrawFee = '0'
   instantWithdrawFeeState = 0
+
+  async suggestedFee(clickedButton) {
+    if (clickedButton === 'Suggested fee') {
+      try {
+        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
+        this.fee = +weiPerByte / (10**9)
+      } catch (err) {
+      }
+    }
+  }
 
   async generateTx() {
     if (
@@ -163,18 +200,37 @@ export default class Withdraw extends Vue {
       this.tx = undefined
       return
     }
-    const tx = await this.$store.state.zkopru.wallet.generateWithdrawal(
-      this.$store.state.account.accounts[0],
-      toWei(this.withdrawAmount),
-      (+this.fee * (10 ** 9)).toString(),
-      toWei(this.instantWithdrawFee || '0')
-    )
-    this.totalFee = fromWei(tx.fee.toString(), 8)
-    this.totalEther = fromWei(new BN(tx.fee)
-      .add(new BN(toWei(this.withdrawAmount)))
-      .add(new BN(toWei(this.instantWithdrawFee || '0')))
-      .toString())
-    this.tx = tx
+    if (this.activeAsset === 'ETH') {
+      const tx = await this.$store.state.zkopru.wallet.generateWithdrawal(
+        this.$store.state.account.accounts[0],
+        toWei(this.withdrawAmount),
+        (+this.fee * (10 ** 9)).toString(),
+        toWei(this.instantWithdrawFee || '0')
+      )
+      this.totalFee = fromWei(tx.fee.toString(), 8)
+      this.totalEther = fromWei(new BN(tx.fee)
+        .add(new BN(toWei(this.withdrawAmount)))
+        .add(new BN(toWei(this.instantWithdrawFee || '0')))
+        .toString())
+      this.tx = tx
+    } else {
+      const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+        return symbol === this.activeAsset
+      })
+      const decimalAmount = `${+this.withdrawAmount * (10 ** +decimals)}`
+      const tx = await this.$store.state.zkopru.wallet.generateTokenWithdrawal(
+        this.$store.state.account.accounts[0],
+        decimalAmount,
+        address,
+        (+this.fee * (10 ** 9)).toString(),
+        toWei(this.instantWithdrawFee || '0')
+      )
+      this.totalFee = fromWei(tx.fee.toString(), 8)
+      this.totalEther = fromWei(new BN(tx.fee)
+        .add(new BN(toWei(this.instantWithdrawFee || '0')))
+        .toString())
+      this.tx = tx
+    }
   }
 
   async sendTx() {
@@ -204,6 +260,15 @@ export default class Withdraw extends Vue {
   background-color: #192C35;
   border-radius: 8px;
   padding: 16px;
+  font-size: 11px;
+}
+.title-text {
+  color: #F2F2F2;
+  font-size: 12px;
+  font-weight: 600;
+}
+.detail-text {
+  color: #95A7AE;
   font-size: 11px;
 }
 </style>

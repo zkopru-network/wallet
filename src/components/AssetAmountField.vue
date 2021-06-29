@@ -16,7 +16,7 @@
         >
           {{ buttonText }}
         </div>
-        <div>{{asset}}</div>
+        <div style="font-size: 14px">{{asset}}</div>
       </div>
       <div spacer style="height: 5px" />
       <div v-if="amountState === 0" class="fee-underline" style="background: #5D7078" />

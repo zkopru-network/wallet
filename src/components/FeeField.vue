@@ -7,9 +7,19 @@
       :value="fee"
       v-on:input="$emit('feeChanged', $event.target.value)"
     />
-    <div class="gwei-text">GWEI</div>
+    <div class="buttons">
+      <div
+        v-for="buttonText in (buttons || []).reverse()"
+        style="margin-right: 16px"
+        class="button"
+        v-on:click="typeof buttonClicked === 'function' && buttonClicked(buttonText)"
+      >
+        {{ buttonText }}
+      </div>
+      <div class="gwei-text">GWEI</div>
+    </div>
     <div spacer style="height: 4px" />
-    <div v-if="feeState === 0" class="fee-underline" style="background: #95A7AE" />
+    <div v-if="feeState === 0" class="fee-underline" style="background: #5D7078" />
     <div v-if="feeState === 1" class="fee-underline" style="background: #00FFD1" />
     <div v-if="feeState === 2" class="fee-underline" style="background: #F49F2F" />
   </div>
@@ -21,7 +31,11 @@ import Zkopru from '@zkopru/client/browser'
 
 @Component({
   name: 'FeeField',
-  props: ['fee'],
+  props: [
+    'fee',
+    'buttons',
+    'buttonClicked',
+  ],
   watch: {
     fee: function () {
       this.updateFeeState()
@@ -41,7 +55,7 @@ export default class AddressField extends Vue {
   }
 
   updateFeeState() {
-    if (this.fee === '') {
+    if (this.fee === '' || this.fee === '0') {
       this.feeState = 0
       return
     }
@@ -55,11 +69,25 @@ export default class AddressField extends Vue {
 </script>
 <style scoped>
 .gwei-text {
+  color: white;
+  font-size: 14px;
+}
+.buttons {
   position: absolute;
-  right: 10px;
+  right: 4px;
   top: 0px;
   color: white;
   user-select: none;
+  display: flex;
+}
+.button {
+  color: white;
+  border: 1px solid #5D7078;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 0px 10px;
+  font-size: 12px;
+  cursor: pointer;
 }
 .fee-underline {
   height: 1px;
