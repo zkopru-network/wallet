@@ -89,12 +89,16 @@ export default {
         throw new Error('Latest block does not include canonical number')
       }
       state.latestBlock = latestBlock.canonicalNum
-      const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount)
       // if (newPercent === 100 && state.syncPercent < 100) {
         // load the l2 balance
         dispatch('loadL2Balance')
       // }
-      state.syncPercent = newPercent
+      if (state.latestBlock > 0) {
+        const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount)
+        state.syncPercent = newPercent
+      } else {
+        state.syncPercent = 100
+      }
     },
     loadWalletKey: async ({ state, rootState }) => {
       if (state.walletKey) {
@@ -146,8 +150,16 @@ export default {
         state.client.node.loadERC20Info(),
       ])
       {
-        state.registeredTokens = erc20Info
+        // DEV: skip the bugged test token contract
+        const tokenBlacklist = [
+          '0x560bd972e69f4dc15abf6093fcff2bc7e14f9239'.toLowerCase()
+        ]
+        state.registeredTokens = erc20Info.filter(({ address }) => {
+          return tokenBlacklist.indexOf(address.toLowerCase()) === -1
+        })
         state.tokensByAddress = erc20Info.reduce((acc, token) => {
+          // DEV: skip the bugged test token contract
+          if (tokenBlacklist.indexOf(token.address.toLowerCase()) !== -1) return acc
           return {
             [token.address.toLowerCase()]: token,
             ...acc
@@ -171,6 +183,12 @@ export default {
         const { erc20, erc721, eth } = locked
         state.lockedBalance = fromWei(eth.toString())
       }
+    },
+    loadCurrentWeiPerByte: async ({ state, dispatch }) => {
+      if (!state.wallet) {
+        await dispatch('loadWallet')
+      }
+      return state.wallet.loadCurrentPrice()
     },
     resetDB: async ({ state, dispatch }) => {
       // take the db and empty it

@@ -143,18 +143,30 @@ export default class Transfer extends Vue {
       this.tx = undefined
       return
     }
-    const params = this.paramString()
-    const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
-      this.zkAddress,
-      toWei(this.transferAmount),
-      (+this.fee * (10 ** 9)).toString()
-    )
-    // params changed during tx calc
-    if (this.paramString() !== params) return
-
-    this.totalFee = fromWei(tx.fee.toString(), 8)
-    this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
-    this.tx = tx
+    if (this.activeAsset === 'ETH') {
+      const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
+        this.zkAddress,
+        toWei(this.transferAmount),
+        (+this.fee * (10 ** 9)).toString()
+      )
+      this.totalFee = fromWei(tx.fee.toString(), 8)
+      this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
+      this.tx = tx
+    } else {
+      const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+        return symbol === this.activeAsset
+      })
+      const decimalAmount = `${+this.transferAmount * (10 ** +decimals)}`
+      const tx = await this.$store.state.zkopru.wallet.generateTokenTransfer(
+        this.zkAddress,
+        decimalAmount,
+        address,
+        (+this.fee * (10 ** 9)).toString()
+      )
+      this.totalFee = fromWei(tx.fee.toString(), 8)
+      this.totalEther = fromWei(new BN(tx.fee)).toString()
+      this.tx = tx
+    }
   }
 
   async sendTx() {
