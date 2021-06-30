@@ -90,6 +90,7 @@ export default class App extends Vue {
 }
 body {
   margin: 0px;
+  padding: 0px;
   background: #081B24;
   font-family: 'Inter';
 }

@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <div class="left-bar">
+      <div spacer style="height: 12px" />
       <div style="color: white;font-size:16px;font-weight:bold">
         Zkopru
       </div>
@@ -23,7 +24,7 @@
         <div>Register Token</div>
       </div>
     </div>
-    <div style="display: flex; flex-direction: column; width: 100%;">
+    <div style="display: flex; flex-direction: column; flex: 1;height: 100%">
       <div style="display: flex; align-items: center; box-shadow: 0px 1px 0px #2A3D46;">
         <div style="position: relative; display: flex; flex: 1">
           <input
@@ -94,6 +95,12 @@
           />
         </div>
       </div>
+      <div spacer style="flex: 1" />
+      <div style="padding: 8px;  display: flex">
+        <div style="color: white">
+          {{ $store.state.zkopru.syncing ? $store.state.zkopru.status : 'Not synchronizing' }} - {{$store.state.zkopru.syncPercent}}%
+        </div>
+      </div>
     </div>
     <AddressPopup
       :visible="showingAddressPopup"
@@ -157,6 +164,7 @@ export default class Wallet extends Vue {
 <style scoped>
 .container {
   display: flex;
+  height: 100vh;
 }
 .search-text-input {
   background: transparent;
@@ -180,9 +188,8 @@ export default class Wallet extends Vue {
 .left-bar {
   background-color: #05141A;
   width: 200px;
-  height: 100vh;
+  height: 100%;
   padding-left: 32px;
-  padding-top: 12px;
   display: flex;
   flex-direction: column;
 }
