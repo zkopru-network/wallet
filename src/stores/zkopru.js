@@ -1,4 +1,4 @@
-import Zkopru from '@zkopru/client/browser'
+import Zkopru, { ZkAccount } from '@zkopru/client/browser'
 import { sha512_256 } from 'js-sha512'
 import { fromWei } from '../utils/wei'
 
@@ -45,6 +45,7 @@ export default {
         // initialize the client if it doesn't already exist
         state.client = new Zkopru.Node({
           websocket: URL,
+          accounts: [new ZkAccount(state.walletKey)],
         })
         state.syncing = true
         state.status = 'Preparing to synchronize'
