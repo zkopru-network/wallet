@@ -3,7 +3,7 @@ const { sha512_256 } = require('js-sha512')
 const BN = require('bn.js')
 
 // const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
-const URL = 'ws://localhost:8546'
+const URL = 'ws://192.168.1.198:9546'
 const PRIVATE_KEY = '0x6e6f631356ddbd240abf2ccfe67c3f5dfbd1f4ce950aaab6f45dd7d7816e8171'
 const PUBLIC_KEY = '0x3537256fFB47da602871bE7FB26d9fe7e42dD055'
 
