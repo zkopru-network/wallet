@@ -96,7 +96,7 @@ export default {
       // }
       if (state.latestBlock > 0) {
         const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount)
-        state.syncPercent = newPercent
+        state.syncPercent = newPercent.toFixed(2)
       } else {
         state.syncPercent = 100
       }
