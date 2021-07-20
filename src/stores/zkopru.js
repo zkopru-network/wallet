@@ -23,6 +23,7 @@ export default {
     tokenBalances: {},
     registeredTokens: [],
     tokensByAddress: {},
+    history: [],
   },
   getters: {
     percent: state => {
@@ -139,6 +140,7 @@ export default {
       const { address } = state.wallet.wallet.account.zkAddress
       commit('setZkAddress', address)
       await dispatch('loadL2Balance')
+      await dispatch('loadHistory')
     },
     loadL2Balance: async ({ state, dispatch }) => {
       const [
@@ -217,6 +219,39 @@ export default {
           from: rootState.account.accounts[0],
         }]
       })
-    }
+    },
+    loadHistory: async ({ state }) => {
+      const { layer2, db } = state.client.node
+      const { web3 } = state.client.node.layer1
+      const l2Address = state.wallet.wallet.account.zkAddress.toString()
+
+      const withdrawals = await db.findMany('Withdrawal', { where: {} })
+      const utxos = await db.findMany('Utxo', {
+        where: {
+          owner: [l2Address],
+        }
+      })
+
+      // fetch deposits
+      const deposits = await db.findMany('Deposit', {
+        where: {
+          note: utxos.map(utxo => utxo.hash)
+        }
+      })
+      state.history = await Promise.all(deposits.map(async (deposit) => {
+        const utxo = await db.findOne('Utxo', {
+          where: {
+            hash: deposit.note
+          }
+        })
+        const block = await web3.eth.getBlock(deposit.blockNumber)
+        return {
+          type: 'DEPOSIT',
+          ...deposit,
+          ...utxo,
+          timestamp: block.timestamp
+        }
+      }))
+   }
   },
 }
