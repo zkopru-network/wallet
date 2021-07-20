@@ -5,7 +5,7 @@
 		</div>
 		<div class="history-body">
 			<div style="margin-right: 50px;">
-				<img style="margin-right: 12px; transform: translateY(2px);" :src="require('../../assets/deposit_icon.svg')"><span>{{item.type}}</span>
+				<img style="margin-right: 12px; transform: translateY(2px);" :src="require('../../assets/deposit_icon.svg')"><span style="color: white;">{{item.type}}</span>
 			</div>
 			<div class="amount-section">
 				<div class="amount-row" style="color: #FFFFFF;">

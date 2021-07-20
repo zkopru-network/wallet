@@ -5,18 +5,26 @@
 		<div class="body-container">
 			<div class="period-picker">
 				<div class="month-picker">
-					<div class="picker-button" @click="console.log('may')">
-						May
-					</div>
-					<div class="picker-button" @click="console.log('may')">
-						June
+					<div 
+						v-for="month in months(selectedYear)"
+						:key="month"
+						class="picker-button"
+						:class="{selected: selectedMonth === month}"
+						@click="selectMonth(month)">
+						{{formatMonth(month)}}
 					</div>
 				</div>
 				<div class="year-picker">
-					<div class="picker-button">2021</div>
+					<div
+						v-for="year in years"
+						:key="year"
+						class="picker-button"
+						:class="{selected: selectedYear === year}"
+						@click="selectYear(year)"
+					>{{year}}</div>
 				</div>
 			</div>
-			<div>
+			<div style="width: 80%;">
 				<HistoryListItem
 					v-for="historyItem in history"
 					:item="historyItem"
@@ -29,22 +37,88 @@
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import dayjs from 'dayjs'
 import Header from './components/Header'
 import Button from './components/Button'
 import HistoryListItem from './components/HistoryListItem.vue'
 
 @Component({
 	name: 'History',
-	components: { Header, Button, HistoryListItem },
-	computed: {
-		history() {
-			return this.$store.state.zkopru.history
-		}
-	}
+	components: { Header, Button, HistoryListItem }
 })
 export default class History extends Vue {
+	// set initial value to today
+	selectedYear = dayjs().year()
+	selectedMonth = dayjs().month()
+
+	get history() {
+		return this.$store.state.zkopru.history.filter(historyItem => {
+			return dayjs.unix(historyItem.timestamp).isSame(`${this.selectedYear}-${this.selectedMonth+1}-01`, 'month')
+		})
+	}
+
+	get years() {
+		const history = this.$store.state.zkopru.history
+		if (history.length === 0) return []
+
+		const oldest = dayjs.unix(history[history.length-1].timestamp).year()
+		const latest = dayjs.unix(history[0].timestamp).year()
+		const years = []
+		for (let i = oldest; i <= latest; i++) {
+			years.push(i)
+		}
+		return years
+	}
+
+	months(year) {
+		const history = this.$store.state.zkopru.history
+		if (history.length === 0) return []
+
+		const oldest = dayjs.unix(history[history.length-1].timestamp)
+		const latest = dayjs.unix(history[0].timestamp)
+
+		if (latest.year() === oldest.year()) {
+			if (year !== latest.year()) {
+				throw new Error('cannot be reached')
+			}
+			const months = []
+			for (let i = oldest.month(); i <= latest.month(); i++) {
+				months.push(i)
+			}
+			return months
+		}
+
+		if (year === latest.year()) {
+			for (let i = 0; i <= latest.month(); i++) {
+				months.push(i)
+			}
+			return months
+		} else if (year === oldest.year()) {
+			for (let i = oldest.month(); i <= 11; i++) {
+				months.push(i)
+			}
+			return months
+		}
+
+		return [...new Array(0, 12)].map((_, i) => i)
+	}
+
 	startLoadHistory() {
 		this.$store.dispatch('loadHistory')
+	}
+
+	selectYear(year) {
+		this.selectedYear = year
+		const months = this.months(year)
+		this.selectedMonth = months[months.length - 1]
+	}
+
+	selectMonth(month) {
+		this.selectedMonth = month
+	}
+
+	formatMonth(month) {
+		return dayjs().month(month).format('MMMM')
 	}
 }
 </script>
@@ -90,7 +164,7 @@ export default class History extends Vue {
 	overflow: scroll;
 }
 .picker-button {
-  background: #A2EFE1;
+  background: #3F6767;
   border-radius: 20px;
   color: black;
   font-size: 16px;
@@ -99,7 +173,11 @@ export default class History extends Vue {
   user-select: none;
   display: flex;
   align-items: center;
+	justify-content: center;
   margin-top: 16px;
   margin-bottom: 16px;
+}
+.picker-button.selected {
+  background: #A2EFE1;
 }
 </style>

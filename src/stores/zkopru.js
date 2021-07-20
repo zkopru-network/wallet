@@ -238,7 +238,7 @@ export default {
           note: utxos.map(utxo => utxo.hash)
         }
       })
-      state.history = await Promise.all(deposits.map(async (deposit) => {
+      const history = await Promise.all(deposits.map(async (deposit) => {
         const utxo = await db.findOne('Utxo', {
           where: {
             hash: deposit.note
@@ -252,6 +252,8 @@ export default {
           timestamp: block.timestamp
         }
       }))
+
+      state.history = history.sort((a, b) => b.timestamp - a.timestamp)
    }
   },
 }
