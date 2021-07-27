@@ -46,7 +46,6 @@ export default class TransferAmountPopup extends Vue {
       )
       await this.$store.state.zkopru.wallet.wallet.sendTx({
         tx,
-        encryptTo: this.recipient,
       })
       await this.$store.dispatch('loadL2Balance')
       this.onComplete()
