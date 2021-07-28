@@ -199,7 +199,6 @@ export default class Transfer extends Vue {
     if (!this.tx) return
     await this.$store.state.zkopru.wallet.wallet.sendTx({
       tx: this.tx,
-      encryptTo: this.zkAddress,
     })
     await this.$store.dispatch('loadL2Balance')
     this.$router.push({ path: '/wallet' })
