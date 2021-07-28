@@ -1,6 +1,7 @@
 import Zkopru, { ZkAccount } from '@zkopru/client/browser'
 import { sha512_256 } from 'js-sha512'
 import { fromWei } from '../utils/wei'
+import dayjs from 'dayjs'
 
 const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
 // const URL = 'ws://localhost:8546'
@@ -94,6 +95,7 @@ export default {
       // if (newPercent === 100 && state.syncPercent < 100) {
         // load the l2 balance
         dispatch('loadL2Balance')
+        dispatch('loadHistory')
       // }
       if (state.latestBlock > 0) {
         const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount)
@@ -220,40 +222,56 @@ export default {
         }]
       })
     },
-    loadHistory: async ({ state }) => {
+    loadHistory: async ({ state, rootState }) => {
       const { layer2, db } = state.client.node
       const { web3 } = state.client.node.layer1
       const l2Address = state.wallet.wallet.account.zkAddress.toString()
+      const l1Address = rootState.account.accounts[0]
+      const deposits = await db.findMany('Deposit', {
+        where: {
+          ownerAddress: [l2Address],
+        }
+      })
+      const withdrawals = (await db.findMany('Withdrawal', { where: {} }))
+        .filter(withdraw => withdraw.to.toLocaleLowerCase() === l1Address)
 
-      const withdrawals = await db.findMany('Withdrawal', { where: {} })
+      const receives = await db.findMany('Tx', {
+        where: { receiverAddress: l2Address },
+        include: { proposal: true } 
+      })
+
+      // use utxos to get deposit amount
       const utxos = await db.findMany('Utxo', {
         where: {
           owner: [l2Address],
         }
       })
 
-      // fetch deposits
-      const deposits = await db.findMany('Deposit', {
-        where: {
-          note: utxos.map(utxo => utxo.hash)
-        }
-      })
-      const history = await Promise.all(deposits.map(async (deposit) => {
-        const utxo = await db.findOne('Utxo', {
-          where: {
-            hash: deposit.note
+      const history = [
+        ...await Promise.all(deposits.map(async (deposit) => {
+          const utxo = utxos.find(utxo => utxo.hash === deposit.note)
+          const block = await web3.eth.getBlock(deposit.blockNumber)
+          return {
+            type: 'Deposit',
+            ...deposit,
+            ...utxo,
+            timestamp: block.timestamp
           }
-        })
-        const block = await web3.eth.getBlock(deposit.blockNumber)
-        return {
-          type: 'DEPOSIT',
-          ...deposit,
-          ...utxo,
-          timestamp: block.timestamp
-        }
-      }))
-
+        })),
+        ...receives.map((tx) => ({
+            type: 'Receive',
+            ...tx,
+            timestamp: tx.proposal.timestamp
+          })
+        ),
+        ...withdrawals.map((withdraw) => ({
+          type: 'Withdraw',
+          ...withdraw,
+          timestamp: dayjs().unix()
+        }))
+      ]
+      console.log(history)
       state.history = history.sort((a, b) => b.timestamp - a.timestamp)
-   }
+    }
   },
 }
