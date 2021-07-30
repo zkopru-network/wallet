@@ -11,7 +11,7 @@
       <div class="amount-section">
         <div class="amount-row" style="color: #FFFFFF;">
           <span class="amount-token">
-            <img :src="tryLoadAssetIcon()" style="margin-right: 14px; transform: translateY(-4px);"> ETH
+            <img :src="tryLoadAssetIcon()" style="margin-right: 14px; transform: translateY(-4px);"> {{getAssetSymbol()}}
           </span>
           <span class="amount-text">{{amount}}</span>
         </div>
@@ -32,7 +32,7 @@
           <span style="margin-bottom: 10px;">Completed</span>
           <span style="color: #FFFFFF;">{{isCompleted ? 'Complete' : 'Pending'}}</span>
         </div>
-        <div class="body-item" v-if="item.type==='Deposit' || item.type==='Withdraw'">
+        <div class="body-item" v-if="item.type==='Deposit' || item.type==='Withdraw' || item.type ==='Send'">
           <span style="margin-bottom: 10px;">Fee</span>
           <span style="color: #FFFFFF;">ETH {{fee}}</span>
         </div>
@@ -51,7 +51,7 @@ import { fromWei } from '../utils/wei'
   props: ['item'],
   computed: {
     fee() {
-      return fromWei(this.item.fee)
+      return fromWei(this.item.fee, 10)
     },
     amount() {
       return fromWei(this.getAmount())
@@ -59,9 +59,10 @@ import { fromWei } from '../utils/wei'
     isCompleted() {
       if (this.item.type === 'Deposit') {
         return this.item.status !== 0
-      } else {
+      } else if (this.item.proposal) {
         return this.item.proposal.finalized
-      }
+      } 
+      return false
     },
     dateString() {
       return dayjs.unix(this.item.timestamp).format('MMM D, YYYY')
@@ -88,8 +89,8 @@ export default class HistoryListItem extends Vue {
     return tokens.find(token => token.address === address)
   }
   getAmount() {
-    if (this.item.type === 'Deposit') {
-      const token = this.getToken(this.item.tokenAddr || this.item.tokenAddress) // TODO: delete if field has consistent name
+    if (this.item.type === 'Deposit' || this.item.type === 'Withdraw') {
+      const token = this.getToken(this.item.tokenAddr)
       if (token.symbol === 'ETH') {
         return this.item.eth
       } else {
@@ -103,12 +104,16 @@ export default class HistoryListItem extends Vue {
     return require(`../../assets/${this.item.type.toLowerCase()}_icon.svg`)
   }
   tryLoadAssetIcon() {
-    const token = this.getToken(this.item.tokenAddr || this.item.tokenAddress) // TODO: delete if field has consistent name
+    const token = this.getToken(this.item.tokenAddr)
     try {
       return require(`../../assets/token_icons/${token.symbol.toUpperCase()}.svg`)
     } catch (_) {
       return require('../../assets/token_no_icon.png')
     }
+  }
+  getAssetSymbol() {
+    const token = this.getToken(this.item.tokenAddr)
+    return token && token.symbol || 'UNKNOWN'
   }
 }
 </script>
@@ -138,6 +143,7 @@ export default class HistoryListItem extends Vue {
 }
 .amount-row {
   display: flex;
+  justify-content: space-between;
   margin-bottom: 24px;
 }
 .amount-row:last-child {
@@ -145,7 +151,6 @@ export default class HistoryListItem extends Vue {
 }
 .amount-token {
   display: flex;
-  margin-right: 40px;
 }
 .arrow-img {
   align-self: flex-start;

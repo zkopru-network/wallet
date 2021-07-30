@@ -231,13 +231,22 @@ export default {
         where: {
           ownerAddress: [l2Address],
         }
-      })
-      const withdrawals = (await db.findMany('Withdrawal', { where: {} }))
-        .filter(withdraw => withdraw.to.toLocaleLowerCase() === l1Address)
+      }) 
 
-      const receives = await db.findMany('Tx', {
+      // because case sensitivity differes in l1Address and database,
+      // need to filter after querying all records in database.
+      const withdrawals = (await db.findMany('Withdrawal', { where: {}, include: { proposal: true } }))
+        .filter(withdraw => withdraw.to.toLocaleLowerCase() === l1Address)
+      const sendTxs = await db.findMany('Tx', {
+        where: { senderAddress: l2Address },
+        include: { proposal: true }
+      })
+      const receiveTxs = await db.findMany('Tx', {
         where: { receiverAddress: l2Address },
         include: { proposal: true } 
+      })
+      const pendingTxs = await db.findMany('PendingTx', {
+        where: { senderAddress: l2Address },
       })
 
       // use utxos to get deposit amount
@@ -258,19 +267,28 @@ export default {
             timestamp: block.timestamp
           }
         })),
-        ...receives.map((tx) => ({
+        ...pendingTxs.map((tx) => ({
+          type: 'Send',
+          ...tx,
+          timestamp: dayjs().unix()
+        })),
+        ...receiveTxs.map((tx) => ({
             type: 'Receive',
             ...tx,
             timestamp: tx.proposal.timestamp
           })
         ),
+        ...sendTxs.map((tx) => ({
+          type: 'Send',
+          ...tx,
+          timestamp: tx.proposal.timestamp
+        })),
         ...withdrawals.map((withdraw) => ({
           type: 'Withdraw',
           ...withdraw,
-          timestamp: dayjs().unix()
+          timestamp: tx.proposal.timestamp
         }))
       ]
-      console.log(history)
       state.history = history.sort((a, b) => b.timestamp - a.timestamp)
     }
   },
