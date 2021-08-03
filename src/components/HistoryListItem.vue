@@ -22,9 +22,9 @@
           <span>{{fee}}</span>
         </div>
       </div>
-      <img class="arrow-img" :src="require('../../assets/chevron_left_double_light.svg')">
+      <img class="arrow-img" :src="getDoubleArrow()" @click="toggleCollapsed()">
       <div class="body-item-list">
-        <div class="body-item" v-if="item.type === 'Deposit'">
+        <div class="body-item" v-if="collapsed && item.type === 'Deposit'">
           <span style="margin-bottom: 10px;">Submitted</span>
           <span style="color: #FFFFFF;">{{timeString}}</span>
         </div>
@@ -32,7 +32,7 @@
           <span style="margin-bottom: 10px;">Completed</span>
           <span style="color: #FFFFFF;">{{isCompleted ? 'Complete' : 'Pending'}}</span>
         </div>
-        <div class="body-item" v-if="item.type==='Deposit' || item.type==='Withdraw' || item.type ==='Send'">
+        <div class="body-item" v-if="collapsed && (item.type==='Deposit' || item.type==='Withdraw' || item.type ==='Send')">
           <span style="margin-bottom: 10px;">Fee</span>
           <span style="color: #FFFFFF;">ETH {{fee}}</span>
         </div>
@@ -79,6 +79,8 @@ import { fromWei } from '../utils/wei'
   }
 })
 export default class HistoryListItem extends Vue {
+  collapsed = false
+
   getToken(address) {
     if (+address === 0) {
       return { symbol: 'ETH', address: '0', decimal: 18 }
@@ -111,6 +113,16 @@ export default class HistoryListItem extends Vue {
   getAssetSymbol() {
     const token = this.getToken(this.item.tokenAddr)
     return token && token.symbol || 'UNKNOWN'
+  }
+  getDoubleArrow() {
+    if (this.collapsed) {
+      return require('../../assets/chevron_left_double_light.svg')
+    } else {
+      return require('../../assets/chevron_right_double_light.svg')
+    }
+  }
+  toggleCollapsed() {
+    this.collapsed = !this.collapsed
   }
 }
 </script>
@@ -153,6 +165,7 @@ export default class HistoryListItem extends Vue {
   align-self: flex-start;
   margin-left: 32px;
   transform: translateY(-4px);
+  cursor: pointer;
 }
 .body-item-list {
   display: flex;
