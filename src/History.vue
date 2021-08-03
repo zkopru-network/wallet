@@ -156,12 +156,12 @@ export default class History extends Vue {
 .month-picker {
   margin-top: 64px;
   max-height: 120px;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 .year-picker {
   margin-top: 64px;
   max-height: 120px;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 .picker-button {
   background: #3F6767;
