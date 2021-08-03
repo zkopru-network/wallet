@@ -48,8 +48,25 @@ import HistoryListItem from './components/HistoryListItem.vue'
 })
 export default class History extends Vue {
   // set initial value to today
-  selectedYear = dayjs().year()
-  selectedMonth = dayjs().month()
+  _selectedYear
+  _selectedMonth
+
+  get selectedYear() {
+    if (this._selectedYear) return this._selectedYear
+    const history = this.$store.state.zkopru.history
+    if (history.length > 0) {
+      return dayjs.unix(history[0].timestamp).year()
+    }
+    return dayjs().year()
+  }
+  get selectedMonth() {
+    if (this._selectedYear) return this._selectedYear
+    const history = this.$store.state.zkopru.history
+    if (history.length > 0) {
+      return dayjs.unix(history[0].timestamp).month()
+    }
+    return dayjs().month()
+  }
 
   get history() {
     return this.$store.state.zkopru.history.filter(historyItem => {
