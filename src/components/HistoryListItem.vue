@@ -80,14 +80,11 @@ import { fromWei } from '../utils/wei'
 })
 export default class HistoryListItem extends Vue {
   getToken(address) {
-    const tokens = [
-      {symbol: 'ETH', address: '0', decimal: 18},
-      {symbol: 'ETH', address: '0x0', decimal: 18},
-      {symbol: 'ETH', address: '0x0000000000000000000000000000000000000000', decimal: 18},
-      ...this.$store.state.zkopru.registeredTokens
-    ]
-    return tokens.find(token => token.address === address)
-  }
+    if (+address === 0) {
+      return { symbol: 'ETH', address: '0', decimal: 18 }
+    }
+    return this.$store.state.zkopru.tokensByAddress[address.toLowerCase()] 
+  } 
   getAmount() {
     if (this.item.type === 'Deposit' || this.item.type === 'Withdraw') {
       const token = this.getToken(this.item.tokenAddr)
