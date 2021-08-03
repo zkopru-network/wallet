@@ -41,7 +41,7 @@
             color="#5D7078"
           />
         </div>
-        <div class="header-button">
+        <div class="header-button" v-on:click="$router.push({ path: '/wallet/history' })">
           History
         </div>
         <div spacer style="width: 16px" />
