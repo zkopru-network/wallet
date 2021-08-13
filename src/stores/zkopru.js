@@ -275,18 +275,18 @@ export default {
         ...receiveTxs.map((tx) => ({
             type: 'Receive',
             ...tx,
-            timestamp: tx.proposal?.timestamp
+            timestamp: (tx.proposal || {}).timestamp
           })
         ),
         ...sendTxs.map((tx) => ({
           type: 'Send',
           ...tx,
-          timestamp: tx.proposal?.timestamp
+          timestamp: (tx.proposal || {}).timestamp
         })),
         ...withdrawals.map((withdraw) => ({
           type: 'Withdraw',
           ...withdraw,
-          timestamp: withdraw.proposal?.timestamp
+          timestamp: (withdraw.proposal || {}).timestamp
         }))
       ]
       state.history = history.sort((a, b) => b.timestamp - a.timestamp)
