@@ -231,7 +231,7 @@ export default {
         where: {
           ownerAddress: [l2Address],
         }
-      }) 
+      })
 
       // because case sensitivity differes in l1Address and database,
       // need to filter after querying all records in database.
@@ -243,7 +243,7 @@ export default {
       })
       const receiveTxs = await db.findMany('Tx', {
         where: { receiverAddress: l2Address },
-        include: { proposal: true } 
+        include: { proposal: true }
       })
       const pendingTxs = await db.findMany('PendingTx', {
         where: { senderAddress: l2Address },
@@ -286,7 +286,7 @@ export default {
         ...withdrawals.map((withdraw) => ({
           type: 'Withdraw',
           ...withdraw,
-          timestamp: tx.proposal.timestamp
+          timestamp: withdraw.proposal.timestamp
         }))
       ]
       state.history = history.sort((a, b) => b.timestamp - a.timestamp)
