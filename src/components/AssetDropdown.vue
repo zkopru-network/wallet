@@ -4,19 +4,23 @@
       :class="`asset-dropdown-container ${dropdownVisible ? 'active' : ''}`"
       v-on:click="dropdownClicked"
     >
-      <div style="display: flex; align-items: center">
+      <div v-if="!!activeAsset" style="display: flex; align-items: center">
         <img
+          v-show="showIcon"
           :src="tryLoadAssetIcon(activeAsset)"
           width="23px"
           height="23px"
         />
-        <div spacer style="width: 23px" />
+        <div spacer v-show="showIcon" style="width: 23px" />
         <span class="asset-symbol-text">{{activeAsset.toUpperCase()}}</span>
         <div spacer style="width: 8px" />
         {{balanceText(activeAsset)}}
       </div>
+      <div v-if="!activeAsset" style="display: flex; align-items: center">
+        Select a token
+      </div>
       <div spacer style="display: flex; flex: 1" />
-      <img :src="require('../../assets/asset_dropdown.svg')" />
+      <img v-show="editable" :src="require('../../assets/asset_dropdown.svg')" />
       <div v-if="dropdownVisible" class="asset-dropdown">
         <input
           type="text"
@@ -73,11 +77,31 @@ import ColorImage from './ColorImage'
     loadBalance: {
       type: Function,
       required: false,
+    },
+    editable: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    showIcon: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    tokenOnly: {
+      type: Boolean,
+      required: false,
+      default: false,
     }
   },
   computed: {
     assets() {
-      return ['ETH', ...this.$store.state.zkopru.registeredTokens.map(({ symbol }) => symbol)]
+      const tokens = this.$store.state.zkopru.registeredTokens.map(({ symbol }) => symbol)
+      if (this.tokenOnly) {
+        return tokens
+      } else {
+        return ['ETH', ...tokens]
+      }
     }
   },
   watch: {
@@ -110,11 +134,13 @@ export default class AssetDropdown extends Vue {
 
   filterAssets() {
     this.filteredAssets = this.assets.filter(name => {
+      if (this.tokenOnly && name.toUpperCase() === 'ETH') return false
       return name.toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1
     })
   }
 
   dropdownClicked() {
+    if (!this.editable) return
     this.dropdownVisible = !this.dropdownVisible
     if (this.dropdownVisible) {
       this.searchText = ''
@@ -156,7 +182,7 @@ export default class AssetDropdown extends Vue {
 }
 .asset-dropdown-container {
   position: relative;
-  background-color: #081B24;
+  background-color: #192C35;
   border-radius: 8px;
   max-width: 543px;
   color: white;

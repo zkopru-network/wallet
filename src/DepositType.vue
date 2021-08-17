@@ -61,6 +61,12 @@ import NextButton from './components/NextButton'
 })
 export default class DepositType extends Vue {
   selectedOption = 0
+
+  mounted() {
+    if (this.$route.query.type && !isNaN(this.$route.query.type)) {
+      this.selectedOption = +this.$route.query.type
+    }
+  }
 }
 </script>
 <style scoped>
@@ -99,6 +105,7 @@ export default class DepositType extends Vue {
   /* so the element doesn't jump when selected */
   border: 1px solid transparent;
   font-size: 14px;
+  user-select: none;
 }
 .selectable-active {
   background-color: #05141A;
