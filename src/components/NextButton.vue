@@ -4,7 +4,7 @@
       :class="`next-button ${disabled && 'disabled'}`"
       v-on:click="nextClicked"
     >
-      Next
+      {{ text || 'Next' }}
     </div>
     <div
       v-if="typeof onBack === 'function'"
@@ -23,7 +23,7 @@ import Component from 'vue-class-component'
 
 @Component({
   name: 'NextButton',
-  props: ['disabled', 'onNext', 'onBack']
+  props: ['disabled', 'onNext', 'onBack', 'text']
 })
 export default class NextButton extends Vue {
   nextClicked() {

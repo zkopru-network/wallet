@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <LeftMenu />
-    <div style="display: flex; flex: 1; justify-content: center">
+    <div style="display: flex; flex: 1; justify-content: center; position: relative">
       <div style="display: flex; flex-direction: column; align-items: center;">
         <slot></slot>
       </div>

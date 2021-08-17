@@ -66,8 +66,16 @@
     </div>
     <div spacer style="height: 4px" />
     <NextButton
-      :onNext="deposit.bind(this)"
+      :onNext="() => showingDepositConfirm = true"
       :onBack="() => $router.push(`/wallet/deposit/type?type=${depositType}`)"
+    />
+    <ConfirmDepositPopup
+      v-if="showingDepositConfirm"
+      :etherDepositAmount="etherDepositAmount"
+      :tokenDepositAmount="tokenDepositAmount"
+      :feeAmount="feeAmount"
+      :activeToken="activeToken"
+      :onClose="() => showingDepositConfirm = false"
     />
   </CenteredLeftMenu>
 </template>
@@ -81,10 +89,11 @@ import Checkbox from './components/Checkbox'
 import BN from 'bn.js'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
+import ConfirmDepositPopup from './components/ConfirmDepositPopup'
 
 @Component({
   name: 'Deposit',
-  components: { AssetDropdown, AssetAmountField, Checkbox, NextButton, CenteredLeftMenu, },
+  components: { AssetDropdown, AssetAmountField, Checkbox, NextButton, CenteredLeftMenu, ConfirmDepositPopup, },
   watch: {
     etherDepositAmount() {
       this.updateEtherAmountState()
@@ -112,6 +121,7 @@ export default class Deposit extends Vue {
   feeAmount = '0'
   feeAmountState = 0
   depositType = 0
+  showingDepositConfirm = false
 
   mounted() {
     const { type, asset } = this.$route.query
