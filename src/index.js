@@ -11,6 +11,7 @@ import TestTokenStore from './stores/test-token'
 import WalletStore from './stores/wallet'
 import Transfer from './Transfer'
 import Deposit from './Deposit'
+import DepositType from './DepositType'
 import AddressBookStore from './stores/address-book'
 import Withdraw from './Withdraw'
 import History from './History'
@@ -45,6 +46,7 @@ const router = new VueRouter({
     { path: '/wallet', component: Wallet },
     { path: '/wallet/transfer', component: Transfer },
     { path: '/wallet/deposit', component: Deposit },
+    { path: '/wallet/deposit/type', component: DepositType },
     { path: '/wallet/withdraw', component: Withdraw },
     { path: '/wallet/history', component: History }
   ]

@@ -18,7 +18,7 @@
     </div>
     <div
       :class="`item ${isDeposit && 'selected'}`"
-      v-on:click="$router.push('/wallet/deposit')"
+      v-on:click="$router.push('/wallet/deposit/type')"
     >
       <div class="image-container">
         <ColorImage
