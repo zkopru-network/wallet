@@ -66,7 +66,8 @@
     </div>
     <div spacer style="height: 4px" />
     <NextButton
-      :onNext="() => showingDepositConfirm = true"
+      :disabled="etherAmountState !== 1 || tokenAmountState !== 1 || feeAmountState !== 1"
+      :onNext="() => showDeposit()"
       :onBack="() => $router.push(`/wallet/deposit/type?type=${depositType}`)"
     />
     <ConfirmDepositPopup
@@ -104,7 +105,7 @@ import ConfirmDepositPopup from './components/ConfirmDepositPopup'
       } else if (isNaN(this.tokenDepositAmount) || +this.tokenDepositAmount <= 0) {
         this.tokenAmountState = 2
       } else {
-        this.tokenAmountState = 0
+        this.tokenAmountState = 1
       }
     },
     feeAmount() {
@@ -156,56 +157,8 @@ export default class Deposit extends Vue {
     }
   }
 
-  async deposit() {
-    if (this.depositType === 3 && this.etherAmountState === 1) {
-      const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
-        toWei(this.etherDepositAmount),
-        toWei(this.feeAmount),
-      )
-      await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data,
-          to,
-          value,
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
-      await onComplete()
-      await this.$store.dispatch('loadL2Balance')
-    } else {
-      const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeToken)
-      const amountDecimals = `${(+this.tokenDepositAmount)*(10**(+token.decimals))}`
-      const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
-        toWei(this.etherDepositAmount),
-        token.address,
-        amountDecimals,
-        toWei(this.feeAmount),
-      )
-      const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(token.address)
-      const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
-      const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data: transferData,
-          to: token.address,
-          value: '0',
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
-      await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data,
-          to,
-          value,
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
-      await onComplete()
-      await this.$store.dispatch('loadL2Balance')
-    }
-    this.$router.push({ path: '/wallet' })
+  showDeposit() {
+    this.showingDepositConfirm = true
   }
 
   updateEtherAmountState() {
