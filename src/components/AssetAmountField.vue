@@ -1,5 +1,5 @@
 <template>
-  <div style="">
+  <div style="position: relative">
     <input
       class="asset-input"
       type="text"
@@ -15,7 +15,7 @@
     <div class="asset-buttons">
       <div
         v-for="buttonText in (buttons || []).reverse()"
-        style="margin-right: 16px"
+        style="margin-right: 4px"
         class="asset-button"
         v-on:click="typeof buttonClicked === 'function' && buttonClicked(buttonText)"
       >
@@ -74,17 +74,14 @@ export default class AssetAmountField extends Vue {
 .asset-buttons {
   position: absolute;
   right: 4px;
-  top: 0px;
+  top: 12px;
   color: white;
   user-select: none;
   display: flex;
 }
 .asset-button {
-  color: white;
-  border: 1px solid #5D7078;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  padding: 0px 10px;
+  color: #95A7AE;
+  padding: 0px 12px;
   font-size: 12px;
   cursor: pointer;
 }

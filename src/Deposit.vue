@@ -14,12 +14,17 @@
         :editable="false"
         :showIcon="false"
       />
-      <div spacer style="height: 55px" />
+      <div spacer style="height: 16px" />
       <div style="flex: 1; max-width: 559px">
         <AssetAmountField
           asset="ETH"
           v-model="etherDepositAmount"
           :assetAmountState="etherAmountState"
+          :buttons="['Max']"
+          :buttonClicked="() => {
+            const balance = $store.state.account.balance
+            etherDepositAmount = isNaN(feeAmount) ? balance : Math.max(+balance - +feeAmount, 0)
+          }"
         />
       </div>
     </div>
@@ -37,7 +42,7 @@
         :showIcon="false"
         :tokenOnly="true"
       />
-      <div v-if="activeToken" spacer style="height: 55px" />
+      <div v-if="activeToken" spacer style="height: 16px" />
       <div v-if="activeToken" style="flex: 1; max-width: 559px">
         <AssetAmountField
           :asset="activeToken"
@@ -54,13 +59,9 @@
           asset="ETH"
           v-model="feeAmount"
           :assetAmountState="feeAmountState"
-          :buttons="['Instant']"
+          :buttons="['Fast', 'Standard']"
           :buttonClicked="setFeeAmount.bind(this)"
         />
-      </div>
-      <div spacer style="height: 13px" />
-      <div class="detail-text">
-        Suggested fees are calculated based on current gas market.
       </div>
     </div>
     <div spacer style="height: 4px" />
@@ -91,7 +92,7 @@ import NextButton from './components/NextButton'
     tokenDepositAmount() {
       if (this.tokenDepositAmount === '') {
         this.tokenAmountState = 0
-      } else if (isNaN(this.tokenDepositAmount)) {
+      } else if (isNaN(this.tokenDepositAmount) || +this.tokenDepositAmount < 0) {
         this.tokenAmountState = 2
       } else {
         this.tokenAmountState = 0
@@ -201,14 +202,14 @@ export default class Deposit extends Vue {
   updateEtherAmountState() {
     if (this.feeAmount === '' || this.feeAmount === '0') {
       this.feeAmountState = 0
-    } else if (isNaN(this.feeAmount)) {
+    } else if (isNaN(this.feeAmount) || +this.feeAmount < 0) {
       this.feeAmountState = 2
     } else {
       this.feeAmountState = +this.feeAmount > +this.$store.state.account.balance ? 2 : 1
     }
     if (this.etherDepositAmount === '') {
       this.etherAmountState = 0
-    } else if (isNaN(this.etherDepositAmount)) {
+    } else if (isNaN(this.etherDepositAmount) || +this.etherDepositAmount < 0) {
       this.etherAmountState = 2
     } else {
       this.etherAmountState = +this.etherDepositAmount > +this.$store.state.account.balance ? 2 : 1
