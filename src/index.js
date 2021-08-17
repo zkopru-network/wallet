@@ -4,7 +4,6 @@ import VueRouter from 'vue-router'
 import Meta from 'vue-meta'
 import App from './App'
 import Home from './Home'
-import WalletOld from './WalletOld'
 import Wallet from './Wallet'
 import ZkopruStore from './stores/zkopru'
 import EthAccountStore from './stores/eth-account'
@@ -43,7 +42,6 @@ const router = new VueRouter({
   mode: 'history',
   routes: [
     { path: '/', component: Home },
-    { path: '/wallet_old', component: WalletOld },
     { path: '/wallet', component: Wallet },
     { path: '/wallet/transfer', component: Transfer },
     { path: '/wallet/deposit', component: Deposit },
