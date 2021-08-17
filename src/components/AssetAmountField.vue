@@ -1,7 +1,7 @@
 <template>
   <div style="position: relative">
     <input
-      class="asset-input"
+      :class="`asset-input ${amountState === 3 ? 'fee-border animated' : ''}`"
       type="text"
       :value="amount"
       v-on:input="$emit('amountChanged', $event.target.value)"
@@ -9,7 +9,6 @@
         ${amountState === 0 ? 'border-color: #5D7078' : ''}
         ${amountState === 1 ? 'border-color: #00FFD1' : ''}
         ${amountState === 2 ? 'border-color: #F49F2F' : ''}
-        ${amountState === 3 ? 'border-color: red' : ''}
       `"
     />
     <div class="asset-buttons">
@@ -85,24 +84,21 @@ export default class AssetAmountField extends Vue {
   font-size: 12px;
   cursor: pointer;
 }
-.fee-underline {
-  height: 1px;
-  width: 100%;
-  margin: 0px 2px;
+.fee-border {
 }
-@keyframes underline-color {
+@keyframes border-color-anim {
   0% {
-    background-color: #00FFD1;
+    border-color: #00FFD1;
   }
   50% {
-    background-color: #F49F2F;
+    border-color: #F49F2F;
   }
   100% {
-    background-color: #00FFD1;
+    border-color: #00FFD1;
   }
 }
-.fee-underline.animated {
-  animation: underline-color 1s infinite linear;
+.fee-border.animated {
+  animation: border-color-anim 1s infinite linear;
 }
 .asset-input {
   border: 0px;

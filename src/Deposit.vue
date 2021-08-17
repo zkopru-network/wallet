@@ -101,7 +101,7 @@ import ConfirmDepositPopup from './components/ConfirmDepositPopup'
     tokenDepositAmount() {
       if (this.tokenDepositAmount === '') {
         this.tokenAmountState = 0
-      } else if (isNaN(this.tokenDepositAmount) || +this.tokenDepositAmount < 0) {
+      } else if (isNaN(this.tokenDepositAmount) || +this.tokenDepositAmount <= 0) {
         this.tokenAmountState = 2
       } else {
         this.tokenAmountState = 0
@@ -141,19 +141,18 @@ export default class Deposit extends Vue {
   }
 
   async setFeeAmount(clickedButton) {
-    if (clickedButton === 'Instant') {
-      this.feeAmountState = 3
-      try {
-        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-        // Assume 2000 bytes for a simple deposit tx in a block
-        const feeWeiAmount = new BN(weiPerByte).mul(new BN('200000'))
-        this.feeAmount = ''
-        Vue.nextTick(() => {
-          this.feeAmount = fromWei(feeWeiAmount, 9).toString()
-        })
-      } catch (err) {
-        this.feeAmountState = 2
-      }
+    const multiplier = clickedButton === 'Fast' ? new BN('400000') : new BN('200000')
+    this.feeAmountState = 3
+    try {
+      const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
+      // Assume 2000 bytes for a simple deposit tx in a block
+      const feeWeiAmount = new BN(weiPerByte).mul(multiplier)
+      this.feeAmount = ''
+      Vue.nextTick(() => {
+        this.feeAmount = fromWei(feeWeiAmount, 9).toString()
+      })
+    } catch (err) {
+      this.feeAmountState = 2
     }
   }
 
@@ -219,7 +218,7 @@ export default class Deposit extends Vue {
     }
     if (this.etherDepositAmount === '') {
       this.etherAmountState = 0
-    } else if (isNaN(this.etherDepositAmount) || +this.etherDepositAmount < 0) {
+    } else if (isNaN(this.etherDepositAmount) || +this.etherDepositAmount <= 0) {
       this.etherAmountState = 2
     } else {
       this.etherAmountState = +this.etherDepositAmount > +this.$store.state.account.balance ? 2 : 1
