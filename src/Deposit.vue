@@ -66,7 +66,11 @@
     </div>
     <div spacer style="height: 4px" />
     <NextButton
-      :disabled="etherAmountState !== 1 || tokenAmountState !== 1 || feeAmountState !== 1"
+      :disabled="
+        (depositType === 1 && (etherAmountState !== 1 || tokenAmountState !== 1 || feeAmountState !== 1)) ||
+        (depositType === 2 && (tokenAmountState !== 1 || feeAmountState !== 1)) ||
+        (depositType === 3 && (etherAmountState !== 1 || feeAmountState !== 1))
+        "
       :onNext="() => showDeposit()"
       :onBack="() => $router.push(`/wallet/deposit/type?type=${depositType}`)"
     />
