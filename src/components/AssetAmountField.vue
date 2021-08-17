@@ -1,34 +1,26 @@
 <template>
-  <div>
-    <div style="position: relative; width: 100%">
-      <input
-        class="asset-input"
-        type="text"
-        :value="amount"
-        v-on:input="$emit('amountChanged', $event.target.value)"
-      />
-      <div class="asset-buttons">
-        <div
-          v-for="buttonText in (buttons || []).reverse()"
-          style="margin-right: 16px"
-          class="asset-button"
-          v-on:click="typeof buttonClicked === 'function' && buttonClicked(buttonText)"
-        >
-          {{ buttonText }}
-        </div>
-        <div style="font-size: 14px">{{asset}}</div>
+  <div style="">
+    <input
+      class="asset-input"
+      type="text"
+      :value="amount"
+      v-on:input="$emit('amountChanged', $event.target.value)"
+      :style="`
+        ${amountState === 0 ? 'border-color: #5D7078' : ''}
+        ${amountState === 1 ? 'border-color: #00FFD1' : ''}
+        ${amountState === 2 ? 'border-color: #F49F2F' : ''}
+        ${amountState === 3 ? 'border-color: red' : ''}
+      `"
+    />
+    <div class="asset-buttons">
+      <div
+        v-for="buttonText in (buttons || []).reverse()"
+        style="margin-right: 16px"
+        class="asset-button"
+        v-on:click="typeof buttonClicked === 'function' && buttonClicked(buttonText)"
+      >
+        {{ buttonText }}
       </div>
-      <div spacer style="height: 5px" />
-      <div v-if="amountState === 0" class="fee-underline" style="background: #5D7078" />
-      <div v-if="amountState === 1" class="fee-underline" style="background: #00FFD1" />
-      <div v-if="amountState === 2" class="fee-underline" style="background: #F49F2F" />
-      <div v-if="amountState === 3" class="fee-underline animated" />
-    </div>
-    <div spacer style="height: 5px" />
-    <div style="display: flex; width: 100%; font-size: 12px; color: #95A7AE">
-      <div>0.00</div>
-      <div spacer style="flex: 1" />
-      <div>USD</div>
     </div>
   </div>
 </template>
@@ -117,18 +109,20 @@ export default class AssetAmountField extends Vue {
 }
 .asset-input {
   border: 0px;
-  background: transparent;
+  background: #05141A;
   color: white;
-  width: 100%;
   font-family: Inter;
   font-size: 14px;
+  padding: 10px;
+  width: calc(100% - 20px);
+  border: 1px solid #2A3D46;
+  border-radius: 8px;
 }
 .asset-input::placeholder {
   font-size: 14px;
   color: #95A7AE;
 }
 .asset-input:focus {
-  border: 0px;
   outline: 0px;
 }
 </style>

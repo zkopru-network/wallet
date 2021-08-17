@@ -86,15 +86,7 @@ import NextButton from './components/NextButton'
   components: { AssetDropdown, AssetAmountField, Checkbox, NextButton, CenteredLeftMenu, },
   watch: {
     etherDepositAmount() {
-      if (this.etherDepositAmount === '') {
-        this.etherAmountState = 0
-      } else if (isNaN(this.etherDepositAmount)) {
-        this.etherAmountState = 2
-      } else if (this.activeAsset === 'ETH') {
-        this.etherAmountState = +this.etherDepositAmount > this.$store.state.account.balance ? 2 : 1
-      } else {
-        this.etherAmountState = 0
-      }
+      this.updateEtherAmountState()
     },
     tokenDepositAmount() {
       if (this.tokenDepositAmount === '') {
@@ -106,15 +98,7 @@ import NextButton from './components/NextButton'
       }
     },
     feeAmount() {
-      if (this.feeAmount === '') {
-        this.feeAmountState = 0
-      } else if (isNaN(this.feeAmount)) {
-        this.feeAmountState = 2
-      } else if (+this.feeAmount > 0) {
-        this.feeAmountState = 1
-      } else {
-        this.feeAmountState = 2
-      }
+      this.updateEtherAmountState()
     },
   }
 })
@@ -212,6 +196,32 @@ export default class Deposit extends Vue {
       await this.$store.dispatch('loadL2Balance')
     }
     this.$router.push({ path: '/wallet' })
+  }
+
+  updateEtherAmountState() {
+    if (this.feeAmount === '' || this.feeAmount === '0') {
+      this.feeAmountState = 0
+    } else if (isNaN(this.feeAmount)) {
+      this.feeAmountState = 2
+    } else {
+      this.feeAmountState = +this.feeAmount > +this.$store.state.account.balance ? 2 : 1
+    }
+    if (this.etherDepositAmount === '') {
+      this.etherAmountState = 0
+    } else if (isNaN(this.etherDepositAmount)) {
+      this.etherAmountState = 2
+    } else {
+      this.etherAmountState = +this.etherDepositAmount > +this.$store.state.account.balance ? 2 : 1
+    }
+    // check total amount if needed
+    if (isNaN(this.feeAmount)) return
+    if (isNaN(this.etherDepositAmount)) return
+    if (isNaN(this.$store.state.account.balance)) return
+    const total = +this.feeAmount + +this.etherDepositAmount
+    if (total > +this.$store.state.account.balance) {
+      this.feeAmountState = 2
+      this.etherAmountState = 2
+    }
   }
 
   tryLoadAssetIcon(symbol) {
