@@ -1,105 +1,107 @@
 <template>
   <div class="container">
-    <Header showBackButton=true prevPath="/wallet" />
-    <div spacer style="height: 44px" />
-    <div container style="display: flex; flex-direction: column; align-items: center;/*justify-content: center; flex: 1; width: 100vw; align-self: center;*/ font-size: 11px">
-      <div class="section-container">
-        <div class="title-text">Deposit</div>
-        <div spacer style="height: 23px" />
-        <AssetDropdown
-          :activeAsset="activeAsset"
-          v-model="activeAsset"
-          :loadBalance="loadBalance.bind(this)"
-        />
-        <div spacer style="height: 55px" />
-        <div style="flex: 1; max-width: 559px">
-          <AssetAmountField
-            :asset="activeAsset"
-            v-model="depositAmount"
-            :assetAmountState="amountState"
+    <LeftMenu />
+    <div style="display: flex; flex: 1; justify-content: center">
+      <div container style="display: flex; flex-direction: column; align-items: center; font-size: 11px">
+        <div spacer style="height: 70px" />
+        <div class="section-container">
+          <div class="title-text">Deposit</div>
+          <div spacer style="height: 23px" />
+          <AssetDropdown
+            :activeAsset="activeAsset"
+            v-model="activeAsset"
+            :loadBalance="loadBalance.bind(this)"
           />
+          <div spacer style="height: 55px" />
+          <div style="flex: 1; max-width: 559px">
+            <AssetAmountField
+              :asset="activeAsset"
+              v-model="depositAmount"
+              :assetAmountState="amountState"
+            />
+          </div>
+          <div spacer style="height: 13px" />
+          <div class="detail-text">
+            Current price for one Zkopru transaction is ~0.01 ETH.
+          </div>
+          <div spacer style="height: 20px" />
+          <div v-if="activeAsset !== 'ETH' && +$store.state.zkopru.balance === 0" style="display: flex">
+            <img :src="require('../assets/warning.svg')" />
+            <div spacer style="width: 10px" />
+            <div style="color: #F49F2F; font-size: 12px">
+              You will need ETH in your wallet to send transactions with Zkopru
+            </div>
+          </div>
+          <div v-if="activeAsset !== 'ETH'" spacer style="height: 20px" />
+          <Checkbox
+            v-if="activeAsset !== 'ETH'"
+            style="align-self: flex-start"
+            text="Add ETH to deposit"
+            v-model="addEther"
+            :checked="addEther"
+          />
+          <div v-if="addEther" style="flex: 1; max-width: 559px">
+            <div spacer style="height: 31px" />
+            <div style="display: flex; align-items: center">
+              <div spacer style="width: 28px" />
+              <img :src="require('../assets/token_icons/ETH.svg')" />
+              <div spacer style="width: 26px" />
+              <div style="color: #9EFFEE; font-size: 14px">ETH</div>
+              <div spacer style="width: 5px" />
+              <div style="color: white; font-size: 14px">{{loadBalance('ETH')}}</div>
+            </div>
+            <div spacer style="height: 31px" />
+            <AssetAmountField
+              asset="ETH"
+              :assetAmountState="addEtherAmountState"
+              v-model="addEtherAmount"
+            />
+          </div>
+
         </div>
-        <div spacer style="height: 13px" />
-        <div class="detail-text">
-          Current price for one Zkopru transaction is ~0.01 ETH.
+        <div spacer style="height: 16px" />
+        <div class="section-container">
+          <div class="title-text">Coordinator Fee</div>
+          <div spacer style="height: 23px" />
+          <div style="flex: 1; max-width: 559px">
+            <AssetAmountField
+              asset="ETH"
+              v-model="feeAmount"
+              :assetAmountState="feeAmountState"
+              :buttons="['Instant']"
+              :buttonClicked="setFeeAmount.bind(this)"
+            />
+          </div>
+          <div spacer style="height: 13px" />
+          <div class="detail-text">
+            Suggested fees are calculated based on current gas market.
+          </div>
         </div>
         <div spacer style="height: 20px" />
-        <div v-if="activeAsset !== 'ETH' && +$store.state.zkopru.balance === 0" style="display: flex">
-          <img :src="require('../assets/warning.svg')" />
-          <div spacer style="width: 10px" />
-          <div style="color: #F49F2F; font-size: 12px">
-            You will need ETH in your wallet to send transactions with Zkopru
-          </div>
-        </div>
-        <div v-if="activeAsset !== 'ETH'" spacer style="height: 20px" />
-        <Checkbox
-          v-if="activeAsset !== 'ETH'"
-          style="align-self: flex-start"
-          text="Add ETH to deposit"
-          v-model="addEther"
-          :checked="addEther"
-        />
-        <div v-if="addEther" style="flex: 1; max-width: 559px">
-          <div spacer style="height: 31px" />
-          <div style="display: flex; align-items: center">
-            <div spacer style="width: 28px" />
-            <img :src="require('../assets/token_icons/ETH.svg')" />
-            <div spacer style="width: 26px" />
-            <div style="color: #9EFFEE; font-size: 14px">ETH</div>
-            <div spacer style="width: 5px" />
-            <div style="color: white; font-size: 14px">{{loadBalance('ETH')}}</div>
-          </div>
-          <div spacer style="height: 31px" />
-          <AssetAmountField
-            asset="ETH"
-            :assetAmountState="addEtherAmountState"
-            v-model="addEtherAmount"
-          />
-        </div>
-
+        <Button
+          :onClick="deposit.bind(this)"
+          buttonStyle="background: #00FFD1; color: #0E2936"
+        >
+          Deposit
+        </Button>
       </div>
-      <div spacer style="height: 16px" />
-      <div class="section-container">
-        <div class="title-text">Coordinator Fee</div>
-        <div spacer style="height: 23px" />
-        <div style="flex: 1; max-width: 559px">
-          <AssetAmountField
-            asset="ETH"
-            v-model="feeAmount"
-            :assetAmountState="feeAmountState"
-            :buttons="['Instant']"
-            :buttonClicked="setFeeAmount.bind(this)"
-          />
-        </div>
-        <div spacer style="height: 13px" />
-        <div class="detail-text">
-          Suggested fees are calculated based on current gas market.
-        </div>
-      </div>
-      <div spacer style="height: 20px" />
-      <Button
-        :onClick="deposit.bind(this)"
-        buttonStyle="background: #00FFD1; color: #0E2936"
-      >
-        Deposit
-      </Button>
     </div>
   </div>
 </template>
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import Header from './components/Header'
 import AssetDropdown from './components/AssetDropdown'
 import AssetAmountField from './components/AssetAmountField'
 import Button from './components/Button'
 import { toWei, fromWei } from './utils/wei'
 import Checkbox from './components/Checkbox'
 import BN from 'bn.js'
+import LeftMenu from './components/LeftMenu'
 
 @Component({
   name: 'Deposit',
-  components: { Header, AssetDropdown, AssetAmountField, Button, Checkbox, },
+  components: { AssetDropdown, AssetAmountField, Button, Checkbox, LeftMenu, },
   watch: {
     depositAmount() {
       if (this.depositAmount === '') {
@@ -237,11 +239,8 @@ export default class Deposit extends Vue {
 <style scoped>
 .container {
   display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding-left: 8px;
-  padding-right: 8px;
-  color: #95A7AE;
+  height: 100vh;
+  background-color: #05141A;
 }
 .section-container {
   display: flex;

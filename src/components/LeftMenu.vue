@@ -108,6 +108,7 @@ export default class LeftMenu extends Vue {
   height: 100%;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid #2A3D46;
 }
 .item {
   display: flex;
@@ -130,7 +131,7 @@ export default class LeftMenu extends Vue {
 }
 .image-container {
   min-width: 30px;
-  margin-right: 8px;
+  margin-right: 6px;
   text-align: center;
 }
 .image-icon {
