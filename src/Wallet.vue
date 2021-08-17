@@ -1,29 +1,6 @@
 <template>
   <div class="container">
-    <div class="left-bar">
-      <div spacer style="height: 12px" />
-      <div style="color: white;font-size:16px;font-weight:bold">
-        Zkopru
-      </div>
-      <div spacer style="height: 47px" />
-      <div class="left-bar-item" v-on:click="$router.push({ path: '/wallet/deposit' })">
-        <img :src="require('../assets/deposit_icon.svg')" />
-        <div spacer style="width: 12px" />
-        <div>Deposit</div>
-      </div>
-      <div spacer style="height: 30px" />
-      <div class="left-bar-item" v-on:click="$router.push({ path: '/wallet/withdraw'})">
-        <img :src="require('../assets/withdraw_icon.svg')" />
-        <div spacer style="width: 12px" />
-        <div>Withdraw</div>
-      </div>
-      <div spacer style="height: 30px" />
-      <div class="left-bar-item">
-        <img :src="require('../assets/register_token_icon.svg')" />
-        <div spacer style="width: 12px" />
-        <div>Register Token</div>
-      </div>
-    </div>
+    <LeftMenu />
     <div style="display: flex; flex-direction: column; flex: 1;height: 100%">
       <div style="display: flex; align-items: center; box-shadow: 0px 1px 0px #2A3D46;">
         <div style="position: relative; display: flex; flex: 1">
@@ -123,10 +100,11 @@ import ZkopruBackground from './components/ZkopruBackground'
 import AddressPopup from './components/AddressPopup'
 import ColorImage from './components/ColorImage'
 import SettingsPanel from './components/SettingsPanel'
+import LeftMenu from './components/LeftMenu'
 
 @Component({
   name: 'Wallet',
-  components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, AddressPopup, ColorImage, SettingsPanel, },
+  components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, AddressPopup, ColorImage, SettingsPanel, LeftMenu, },
   watch: {
     filterText: function() {
       this.filterAssets()
@@ -173,7 +151,7 @@ export default class Wallet extends Vue {
   color: white;
   font-size: 14px;
   text-indent: 39px;
-  height: 47px;
+  height: 44px;
   flex: 1;
 }
 .search-text-input:focus {
@@ -184,21 +162,6 @@ export default class Wallet extends Vue {
 .search-text-input:placeholder {
   font-size: 14px;
   color: #5D7078;
-}
-.left-bar {
-  background-color: #05141A;
-  width: 200px;
-  height: 100%;
-  padding-left: 32px;
-  display: flex;
-  flex-direction: column;
-}
-.left-bar-item {
-  display: flex;
-  font-size: 14px;
-  color: #95A7AE;
-  cursor: pointer;
-  user-select: none;
 }
 .header-button {
   color: white;
