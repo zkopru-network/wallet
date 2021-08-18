@@ -48,6 +48,11 @@
           :asset="activeToken"
           v-model="tokenDepositAmount"
           :assetAmountState="tokenAmountState"
+          :buttons="['Max']"
+          :buttonClicked="() => {
+            const balance = $store.state.account.tokenBalances[activeToken]
+            tokenDepositAmount = balance
+          }"
         />
       </div>
     </div>
