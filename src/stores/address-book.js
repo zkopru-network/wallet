@@ -54,7 +54,10 @@ export default {
       try {
         const resolvedAddr = await addressBookContract.methods.resolveENS(hash).call()
         if (!resolvedAddr) return
-        return dispatch('resolveAddress', resolvedAddr)
+        return {
+          ethAddress: resolvedAddr,
+          zkAddress: await dispatch('resolveAddress', resolvedAddr)
+        }
       } catch (_) {}
     },
   }

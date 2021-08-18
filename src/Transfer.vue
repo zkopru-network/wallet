@@ -1,93 +1,54 @@
 <template>
-  <div class="container">
-    <Header showBackButton=true prevPath="/wallet" />
-    <div spacer style="height: 44px" />
-    <div container style="display: flex; flex-direction: column; align-items: center; font-size: 12px">
-      <div class="section-container">
+  <CenteredLeftMenu>
+    <div spacer style="height: 70px" />
+    <div class="section-container">
+      <div class="title-text" style="display: flex; align-items: center">
+        <div>Send</div>
+        <div spacer style="width: 10px" />
+        <img height="13px" :src="tryLoadAssetIcon(activeAsset)" />
+      </div>
+      <div spacer style="height: 23px" />
+      <AssetDropdown
+        :activeAsset="activeAsset"
+        v-model="activeAsset"
+        :showIcon="false"
+      />
+      <div spacer v-if="!!activeAsset" style="height: 16px" />
+      <AssetAmountField
+        v-if="!!activeAsset"
+        :asset="activeAsset"
+        v-model="transferAmount"
+        :assetAmountState="amountState"
+        :buttons="['Max']"
+      />
+    </div>
+    <div class="section-container">
+      <div class="title-text">
+        To
+      </div>
+      <div spacer style="height: 23px" />
+      <AddressField
+        v-model="zkAddress"
+        :address="zkAddress"
+      />
+    </div>
+    <div class="section-container" style="margin-bottom: 0px">
+      <div style="display: flex; flex-direction: column; justify-content: center">
         <div class="title-text">
-          Send
+          Fee in GWEI
         </div>
         <div spacer style="height: 23px" />
-        <AssetDropdown
-          :activeAsset="activeAsset"
-          v-model="activeAsset"
-        />
-        <div spacer style="height: 27px" />
         <AssetAmountField
-          :asset="activeAsset"
-          v-model="transferAmount"
-          :assetAmountState="amountState"
+          v-model="fee"
+          :assetAmountState="0"
+          :buttons="['Fast', 'Standard']"
+          :buttonClicked="suggestedFee.bind(this)"
         />
-        <div spacer style="height: 42px" />
-        <div class="title-text">
-          To Zkopru address
-        </div>
-        <div spacer style="height: 21px" />
-        <AddressField
-          v-model="zkAddress"
-          :address="zkAddress"
-        />
-      </div>
-      <div spacer style="height: 32px" />
-      <div class="section-container">
-        <div style="display: flex; flex-direction: column; justify-content: center">
-          <div class="title-text">
-            Transaction fee per byte
-          </div>
-          <div spacer style="height: 20px" />
-          <FeeField
-            v-model="fee"
-            :fee="fee"
-            :buttons="['Suggested fee']"
-            :buttonClicked="suggestedFee.bind(this)"
-          />
-          <div spacer style="height: 10px" />
-          <div class="detail-text">
-            Suggested fee is calculated based on the current gas market.
-          </div>
-        </div>
-      </div>
-      <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center; font-size: 12px">
-        <div style="flex: 1; max-width: 452px">
-          <div spacer style="height: 37px" />
-          <div style="display: flex; justify-content: space-between; color: white; border-bottom: 0.5px solid #2a3d46; padding-bottom: 5px">
-            <div style="display: flex; flex-direction: column">
-              <div>Transaction Total</div>
-              <div spacer style="height: 10px" />
-              <div>Fee</div>
-            </div>
-            <div style="display: flex; flex-direction: column">
-              <div>{{transferAmount || '0'}} {{activeAsset}}</div>
-              <div spacer style="height: 10px" />
-              <div>{{totalFee}} ETH</div>
-            </div>
-          </div>
-          <div spacer style="height: 5px" />
-          <div style="display: flex; justify-content: space-between; color: white; padding-bottom: 5px">
-            <div style="display: flex; flex-direction: column">
-              <div>Total</div>
-            </div>
-            <div style="display: flex; flex-direction: column">
-              <div>{{activeAsset === 'ETH' ? '' : `${transferAmount} ${activeAsset} + `}}{{activeAsset === 'ETH' ? +transferAmount + +totalFee : totalFee}} ETH</div>
-            </div>
-          </div>
-          <div spacer style="height: 45px" />
-          <Button buttonStyle="background: #00FFD1; color: #0E2936" :onClick="() => sendTx()">
-            SEND
-          </Button>
-          <div spacer style="height: 39px" />
-          <div style="display: flex; justify-content: center">
-            <div
-              style="font-weight: bold; font-size: 14px; text-decoration: underline; cursor: pointer"
-              v-on:click="$router.push({ path: '/wallet' })"
-            >
-              Cancel
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-  </div>
+    <NextButton
+    />
+  </CenteredLeftMenu>
 </template>
 <script>
 import Vue from 'vue'
@@ -100,10 +61,12 @@ import FeeField from './components/FeeField'
 import AssetAmountField from './components/AssetAmountField'
 import { toWei, fromWei } from './utils/wei'
 import BN from 'bn.js'
+import CenteredLeftMenu from './components/CenteredLeftMenu'
+import NextButton from './components/NextButton'
 
 @Component({
   name: 'Transfer',
-  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, },
+  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, CenteredLeftMenu, NextButton, },
   watch: {
     transferAmount() {
       this.generateTx()
@@ -126,12 +89,11 @@ import BN from 'bn.js'
     activeAsset(newVal, oldVal) {
       if (newVal === oldVal) return
       this.transferAmount = ''
-      this.fee = '200'
     }
   },
 })
 export default class Transfer extends Vue {
-  activeAsset = 'ETH'
+  activeAsset = ''
   transferAmount = '0'
   amountState = 0
   zkAddress = ''
@@ -202,19 +164,18 @@ export default class Transfer extends Vue {
     })
     await this.$store.dispatch('loadL2Balance')
     this.$router.push({ path: '/wallet' })
+  }
 
+  tryLoadAssetIcon(symbol) {
+    try {
+      return require(`../assets/token_icons/${symbol.toUpperCase()}.svg`)
+    } catch (_) {
+      return require('../assets/token_no_icon.png')
+    }
   }
 }
 </script>
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding-left: 8px;
-  padding-right: 8px;
-  color: white;
-}
 .small-text {
   font-size: 12px;
 }
@@ -223,10 +184,11 @@ export default class Transfer extends Vue {
   flex-direction: column;
   max-width: 452px;
   width: 100vw;
-  background-color: #192C35;
+  background-color: #081B24;
+  border: 1px solid #2A3D46;
   border-radius: 8px;
-  padding: 16px;
-  font-size: 11px;
+  padding: 14px;
+  margin-bottom: 16px;
 }
 .title-text {
   color: #F2F2F2;
