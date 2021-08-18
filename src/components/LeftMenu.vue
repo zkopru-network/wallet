@@ -17,32 +17,6 @@
       <div>My Wallet</div>
     </div>
     <div
-      :class="`item ${isDeposit && 'selected'}`"
-      v-on:click="$router.push('/wallet/deposit/type')"
-    >
-      <div class="image-container">
-        <ColorImage
-          class="image-icon"
-          :src="require('../../assets/deposit_icon.svg')"
-          :color="isDeposit ? 'white' : '#95A7AE'"
-        />
-      </div>
-      <div>Deposit</div>
-    </div>
-    <div
-      :class="`item ${isWithdraw && 'selected'}`"
-      v-on:click="$router.push('/wallet/withdraw')"
-    >
-      <div class="image-container">
-        <ColorImage
-          class="image-icon"
-          :src="require('../../assets/withdraw_icon.svg')"
-          :color="isWithdraw ? 'white' : '#95A7AE'"
-        />
-      </div>
-      <div>Withdraw</div>
-    </div>
-    <div
       :class="`item ${isHistory && 'selected'}`"
       v-on:click="$router.push('/wallet/history')"
     >
@@ -67,6 +41,60 @@
         />
       </div>
       <div>Token Library</div>
+    </div>
+    <div class="divider" />
+    <div
+      :class="`item ${isSend && 'selected'}`"
+      v-on:click="$router.push('/wallet/transfer')"
+    >
+      <div class="image-container">
+        <ColorImage
+          class="image-icon"
+          :src="require('../../assets/send_icon_new.svg')"
+          :color="isSend ? 'white' : '#95A7AE'"
+        />
+      </div>
+      <div>Send</div>
+    </div>
+    <div
+      :class="`item ${isReceive && 'selected'}`"
+      v-on:click="$router.push('/wallet/receive')"
+    >
+      <div class="image-container">
+        <ColorImage
+          class="image-icon"
+          :src="require('../../assets/receive_icon_new.svg')"
+          :color="isReceive ? 'white' : '#95A7AE'"
+        />
+      </div>
+      <div>Receive</div>
+    </div>
+    <div class="divider" />
+    <div
+      :class="`item ${isDeposit && 'selected'}`"
+      v-on:click="$router.push('/wallet/deposit/type')"
+    >
+      <div class="image-container">
+        <ColorImage
+          class="image-icon"
+          :src="require('../../assets/deposit_icon.svg')"
+          :color="isDeposit ? 'white' : '#95A7AE'"
+        />
+      </div>
+      <div>Deposit</div>
+    </div>
+    <div
+      :class="`item ${isWithdraw && 'selected'}`"
+      v-on:click="$router.push('/wallet/withdraw')"
+    >
+      <div class="image-container">
+        <ColorImage
+          class="image-icon"
+          :src="require('../../assets/withdraw_icon.svg')"
+          :color="isWithdraw ? 'white' : '#95A7AE'"
+        />
+      </div>
+      <div>Withdraw</div>
     </div>
   </div>
 </template>
@@ -94,6 +122,12 @@ import ColorImage from './ColorImage'
     isTokenLibrary() {
       return this.$route.path.startsWith('/wallet/tokens')
     },
+    isSend() {
+      return this.$route.path.startsWith('/wallet/transfer')
+    },
+    isReceive() {
+      return this.$route.path.startsWith('/wallet/receive')
+    }
   }
 })
 export default class LeftMenu extends Vue {
@@ -147,5 +181,11 @@ export default class LeftMenu extends Vue {
   padding-left: 32px;
   box-shadow: 0px 1px 0px #2A3D46;
   margin-bottom: 24px;
+}
+.divider {
+  width: calc(100% - 32px);
+  height: 1px;
+  background-color: #2A3D46;
+  margin: 8px 16px;
 }
 </style>
