@@ -20,6 +20,7 @@
         v-model="transferAmount"
         :assetAmountState="amountState"
         :buttons="['Max']"
+        :buttonClicked="maxAmount.bind(this)"
       />
     </div>
     <div class="section-container">
@@ -40,13 +41,23 @@
         <div spacer style="height: 23px" />
         <AssetAmountField
           v-model="fee"
-          :assetAmountState="0"
+          :assetAmountState="feeState"
           :buttons="['Fast', 'Standard']"
           :buttonClicked="suggestedFee.bind(this)"
         />
       </div>
     </div>
     <NextButton
+      :onNext="() => showingTransferConfirm = true"
+    />
+    <ConfirmTransferPopup
+      v-if="showingTransferConfirm"
+      :transferAmount="transferAmount"
+      :feeAmount="totalFee"
+      :activeToken="activeAsset"
+      :zkAddress="zkAddress"
+      :tx="tx"
+      :onClose="() => showingTransferConfirm = false"
     />
   </CenteredLeftMenu>
 </template>
@@ -63,28 +74,25 @@ import { toWei, fromWei } from './utils/wei'
 import BN from 'bn.js'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
+import ConfirmTransferPopup from './components/ConfirmTransferPopup'
 
 @Component({
   name: 'Transfer',
-  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, CenteredLeftMenu, NextButton, },
+  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, CenteredLeftMenu, NextButton, ConfirmTransferPopup, },
   watch: {
     transferAmount() {
       this.generateTx()
-      if (this.transferAmount === '') {
-        this.amountState = 0
-      } else if (isNaN(this.transferAmount)) {
-        this.amountState = 2
-      } else if (this.activeAsset === 'ETH') {
-        this.amountState = +this.transferAmount > this.$store.state.zkopru.balance ? 2 : 1
-      } else {
-        this.amountState = 0
-      }
+      this.updateAmountStates()
     },
     zkAddress() {
       this.generateTx()
     },
     fee() {
       this.generateTx()
+      this.updateAmountStates()
+    },
+    etherAmount() {
+      this.updateAmountStates()
     },
     activeAsset(newVal, oldVal) {
       if (newVal === oldVal) return
@@ -97,9 +105,11 @@ export default class Transfer extends Vue {
   transferAmount = '0'
   amountState = 0
   zkAddress = ''
-  fee = '0'
+  fee = ''
+  feeState = 0
   totalFee = '-'
   tx = undefined
+  showingTransferConfirm = false
 
   mounted() {
     if (this.$route.query.asset) {
@@ -111,12 +121,33 @@ export default class Transfer extends Vue {
     return `${this.zkAddress}-${this.fee}-${this.transferAmount}`
   }
 
+  async maxAmount() {
+    if (this.activeAsset === 'ETH') {
+      const fee = isNaN(this.totalFee) ? 0 : +this.totalFee
+      this.transferAmount = +this.$store.state.zkopru.balance - fee
+    } else {
+      const balance = this.$store.state.zkopru.tokenBalances[this.activeAsset]
+      this.transferAmount = balance
+    }
+  }
+
   async suggestedFee(clickedButton) {
-    if (clickedButton === 'Suggested fee') {
+    if (clickedButton === 'Standard') {
       try {
+        this.feeState = 3
         const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
         this.fee = +weiPerByte / (10**9)
       } catch (err) {
+        this.feeState = 2
+      }
+    }
+    if (clickedButton === 'Fast') {
+      try {
+        this.feeState = 3
+        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
+        this.fee = 2 * +weiPerByte / (10**9)
+      } catch (err) {
+        this.feeState = 2
       }
     }
   }
@@ -131,29 +162,40 @@ export default class Transfer extends Vue {
       this.tx = undefined
       return
     }
-    if (this.activeAsset === 'ETH') {
-      const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
-        this.zkAddress,
-        toWei(this.transferAmount),
-        (+this.fee * (10 ** 9)).toString()
-      )
-      this.totalFee = fromWei(tx.fee.toString(), 8)
-      this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
-      this.tx = tx
-    } else {
-      const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
-        return symbol === this.activeAsset
-      })
-      const decimalAmount = `${+this.transferAmount * (10 ** +decimals)}`
-      const tx = await this.$store.state.zkopru.wallet.generateTokenTransfer(
-        this.zkAddress,
-        decimalAmount,
-        address,
-        (+this.fee * (10 ** 9)).toString()
-      )
-      this.totalFee = fromWei(tx.fee.toString(), 8)
-      this.totalEther = fromWei(new BN(tx.fee)).toString()
-      this.tx = tx
+    try {
+      if (this.activeAsset === 'ETH') {
+        const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
+          this.zkAddress,
+          toWei(this.transferAmount),
+          (+this.fee * (10 ** 9)).toString()
+        )
+        this.totalFee = fromWei(tx.fee.toString(), 8)
+        this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
+        this.tx = tx
+      } else {
+        const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+          return symbol === this.activeAsset
+        })
+        const decimalAmount = `${+this.transferAmount * (10 ** +decimals)}`
+        const tx = await this.$store.state.zkopru.wallet.generateTokenTransfer(
+          this.zkAddress,
+          decimalAmount,
+          address,
+          (+this.fee * (10 ** 9)).toString()
+        )
+        this.totalFee = fromWei(tx.fee.toString(), 8)
+        this.totalEther = fromWei(new BN(tx.fee)).toString()
+        this.tx = tx
+      }
+    } catch (err) {
+      if (err.toString().indexOf('Not enough Ether') !== -1) {
+        this.totalFee = Infinity
+        this.totalEther = Infinity
+        this.feeState = 2
+        if (this.activeAsset === 'ETH') {
+          this.amountState = 2
+        }
+      }
     }
   }
 
@@ -171,6 +213,32 @@ export default class Transfer extends Vue {
       return require(`../assets/token_icons/${symbol.toUpperCase()}.svg`)
     } catch (_) {
       return require('../assets/token_no_icon.png')
+    }
+  }
+
+  updateAmountStates() {
+    if (this.transferAmount === '') {
+      this.amountState = 0
+    } else if (isNaN(this.transferAmount)) {
+      this.amountState = 2
+    } else if (this.activeAsset === 'ETH') {
+      this.amountState = +this.transferAmount > this.$store.state.zkopru.balance ? 2 : 1
+    } else {
+      this.amountState = +this.transferAmount > this.$store.state.zkopru.tokenBalances[this.activeAsset] ? 2 : 1
+    }
+    if (!this.fee) {
+      this.feeState = 0
+    } else if (isNaN(this.fee) || +this.fee <= 0) {
+      this.feeState = 2
+    } else {
+      this.feeState = 1
+    }
+    if (isNaN(this.totalEther)) return
+    if (+this.totalEther > +this.$store.state.zkopru.balance) {
+      if (this.activeAsset === 'ETH') {
+        this.amountState = 2
+      }
+      this.feeState = 2
     }
   }
 }
