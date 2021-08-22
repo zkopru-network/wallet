@@ -164,13 +164,11 @@ export default class Transfer extends Vue {
     }
     try {
       if (this.activeAsset === 'ETH') {
-        console.log("generatoring transfer")
         const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
           this.zkAddress,
           toWei(this.transferAmount),
           (+this.fee * (10 ** 9)).toString()
         )
-        console.log('break2')
         this.totalFee = fromWei(tx.fee.toString(), 8)
         this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
         this.tx = tx
