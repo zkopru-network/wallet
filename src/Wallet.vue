@@ -68,6 +68,7 @@
           <AssetCell
             v-for="asset in filteredAssets"
             :symbol="asset"
+            :tokenAddr="asset.tokenAddr"
             :key="asset"
           />
         </div>

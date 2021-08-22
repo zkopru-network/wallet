@@ -1,7 +1,8 @@
-import Zkopru, { ZkAccount } from '@zkopru/client/browser'
+import Zkopru, { ZkAccount, UtxoStatus } from '@zkopru/client/browser'
 import { sha512_256 } from 'js-sha512'
 import { fromWei } from '../utils/wei'
 import dayjs from 'dayjs'
+import BN from 'bn.js'
 
 const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
 // const URL = 'ws://localhost:8546'
@@ -25,6 +26,8 @@ export default {
     registeredTokens: [],
     tokensByAddress: {},
     history: [],
+    // dev only
+    noteInfo: {},
   },
   getters: {
     percent: state => {
@@ -149,10 +152,12 @@ export default {
         spendable,
         locked,
         erc20Info,
+        notes
       ] = await Promise.all([
         state.wallet.wallet.getSpendableAmount(),
         state.wallet.wallet.getLockedAmount(),
         state.client.node.loadERC20Info(),
+        state.wallet.wallet.getUtxos(null, [UtxoStatus.UNSPENT, UtxoStatus.SPENDING])
       ])
       {
         // DEV: skip the bugged test token contract
@@ -180,6 +185,43 @@ export default {
             [token.symbol]: (+erc20[_address].toString()/(10**(+token.decimals)))
           }
         }
+        const info = {}
+        for (const { asset } of notes) {
+          // TODO: handle notes that have both an ERC20 balance and an eth balance
+          const token = state.tokensByAddress[`0x${asset.tokenAddr.toString(16)}`]
+          const key = token ? token.symbol : 'ETH'
+          const existing = info[key] || {}
+          const count = existing.count ?? 0;
+          const total = existing.total ?? new BN('0');
+          const largestNotes = existing.largestNotes || []
+          const amount = key === 'ETH' ? asset.eth : asset.erc20Amount.add(asset.nft)
+          if (largestNotes.length < 4) {
+            largestNotes.push(amount)
+          } else {
+            largestNotes.sort((a, b) => {
+              if (a.eq(b)) return 0
+              if (a.gt(b)) return 1
+              return -1
+            })
+            if (largestNotes[0].lt(amount)) {
+              largestNotes[0] = amount
+            }
+          }
+          const maxSpend = largestNotes.reduce((total, current) => {
+            return total.add(current)
+          }, new BN('0'))
+          const decimals = token ? token.decimals : 18
+          const offsetDecimals = Math.min(3, decimals)
+          const maxSpendDecimal = +maxSpend.div(new BN(`${10**(decimals - offsetDecimals)}`)).toString() / (10**offsetDecimals)
+          info[key] = {
+            count: count + 1,
+            total: total.add(amount),
+            largestNotes,
+            maxSpend,
+            maxSpendDecimal,
+          }
+        }
+        state.noteInfo = info
         // state.tokenBalances = erc20
         // load l1 token balances
         dispatch('loadTokenBalances', { root: true })

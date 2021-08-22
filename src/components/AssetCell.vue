@@ -27,16 +27,39 @@
         0 USD
       </div>
     </div>
+    <Info style="margin-left: 8px">
+      <div style="display: flex; flex-direction: column">
+        <div>
+          Total Notes: {{ noteCount }}
+        </div>
+        <div>
+          Max Spend: {{ maxSpend }}
+        </div>
+      </div>
+    </Info>
   </div>
 </template>
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Button from './Button'
+import Info from './Info'
 @Component({
   name: 'AssetCell',
-  props: ['symbol'],
-  components: { Button, },
+  props: ['symbol', 'tokenAddr'],
+  components: { Button, Info },
+  computed: {
+    maxSpend: function() {
+      const info = this.$store.state.zkopru.noteInfo[this.symbol]
+      if (!info) return 0
+      return info.maxSpendDecimal
+    },
+    noteCount: function() {
+      const info = this.$store.state.zkopru.noteInfo[this.symbol]
+      if (!info) return 0
+      return info.count
+    }
+  }
 })
 export default class AssetCell extends Vue {
   transfer() {
