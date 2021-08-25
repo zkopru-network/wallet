@@ -64,6 +64,16 @@
       :onNext="() => showWithdraw()"
       :onBack="() => $router.push(`/wallet/withdraw/type?type=${withdrawType}`)"
     />
+    <ConfirmWithdrawPopup
+      v-if="showingWithdrawConfirm"
+      :withdrawAmount="withdrawAmount"
+      :activeAsset="activeAsset"
+      :feeAmount="feeAmount"
+      :instantWithdrawFee="instantWithdrawFee"
+      :withdrawType="withdrawType"
+      :tx="tx"
+      :onClose="() => showingWithdrawConfirm = false"
+    />
   </CenteredLeftMenu>
 </template>
 <script>
@@ -79,10 +89,11 @@ import { toWei, fromWei } from './utils/wei'
 import BN from 'bn.js'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
+import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
 
 @Component({
   name: 'Withdraw',
-  components: { Header, AssetDropdown, Button, FeeField, AssetAmountField, Checkbox, CenteredLeftMenu, NextButton, },
+  components: { Header, AssetDropdown, Button, FeeField, AssetAmountField, Checkbox, CenteredLeftMenu, NextButton, ConfirmWithdrawPopup, },
   watch: {
     withdrawAmount() {
       this.generateTx()
@@ -152,6 +163,10 @@ export default class Withdraw extends Vue {
     if (type && !isNaN(type)) {
       this.withdrawType = +type
     }
+  }
+
+  showWithdraw() {
+    this.showingWithdrawConfirm = true
   }
 
   async suggestedFee(clickedButton) {

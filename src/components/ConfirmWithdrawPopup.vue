@@ -1,0 +1,254 @@
+<template>
+  <div class="container">
+    <div class="popup" v-if="withdrawState === 0">
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <div class="title-text">
+          Confirm Withdrawal
+        </div>
+        <img
+          :src="require('../../assets/close_icon.svg')"
+          v-on:click="closeClicked"
+          style="cursor: pointer; padding: 4px"
+        />
+      </div>
+      <div spacer style="height: 22px" />
+      <div
+        class="line-item"
+      >
+        <div>Withdrawal</div>
+        <div>{{ transferAmount }} {{activeAsset.toUpperCase()}}</div>
+      </div>
+      <div
+        class="line-item"
+        v-if="withdrawType === 2"
+      >
+        <div>Instant Withdrawal Fee</div>
+        <div>{{ instantWithdrawFee }} {{activeAsset.toUpperCase()}}</div>
+      </div>
+      <div
+        class="line-item"
+      >
+        <div>Layer 2 Fee</div>
+        <div>{{ feeAmount.toFixed(18) }} ETH</div>
+      </div>
+      <div
+        class="line-item"
+      >
+        <div>Fiat Total</div>
+        <div>~0.00 USD</div>
+      </div>
+      <NextButton
+        text="Next"
+        :onNext="() => withdraw()"
+      />
+    </div>
+    <div class="popup" v-if="withdrawState === 1" style="text-align: center;">
+      <div spacer style="height: 47px" />
+      <div class="title-text">
+        Signing Instant Withdraw
+      </div>
+      <div spacer style="height: 32px" />
+      <div class="detail-text">
+        Waiting for signature.
+      </div>
+      <div spacer style="height: 24px" />
+      <img
+        :src="require('../../assets/deposit_loading_image.png')"
+        style="width: 100%"
+      />
+    </div>
+    <div class="popup" v-if="withdrawState === 1" style="text-align: center;">
+      <div spacer style="height: 47px" />
+      <div class="title-text">
+        Sending Transaction
+      </div>
+      <div spacer style="height: 32px" />
+      <div class="detail-text">
+        Calculating SNARK
+      </div>
+      <div spacer style="height: 24px" />
+      <img
+        :src="require('../../assets/deposit_loading_image.png')"
+        style="width: 100%"
+      />
+    </div>
+    <div class="popup" v-if="withdrawState === 3" style="text-align: center;">
+      <div spacer style="height: 47px" />
+      <div class="title-text">
+        Confirming Withdrawal
+      </div>
+      <div spacer style="height: 32px" />
+      <div class="detail-text">
+        Closing this window will NOT interrupt the withdrawal.
+      </div>
+      <div spacer style="height: 24px" />
+      <img
+        :src="require('../../assets/deposit_loading_image.png')"
+        style="width: 100%"
+      />
+      <NextButton
+        text="See Transaction History"
+        :onNext="() => $router.push('/wallet/history')"
+      />
+    </div>
+  </div>
+</template>
+
+<script>
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import NextButton from './NextButton'
+
+@Component({
+  name: 'ConfirmWithdrawPopup'
+  components: { NextButton, },
+  props: [
+    'withdrawAmount',
+    'activeAsset',
+    'feeAmount',
+    'instantWithdrawFee',
+    'withdrawType',
+    'onClose',
+    'tx'
+  ]
+})
+export default class ConfirmWithdrawPopup extends Vue {
+  withdrawState = 0
+  prepayInfo = undefined
+
+  async signInstantWithdraw() {
+    if (this.tx.withdrawals.length !== 1)
+      throw new Error(`Expected 1 withdrawal, got ${this.tx.withdrawals.length}`)
+    const withdrawal = this.tx.withdrawals[0]
+    let decimals = '18'
+    if (this.activeAsset !== 'ETH') {
+      const { address } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+        return symbol.toUpperCase() === this.activeAsset
+      })
+      const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(address)
+      decimals = await tokenContract.methods.decimals().call()
+      this.$store.state.zkopru.tokensByAddres
+    }
+    const instantWithdrawFeeNoDecimal = this.instantWithdrawFee * 10**8
+    const instantWithdrawFeeDecimal = `0x${new BN(instantWithdrawFeeNoDecimal)
+      .mul(new BN('10').pow(new BN(decimals)))
+      .div(new BN('10').pow('8'))
+      .toString('hex')}`
+    const msgParams = JSON.stringify({
+      domain: {
+        chainId: 5,
+        name: 'Zkopru',
+        version: '1',
+        // verifyingContract: this.$store.state.zkopru.
+      },
+      primaryType: 'PrepayRequest',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        PrepayRequest: [
+          { name: 'prepayer', type: 'address' },
+          { name: 'withdrawalHash', type: 'bytes32' },
+          { name: 'prepayFeeInEth', type: 'uint256' },
+          { name: 'prepayFeeInToken', type: 'uint256' },
+          { name: 'expiration', type: 'uint256' },
+        ],
+      },
+      message: {
+        prepayer: '0x0000000000000000000000000000000000000000',
+        withdrawalHash: withdrawal.hash().toString(),
+        prepayFeeInEth: activeAsset === 'ETH' ? instantWithdrawFeeDecimal : 0,
+        prepayFeeInToken: activeAsset === 'ETH' ? 0 : instantWithdrawFeeDecimal,
+        expiration: Math.floor(+new Date() / 1000) + 24*3600,
+      },
+    })
+    const signedData = await window.ethereum.request({
+      method: 'eth_signTypedData_v4',
+      params: [this.$store.state.account.accounts[0], msgParams]
+    })
+    this.prepayInfo = {
+      prepayer: '0x0000000000000000000000000000000000000000',
+      withdrawalHash: withdrawal.hash().toString(),
+      prepayFeeInEth: activeAsset === 'ETH' ? this.instantWithdrawFee : 0,
+      prepayFeeInToken: activeAsset === 'ETH' ? 0 : this.instantWithdrawFee,
+      expiration: Math.floor(+new Date() / 1000) + 24*3600,
+      signature: signedData,
+    }
+    // then run withdraw
+    this.withdrawState = 2
+    await this.sendTx()
+  }
+
+  async sendTx() {
+    const shieldedTx = await this.$store.state.zkopru.wallet.wallet.shieldTx({
+      tx: this.tx,
+      prepayInfo: this.prepayInfo,
+    })
+    const response = await this.$store.state.zkopru.wallet.wallet.sendLayer2Tx(zkTx)
+    if (response.status !== 200) {
+      await this.$store.state.zkopru.wallet.wallet.unlockUtxos(this.tx.inflow)
+      throw Error(await response.text())
+    }
+    this.withdrawState = 3
+  }
+
+  withdraw() {
+    if (this.withdrawType === 2 && this.withdrawState === 0) {
+      this.withdrawState = 1
+      await this.signInstantWithdraw()
+    } else if (this.withdrawType === 1 && this.withdrawState === 0) {
+      await this.sendTx()
+    }
+  }
+
+  closeClicked() {
+    if (typeof this.onClose === 'function') {
+      this.onClose()
+    }
+  }
+}
+</script>
+
+<style scoped>
+.container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: linear-gradient(323.78deg, rgba(0, 0, 0, 0.8) -10.87%, rgba(1, 18, 18, 0.8) 47.21%, rgba(0, 0, 0, 0.8) 101.17%, rgba(0, 0, 0, 0.8) 101.17%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.popup {
+  border-radius: 8px;
+  border: 1px solid #192C35;
+  background-color: #05141A;
+  max-width: 505px;
+  width: 100vw;
+  padding: 22px;
+}
+.line-item {
+  padding: 16px 4px;
+  font-size: 14px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0px 1px 0px #2A3D46;
+  overflow: auto;
+}
+.title-text {
+  color: #F2F2F2;
+  font-size: 12px;
+  font-weight: 600;
+}
+.detail-text {
+  color: #95A7AE;
+  font-size: 11px;
+}
+</style>
