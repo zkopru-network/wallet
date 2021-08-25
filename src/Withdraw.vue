@@ -34,7 +34,7 @@
       <div style="display: flex; align-items: center">
         <div class="title-text">Instant Withdraw Fee</div>
         <div spacer style="width: 10px" />
-        <img height="13px" :src="require('../assets/lightning_bolt.svg')" />
+        <img height="13px" v-if="!!activeAsset" :src="tryLoadAssetIcon(activeAsset)" />
       </div>
       <div spacer style="height: 27px" />
       <AssetAmountField
