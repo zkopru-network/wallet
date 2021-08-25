@@ -15,6 +15,7 @@ import DepositType from './DepositType'
 import AddressBookStore from './stores/address-book'
 import Withdraw from './Withdraw'
 import History from './History'
+import WithdrawType from './WithdrawType'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -48,6 +49,7 @@ const router = new VueRouter({
     { path: '/wallet/deposit', component: Deposit },
     { path: '/wallet/deposit/type', component: DepositType },
     { path: '/wallet/withdraw', component: Withdraw },
+    { path: '/wallet/withdraw/type', component: WithdrawType },
     { path: '/wallet/history', component: History }
   ]
 })

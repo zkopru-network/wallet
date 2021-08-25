@@ -85,7 +85,7 @@
     </div>
     <div
       :class="`item ${isWithdraw && 'selected'}`"
-      v-on:click="$router.push('/wallet/withdraw')"
+      v-on:click="$router.push('/wallet/withdraw/type')"
     >
       <div class="image-container">
         <ColorImage
