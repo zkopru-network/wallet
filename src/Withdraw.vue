@@ -154,6 +154,7 @@ export default class Withdraw extends Vue {
   instantWithdrawFee = '0'
   instantWithdrawFeeState = 0
   withdrawType = 0
+  showingWithdrawConfirm = false
 
   mounted() {
     const { type, asset } = this.$route.query

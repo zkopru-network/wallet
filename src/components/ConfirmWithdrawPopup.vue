@@ -16,7 +16,7 @@
         class="line-item"
       >
         <div>Withdrawal</div>
-        <div>{{ transferAmount }} {{activeAsset.toUpperCase()}}</div>
+        <div>{{ withdrawAmount }} {{activeAsset.toUpperCase()}}</div>
       </div>
       <div
         class="line-item"
@@ -29,7 +29,7 @@
         class="line-item"
       >
         <div>Layer 2 Fee</div>
-        <div>{{ feeAmount.toFixed(18) }} ETH</div>
+        <div>{{ etherFee }} ETH</div>
       </div>
       <div
         class="line-item"
@@ -57,7 +57,7 @@
         style="width: 100%"
       />
     </div>
-    <div class="popup" v-if="withdrawState === 1" style="text-align: center;">
+    <div class="popup" v-if="withdrawState === 2" style="text-align: center;">
       <div spacer style="height: 47px" />
       <div class="title-text">
         Sending Transaction
@@ -98,9 +98,11 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import NextButton from './NextButton'
+import { fromWei } from '../utils/wei'
+import BN from 'bn.js'
 
 @Component({
-  name: 'ConfirmWithdrawPopup'
+  name: 'ConfirmWithdrawPopup',
   components: { NextButton, },
   props: [
     'withdrawAmount',
@@ -110,7 +112,12 @@ import NextButton from './NextButton'
     'withdrawType',
     'onClose',
     'tx'
-  ]
+  ],
+  computed: {
+    etherFee() {
+      return fromWei(this.tx.fee, 8)
+    }
+  }
 })
 export default class ConfirmWithdrawPopup extends Vue {
   withdrawState = 0
@@ -129,17 +136,24 @@ export default class ConfirmWithdrawPopup extends Vue {
       decimals = await tokenContract.methods.decimals().call()
       this.$store.state.zkopru.tokensByAddres
     }
-    const instantWithdrawFeeNoDecimal = this.instantWithdrawFee * 10**8
+    let instantWithdrawFeeNoDecimal = this.instantWithdrawFee
+    let precision = 0
+    if (this.instantWithdrawFee.indexOf('.') !== -1) {
+      precision = this.instantWithdrawFee.split('.')[1].length
+      instantWithdrawFeeNoDecimal = this.instantWithdrawFee.replace('.', '')
+    }
+    console.log(decimals)
+    console.log(instantWithdrawFeeNoDecimal)
     const instantWithdrawFeeDecimal = `0x${new BN(instantWithdrawFeeNoDecimal)
       .mul(new BN('10').pow(new BN(decimals)))
-      .div(new BN('10').pow('8'))
+      .div(new BN('10').pow(new BN(precision)))
       .toString('hex')}`
-    const msgParams = JSON.stringify({
+    const msgParams = {
       domain: {
         chainId: 5,
         name: 'Zkopru',
+        verifyingContract: this.$store.state.zkopru.client.node.layer1.address,
         version: '1',
-        // verifyingContract: this.$store.state.zkopru.
       },
       primaryType: 'PrepayRequest',
       types: {
@@ -159,23 +173,23 @@ export default class ConfirmWithdrawPopup extends Vue {
       },
       message: {
         prepayer: '0x0000000000000000000000000000000000000000',
-        withdrawalHash: withdrawal.hash().toString(),
-        prepayFeeInEth: activeAsset === 'ETH' ? instantWithdrawFeeDecimal : 0,
-        prepayFeeInToken: activeAsset === 'ETH' ? 0 : instantWithdrawFeeDecimal,
+        withdrawalHash: `0x${withdrawal.hash().toString('hex')}`,
+        prepayFeeInEth: this.activeAsset === 'ETH' ? instantWithdrawFeeDecimal : 0,
+        prepayFeeInToken: this.activeAsset === 'ETH' ? 0 : instantWithdrawFeeDecimal,
         expiration: Math.floor(+new Date() / 1000) + 24*3600,
       },
-    })
+    }
     const signedData = await window.ethereum.request({
       method: 'eth_signTypedData_v4',
-      params: [this.$store.state.account.accounts[0], msgParams]
+      params: [this.$store.state.account.accounts[0], JSON.stringify(msgParams)]
     })
     this.prepayInfo = {
-      prepayer: '0x0000000000000000000000000000000000000000',
-      withdrawalHash: withdrawal.hash().toString(),
-      prepayFeeInEth: activeAsset === 'ETH' ? this.instantWithdrawFee : 0,
-      prepayFeeInToken: activeAsset === 'ETH' ? 0 : this.instantWithdrawFee,
+      prepayFeeInEth: this.activeAsset === 'ETH' ? instantWithdrawFeeDecimal : 0,
+      prepayFeeInToken: this.activeAsset === 'ETH' ? 0 : instantWithdrawFeeDecimal,
       expiration: Math.floor(+new Date() / 1000) + 24*3600,
       signature: signedData,
+      data: msgParams,
+      signer: this.$store.state.account.accounts[0]
     }
     // then run withdraw
     this.withdrawState = 2
@@ -187,7 +201,7 @@ export default class ConfirmWithdrawPopup extends Vue {
       tx: this.tx,
       prepayInfo: this.prepayInfo,
     })
-    const response = await this.$store.state.zkopru.wallet.wallet.sendLayer2Tx(zkTx)
+    const response = await this.$store.state.zkopru.wallet.wallet.sendLayer2Tx(shieldedTx)
     if (response.status !== 200) {
       await this.$store.state.zkopru.wallet.wallet.unlockUtxos(this.tx.inflow)
       throw Error(await response.text())
@@ -195,7 +209,7 @@ export default class ConfirmWithdrawPopup extends Vue {
     this.withdrawState = 3
   }
 
-  withdraw() {
+  async withdraw() {
     if (this.withdrawType === 2 && this.withdrawState === 0) {
       this.withdrawState = 1
       await this.signInstantWithdraw()
