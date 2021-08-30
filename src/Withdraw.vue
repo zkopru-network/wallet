@@ -103,6 +103,8 @@ import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
         this.amountState = 2
       } else if (this.activeAsset === 'ETH') {
         this.amountState = +this.withdrawAmount > this.$store.state.zkopru.balance ? 2 : 1
+      } else if (this.activeAsset) {
+        this.amountState = +this.withdrawAmount > this.$store.state.zkopru.tokenBalances[this.activeAsset] ? 2 : 1
       } else {
         this.amountState = 0
       }
@@ -112,10 +114,12 @@ import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
         this.instantWithdrawFeeState = 0
       } else if (isNaN(this.instantWithdrawFee)) {
         this.instantWithdrawFeeState = 2
-      } else if (+this.instantWithdrawFee > this.$store.state.zkopru.balance) {
-        this.instantWithdrawFeeState = 2
-      } else {
+      } else if (this.activeAsset === 'ETH' && +this.instantWithdrawFee < this.$store.state.zkopru.balance) {
         this.instantWithdrawFeeState = 1
+      } else if (this.activeAsset && +this.instantWithdrawFee < this.$store.state.zkopru.tokenBalances[this.activeAsset]) {
+        this.instantWithdrawFeeState = 1
+      } else {
+        this.instantWithdrawFeeState = 2
       }
     },
     zkAddress() {
@@ -205,24 +209,23 @@ export default class Withdraw extends Vue {
       this.totalFee = fromWei(tx.fee.toString(), 8)
       this.totalEther = fromWei(new BN(tx.fee)
         .add(new BN(toWei(this.withdrawAmount)))
-        .add(new BN(toWei(this.instantWithdrawFee || '0')))
         .toString())
       this.tx = tx
     } else {
       const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
         return symbol === this.activeAsset
       })
-      const decimalAmount = `${+this.withdrawAmount * (10 ** +decimals)}`
+      const tokenAmount = new BN(this.withdrawAmount).add(new BN(this.instantWithdrawFee || '0'))
+      const decimalAmount = `${+tokenAmount.toString() * (10 ** +decimals)}`
       const tx = await this.$store.state.zkopru.wallet.generateTokenWithdrawal(
         this.$store.state.account.accounts[0],
         decimalAmount,
         address,
         (+this.feeAmount * (10 ** 9)).toString(),
-        toWei(this.instantWithdrawFee || '0')
+        '0',
       )
       this.totalFee = fromWei(tx.fee.toString(), 8)
       this.totalEther = fromWei(new BN(tx.fee)
-        .add(new BN(toWei(this.instantWithdrawFee || '0')))
         .toString())
       this.tx = tx
     }
