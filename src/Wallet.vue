@@ -36,7 +36,7 @@
           Tokens
         </div>
         <div spacer style="flex: 1" />
-        <div class="receive-button" v-on:click="showingAddressPopup = true">
+        <div class="receive-button" v-on:click="$router.push({ path: '/wallet/receive' })">
           <img :src="require('../assets/receive_button_icon.svg')" />
           <div spacer style="width: 13px" />
           Receive
@@ -80,10 +80,6 @@
         </div>
       </div>
     </div>
-    <AddressPopup
-      :visible="showingAddressPopup"
-      :onCancel="() => showingAddressPopup = false"
-    />
     <SettingsPanel
       :visible="showingSettings"
       :onClose="() => showingSettings = false"
@@ -98,14 +94,13 @@ import SwitchSelector from './components/SwitchSelector'
 import Button from './components/Button'
 import AssetCell from './components/AssetCell'
 import ZkopruBackground from './components/ZkopruBackground'
-import AddressPopup from './components/AddressPopup'
 import ColorImage from './components/ColorImage'
 import SettingsPanel from './components/SettingsPanel'
 import LeftMenu from './components/LeftMenu'
 
 @Component({
   name: 'Wallet',
-  components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, AddressPopup, ColorImage, SettingsPanel, LeftMenu, },
+  components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, },
   watch: {
     filterText: function() {
       this.filterAssets()
@@ -121,7 +116,6 @@ import LeftMenu from './components/LeftMenu'
   }
 })
 export default class Wallet extends Vue {
-  showingAddressPopup = false
   filteredAssets = []
   filterText = ''
   displayMode = 1
