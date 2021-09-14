@@ -1,35 +1,72 @@
 <template>
   <div class="container">
-    <Header showBackButton=true prevPath="/wallet" />
-    <h2 class="title">Transaction History</h2>
+    <LeftMenu />
     <div class="body-container">
-      <div class="period-picker">
-        <div class="month-picker">
-          <div 
-            v-for="month in months(selectedYear)"
-            :key="month"
-            class="picker-button"
-            :class="{selected: selectedMonth === month}"
-            @click="selectMonth(month)">
-            {{formatMonth(month)}}
-          </div>
-        </div>
-        <div class="year-picker">
-          <div
-            v-for="year in years"
-            :key="year"
-            class="picker-button"
-            :class="{selected: selectedYear === year}"
-            @click="selectYear(year)"
-          >{{year}}</div>
+      <div class="header-container">
+        <SwitchSelector
+          :options="['All', 'Sent', 'Received', 'Deposited', 'Withdrawn']"
+          :selectedOption="selectedType"
+          v-model="selectedType"
+        />
+      </div>
+      <div class="subheader-container">
+        <SwitchSelector
+          :options="['1w', '4w', '1y', 'Mtd', 'Qtd', 'Ytd', 'All']"
+          :selectedOption="selectedTimePeriod"
+          v-model="selectedTimePeriod"
+          style="font-size: 11px"
+        />
+        <div spacer style="display: flex; flex: 1" />
+        <div>
+          August 1, 2021 - August 31, 2021
         </div>
       </div>
-      <div style="width: 80%;">
-        <HistoryListItem
-          v-for="historyItem in history"
-          :item="historyItem"
-          :key="historyItem.hash + historyItem.type"
-        />
+      <div
+        v-for="item of history"
+        :class="`
+        history-item-container
+        ${history.indexOf(item) === 0 ? 'top' : ''}
+        ${history.indexOf(item) === history.length - 1 ? 'bottom' : ''}
+        `"
+      >
+        <div class="history-item-header">
+          {{item.timestamp ? dayjs(item.timestamp * 1000).format('dddd, MMMM D YYYY') : 'Pending'}}
+        </div>
+        <div class="history-item-body">
+          <div style="display: flex; flex-direction: column; padding: 0px 8px;">
+            <img style="margin: 0px 8px" :src="iconByType(item.type)" />
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <div>
+              {{ item.type === 'Deposit' ? 'Deposited from 0x' : '' }}
+              {{ item.type === 'Withdraw' ? 'Withdrawn to 0x' : '' }}
+            </div>
+            <div spacer style="height: 10px" />
+            <div style="display: flex; align-items: center">
+              <div>
+                Completed {{ dayjs(item.timestamp * 1000).format('HH:mm')}}
+              </div>
+              <div style="height: 16px; width: 1px; background: #4C5F67; margin: 0px 8px;" />
+              <div>
+                Fee {{ fromWei(item.fee, 8) }} Eth
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; flex: 1" />
+          <div style="display: flex; flex-direction: column; padding: 8px; align-items: flex-end">
+            <div v-if="+item.tokenAddr !== 0" style="display: flex">
+              <div>{{ formatToken(item.erc20Amount, item.tokenAddr) }}</div>
+              <div spacer style="width: 8px" />
+              <img height="18px" :src="tryLoadAssetIcon(tokenSymbol(item.tokenAddr))" />
+            </div>
+            <div v-if="+item.tokenAddr !== 0 && +item.eth > 0" style="height: 4px" />
+            <div v-if="+item.eth > 0 || +item.tokenAddr === 0" style="display: flex">
+              <div>{{ fromWei(item.eth) }} ETH</div>
+              <div spacer style="width: 8px" />
+              <img height="18px" :src="tryLoadAssetIcon('ETH')" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -41,160 +78,128 @@ import dayjs from 'dayjs'
 import Header from './components/Header'
 import Button from './components/Button'
 import HistoryListItem from './components/HistoryListItem.vue'
+import LeftMenu from './components/LeftMenu'
+import SwitchSelector from './components/SwitchSelector'
+import { fromWei } from './utils/wei'
+import BN from 'bn.js'
 
 @Component({
   name: 'History',
-  components: { Header, Button, HistoryListItem }
+  components: { Header, Button, HistoryListItem, LeftMenu, SwitchSelector }
 })
 export default class History extends Vue {
-  // set initial value to today
-  _selectedYear
-  _selectedMonth
-
-  get selectedYear() {
-    if (this._selectedYear) return this._selectedYear
-    const history = this.$store.state.zkopru.history
-    if (history.length > 0) {
-      return dayjs.unix(history[0].timestamp).year()
-    }
-    return dayjs().year()
-  }
-  get selectedMonth() {
-    if (this._selectedYear) return this._selectedYear
-    const history = this.$store.state.zkopru.history
-    if (history.length > 0) {
-      return dayjs.unix(history[0].timestamp).month()
-    }
-    return dayjs().month()
-  }
+  dayjs = dayjs
+  fromWei = fromWei
+  selectedType = 0
+  selectedTimePeriod = 0
 
   get history() {
     return this.$store.state.zkopru.history.filter(historyItem => {
-      return dayjs.unix(historyItem.timestamp).isSame(`${this.selectedYear}-${this.selectedMonth+1}-01`, 'month')
+      return historyItem
     })
   }
 
-  get years() {
-    const history = this.$store.state.zkopru.history
-    if (history.length === 0) return []
-
-    const oldest = dayjs.unix(history[history.length-1].timestamp).year()
-    const latest = dayjs.unix(history[0].timestamp).year()
-    const years = []
-    for (let i = oldest; i <= latest; i++) {
-      years.push(i)
-    }
-    return years
-  }
-
-  months(year) {
-    const history = this.$store.state.zkopru.history
-    if (history.length === 0) return []
-
-    const oldest = dayjs.unix(history[history.length-1].timestamp)
-    const latest = dayjs.unix(history[0].timestamp)
-
-    if (latest.year() === oldest.year()) {
-      if (year !== latest.year()) {
-        throw new Error('cannot be reached')
-      }
-      const months = []
-      for (let i = oldest.month(); i <= latest.month(); i++) {
-        months.push(i)
-      }
-      return months
-    }
-
-    if (year === latest.year()) {
-      for (let i = 0; i <= latest.month(); i++) {
-        months.push(i)
-      }
-      return months
-    } else if (year === oldest.year()) {
-      for (let i = oldest.month(); i <= 11; i++) {
-        months.push(i)
-      }
-      return months
-    }
-
-    return [...new Array(0, 12)].map((_, i) => i)
+  async mounted() {
+    await new Promise(r => setTimeout(r, 5000))
+    await this.startLoadHistory()
+    console.log(this.history)
   }
 
   startLoadHistory() {
-    this.$store.dispatch('loadHistory')
-  }
-
-  selectYear(year) {
-    this.selectedYear = year
-    const months = this.months(year)
-    this.selectedMonth = months[months.length - 1]
-  }
-
-  selectMonth(month) {
-    this.selectedMonth = month
+    return this.$store.dispatch('loadHistory')
   }
 
   formatMonth(month) {
     return dayjs().month(month).format('MMMM')
+  }
+
+  iconByType(type) {
+    if (type === 'Deposit') {
+      return require('../assets/deposit_icon.svg')
+    }
+    if (type === 'Withdraw') {
+      return require('../assets/withdraw_icon.svg')
+    }
+  }
+
+  formatToken(amount, tokenAddr) {
+    const { address, decimals, symbol } = this.$store.state.zkopru.registeredTokens.find((token) => {
+      return +token.address === +tokenAddr
+    })
+    const tokenAmount = new BN(amount)
+    return `${+tokenAmount.toString() / (10 ** +decimals)} ${symbol}`
+  }
+
+  tokenSymbol(tokenAddr) {
+    const { symbol } = this.$store.state.zkopru.registeredTokens.find((token) => {
+      return +token.address === +tokenAddr
+    })
+    return symbol
+  }
+
+  tryLoadAssetIcon(symbol) {
+    try {
+      return require(`../assets/token_icons/${symbol.toUpperCase()}.svg`)
+    } catch (_) {
+      return require('../assets/token_no_icon.png')
+    }
   }
 }
 </script>
 <style scoped>
 .container {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  height: 100vh;
+  background-color: #05141A;
+}
+.header-container {
+  background: #081B24;
+  border-top: 1px solid #2A3D46;
+  border-bottom: 1px solid #2A3D46;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 32px 24px;
+  font-size: 16px;
+}
+.subheader-container {
+  display: flex;
   flex: 1;
-  padding-left: 8px;
-  padding-right: 8px;
-  color: #95A7AE;
+  align-items: center;
+  color: white;
+  padding: 25px 12px;
+  font-size: 11px;
 }
 .body-container {
-  width: 80%;
-  max-width: 1320px;
-  margin: auto;
-  display: flex;
-  justify-content: space-between;
+  background: #081B24;
+  flex: 1;
+  bottom: 0px;
 }
-.title {
-  width: 80%;
-  max-width: 1320px;
-  margin-top: 72px;
-  padding-left: 132px;
-  padding-bottom: 7px;
+.history-item-container {
+  border-left: 1px solid #3B4E56;
+  border-right: 1px solid #3B4E56;
+  margin: 0px 8px;
+  overflow: hidden;
+}
+.history-item-container.top {
+  border-top: 1px solid #3B4E56;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+.history-item-container.bottom {
+  border-bottom: 1px solid #3B4E56;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.history-item-header {
+  background-color: #192C35;
   color: #F2F2F2;
-  font-size: 12px;
-  box-shadow: 0px 1px 0px #2a3d46;
-  align-self: center;
+  font-size: 14px;
+  padding: 8px;
 }
-.period-picker {
-  padding-left: 66px;
-}
-.month-picker {
-  margin-top: 64px;
-  max-height: 120px;
-  overflow-y: scroll;
-}
-.year-picker {
-  margin-top: 64px;
-  max-height: 120px;
-  overflow-y: scroll;
-}
-.picker-button {
-  background: #3F6767;
-  border-radius: 20px;
-  color: black;
-  font-size: 16px;
-  padding: 8px 36px;
-  cursor: pointer;
-  user-select: none;
+.history-item-body {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 16px;
-  margin-bottom: 16px;
-}
-.picker-button.selected {
-  background: #A2EFE1;
+  color: white;
+  padding: 16px 0px;
 }
 </style>

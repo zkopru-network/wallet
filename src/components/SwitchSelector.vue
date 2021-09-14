@@ -1,12 +1,15 @@
 <template>
   <div style="display: flex">
     <div v-for="(option, index) in options">
+      <div v-if="index > 0" spacer style="width: 4px" />
       <div
         :class="`select-element ${index === selectedOption ? 'active' : ''}`"
-        :style="`${index > 0 ? 'margin-left: 4px' : ''} ${index < options.length - 1 ? 'margin-right: 4px' : ''}`"
         v-on:click="selectOption(index)"
       >
-        <span v-if="typeof option === 'string' || option && option.text" style="margin-right: 10px">
+        <span
+          v-if="typeof option === 'string' || option && option.text"
+          :style="option && option.image ? 'margin-right: 10px' : ''"
+        >
           {{ typeof option === 'string' ? option : option.text }}
         </span>
         <ColorImage
@@ -17,6 +20,7 @@
           :color="option.color || index === selectedOption ? option.activeColor : option.inactiveColor"
         />
       </div>
+      <div v-if="index < options.length - 1" spacer style="width: 4px" />
     </div>
   </div>
 </template>
@@ -57,18 +61,15 @@ export default class SwitchSelector extends Vue {
 </script>
 <style scoped>
 .select-element.active {
-  background-color: #00ffd1;
-  color: #000;
+  color: white;
+  border-bottom: 1px solid #9EFFEE;
 }
 .select-element {
-  background-color: #0e2936;
-  border-radius: 4px;
-  padding: 12px 32px;
-  font-weight: bold;
-  color: #edf2f2;
-  font-size: 24px;
+  padding: 8px 14px;
+  color: #95A7AE;
   cursor: pointer;
   display: flex;
   align-items: center;
+  user-select: none;
 }
 </style>

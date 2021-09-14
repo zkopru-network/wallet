@@ -90,7 +90,6 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Header from './components/Header'
-import SwitchSelector from './components/SwitchSelector'
 import Button from './components/Button'
 import AssetCell from './components/AssetCell'
 import ZkopruBackground from './components/ZkopruBackground'
@@ -100,7 +99,7 @@ import LeftMenu from './components/LeftMenu'
 
 @Component({
   name: 'Wallet',
-  components: { Header, SwitchSelector, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, },
+  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, },
   watch: {
     filterText: function() {
       this.filterAssets()
