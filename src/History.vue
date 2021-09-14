@@ -11,18 +11,19 @@
       </div>
       <div class="subheader-container">
         <SwitchSelector
-          :options="['1w', '4w', '1y', 'Mtd', 'Qtd', 'Ytd', 'All']"
+          :options="['1w', '4w', '1y', 'Mtd', 'Ytd', 'All']"
           :selectedOption="selectedTimePeriod"
           v-model="selectedTimePeriod"
           style="font-size: 11px"
         />
         <div spacer style="display: flex; flex: 1" />
         <div>
-          August 1, 2021 - August 31, 2021
+          {{ activeTimePeriod }}
         </div>
       </div>
       <HistoryCell
         v-for="item of history"
+        :key="item.hash"
         :transaction="item"
         :isFirst="history.indexOf(item) === 0"
         :isLast="history.indexOf(item) === history.length - 1"
@@ -36,6 +37,10 @@ import Component from 'vue-class-component'
 import LeftMenu from './components/LeftMenu'
 import SwitchSelector from './components/SwitchSelector'
 import HistoryCell from './components/HistoryCell'
+import dayjs from 'dayjs'
+import dayOfYear from 'dayjs/plugin/dayOfYear'
+
+dayjs.extend(dayOfYear)
 
 @Component({
   name: 'History',
@@ -45,9 +50,58 @@ export default class History extends Vue {
   selectedType = 0
   selectedTimePeriod = 0
 
+  get activeTimePeriod() {
+    const format = 'MMMM D, YYYY'
+    const now = dayjs().format(format)
+    if (this.selectedTimePeriod === 0) {
+      return `${dayjs().subtract(1, 'week').format(format)} - ${now}`
+    }
+    if (this.selectedTimePeriod === 1) {
+      return `${dayjs().subtract(4, 'week').format(format)} - ${now}`
+    }
+    if (this.selectedTimePeriod === 2) {
+      return `${dayjs().subtract(1, 'year').format(format)} - ${now}`
+    }
+    if (this.selectedTimePeriod === 3) {
+      return `${dayjs().date(1).format(format)} - ${now}`
+    }
+    if (this.selectedTimePeriod === 4) {
+      return `${dayjs().dayOfYear(1).format(format)} - ${now}`
+    }
+    return `All Time`
+  }
+
   get history() {
     return this.$store.state.zkopru.history.filter(historyItem => {
-      return historyItem
+      if (this.selectedType === 1 && historyItem.type !== 'Send') {
+        return false
+      }
+      if (this.selectedType === 2 && historyItem.type !== 'Receive') {
+        return false
+      }
+      if (this.selectedType === 3 && historyItem.type !== 'Deposit') {
+        return false
+      }
+      if (this.selectedType === 4 && historyItem.type !== 'Withdraw') {
+        return false
+      }
+      const itemTime = dayjs(historyItem.timestamp * 1000)
+      if (this.selectedTimePeriod === 0 && itemTime.isBefore(dayjs().subtract(1, 'week'))) {
+        return false
+      }
+      if (this.selectedTimePeriod === 1 && itemTime.isBefore(dayjs().subtract(4, 'week'))) {
+        return false
+      }
+      if (this.selectedTimePeriod === 2 && itemTime.isBefore(dayjs().subtract(1, 'year'))) {
+        return false
+      }
+      if (this.selectedTimePeriod === 3 && itemTime.isBefore(dayjs().date(1))) {
+        return false
+      }
+      if (this.selectedTimePeriod === 4 && itemTime.isBefore(dayjs().dayOfYear(1))) {
+        return false
+      }
+      return true
     })
   }
 }
