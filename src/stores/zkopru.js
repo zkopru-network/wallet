@@ -272,6 +272,9 @@ export default {
       const deposits = await db.findMany('Deposit', {
         where: {
           ownerAddress: [l2Address],
+        },
+        include: {
+          proposal: { header: true },
         }
       })
 
