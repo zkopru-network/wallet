@@ -56,7 +56,9 @@
       <div style="display: flex; flex-direction: column">
         <div>
           <span class="data-info">Transaction Hash:</span>
-          <span class="data-string">{{ transaction.proposal.proposalTx }}</span>
+          <span class="data-string">
+            <AddressLink :txHash="transaction.proposal.proposalTx" />
+          </span>
         </div>
         <div spacer style="height: 8px" />
         <div>
