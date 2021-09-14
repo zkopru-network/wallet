@@ -277,15 +277,15 @@ export default {
 
       // because case sensitivity differes in l1Address and database,
       // need to filter after querying all records in database.
-      const withdrawals = (await db.findMany('Withdrawal', { where: {}, include: { proposal: true } }))
+      const withdrawals = (await db.findMany('Withdrawal', { where: {}, include: { proposal: { header: true } } }))
         .filter(withdraw => withdraw.to.toLocaleLowerCase() === l1Address)
       const sendTxs = await db.findMany('Tx', {
         where: { senderAddress: l2Address },
-        include: { proposal: true }
+        include: { proposal: { header: true } }
       })
       const receiveTxs = await db.findMany('Tx', {
         where: { receiverAddress: l2Address },
-        include: { proposal: true }
+        include: { proposal: { header: true } }
       })
       const pendingTxs = await db.findMany('PendingTx', {
         where: { senderAddress: l2Address },
