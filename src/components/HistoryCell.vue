@@ -17,6 +17,8 @@
         <div>
           {{ transaction.type === 'Deposit' ? 'Deposited from 0x' : '' }}
           {{ transaction.type === 'Withdraw' ? 'Withdrawn to 0x' : '' }}
+          {{ transaction.type === 'Send' ? 'Sent' : '' }}
+          {{ transaction.type === 'Receive' ? 'Received' : '' }}
         </div>
         <div spacer style="height: 10px" />
         <div style="display: flex; align-items: center">
@@ -69,12 +71,22 @@ export default class HistoryCell extends Vue {
     if (type === 'Withdraw') {
       return require('../../assets/withdraw_icon.svg')
     }
+    if (type === 'Send') {
+      return require('../../assets/send_icon_new.svg')
+    }
+    if (type === 'Receive') {
+      return require('../../assets/receive_icon_new.svg')
+    }
   }
 
   formatToken(amount, tokenAddr) {
-    const { address, decimals, symbol } = this.$store.state.zkopru.registeredTokens.find((token) => {
+    const t = this.$store.state.zkopru.registeredTokens.find((token) => {
       return +token.address === +tokenAddr
     })
+    if (!t) {
+      console.log(tokenAddr)
+    }
+    const { decimals, symbol } = t
     const tokenAmount = new BN(amount)
     return `${+tokenAmount.toString() / (10 ** +decimals)} ${symbol}`
   }

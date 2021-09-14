@@ -50,20 +50,6 @@ export default class History extends Vue {
       return historyItem
     })
   }
-
-  async mounted() {
-    await new Promise(r => setTimeout(r, 5000))
-    await this.startLoadHistory()
-    console.log(this.history)
-  }
-
-  startLoadHistory() {
-    return this.$store.dispatch('loadHistory')
-  }
-
-  formatMonth(month) {
-    return dayjs().month(month).format('MMMM')
-  }
 }
 </script>
 <style scoped>
