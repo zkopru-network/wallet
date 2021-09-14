@@ -111,6 +111,7 @@ export default class History extends Vue {
   display: flex;
   height: 100vh;
   background-color: #05141A;
+  margin-top: 46px;
 }
 .header-container {
   background: #081B24;
@@ -119,7 +120,7 @@ export default class History extends Vue {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 32px 24px;
+  padding: 24px;
   font-size: 16px;
 }
 .subheader-container {

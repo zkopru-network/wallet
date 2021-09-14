@@ -14,11 +14,17 @@
         <img style="margin: 0px 8px" :src="iconByType(transaction.type)" />
       </div>
       <div style="display: flex; flex-direction: column">
-        <div>
-          {{ transaction.type === 'Deposit' ? 'Deposited from 0x' : '' }}
-          {{ transaction.type === 'Withdraw' ? 'Withdrawn to 0x' : '' }}
-          {{ transaction.type === 'Send' ? 'Sent' : '' }}
-          {{ transaction.type === 'Receive' ? 'Received' : '' }}
+        <div v-if="transaction.type === 'Deposit'">
+          Deposited from <AddressLink :address="transaction.from" />
+        </div>
+        <div v-if="transaction.type === 'Withdraw'">
+          Withdrawn from <AddressLink :address="transaction.to" />
+        </div>
+        <div v-if="transaction.type === 'Send'">
+          Sent
+        </div>
+        <div v-if="transaction.type === 'Receive'">
+          Received
         </div>
         <div spacer style="height: 10px" />
         <div style="display: flex; align-items: center">
@@ -55,10 +61,12 @@ import Component from 'vue-class-component'
 import dayjs from 'dayjs'
 import { fromWei } from '../utils/wei'
 import BN from 'bn.js'
+import AddressLink from './AddressLink'
 
 @Component({
   name: 'HistoryCell',
-  props: ['transaction', 'isFirst', 'isLast']
+  props: ['transaction', 'isFirst', 'isLast'],
+  components: { AddressLink, },
 })
 export default class HistoryCell extends Vue {
   dayjs = dayjs
