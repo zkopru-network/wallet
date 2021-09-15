@@ -85,7 +85,7 @@ export default class History extends Vue {
       if (this.selectedType === 4 && historyItem.type !== 'Withdraw') {
         return false
       }
-      const itemTime = dayjs(historyItem.timestamp * 1000)
+      const itemTime = dayjs(historyItem.proposal.timestamp * 1000)
       if (this.selectedTimePeriod === 0 && itemTime.isBefore(dayjs().subtract(1, 'week'))) {
         return false
       }
