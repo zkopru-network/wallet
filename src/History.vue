@@ -2,6 +2,7 @@
   <div class="container">
     <LeftMenu />
     <div class="body-container">
+      <div spacer style="height: 46px" />
       <div class="header-container">
         <SwitchSelector
           :options="['All', 'Sent', 'Received', 'Deposited', 'Withdrawn']"
@@ -109,9 +110,8 @@ export default class History extends Vue {
 <style scoped>
 .container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #05141A;
-  margin-top: 46px;
 }
 .header-container {
   background: #081B24;
