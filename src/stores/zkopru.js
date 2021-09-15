@@ -272,15 +272,14 @@ export default {
       const deposits = await db.findMany('Deposit', {
         where: {
           ownerAddress: [l2Address],
-        },
-        include: {
-          proposal: { header: true },
         }
       })
 
       // because case sensitivity differes in l1Address and database,
       // need to filter after querying all records in database.
-      const withdrawals = (await db.findMany('Withdrawal', { where: {}, include: { proposal: { header: true } } }))
+      const withdrawals = (await db.findMany('Withdrawal', { where: {
+        to: state.client.node.layer1.web3.utils.toChecksumAddress(l1Address)
+      }, include: { proposal: { header: true } } }))
         .filter(withdraw => withdraw.to.toLocaleLowerCase() === l1Address)
       const sendTxs = await db.findMany('Tx', {
         where: { senderAddress: l2Address },
@@ -334,6 +333,7 @@ export default {
           timestamp: (withdraw.proposal || {}).timestamp
         }))
       ]
+      // const { history } = await state.wallet.transactionsFor(l2Address, l1Address)
       state.history = history.sort((a, b) => b.timestamp - a.timestamp)
     }
   },

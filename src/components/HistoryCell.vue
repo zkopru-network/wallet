@@ -11,7 +11,11 @@
     </div>
     <div class="history-item-body">
       <div style="display: flex; flex-direction: column; padding: 0px 8px;">
-        <img style="margin: 0px 8px" :src="iconByType(transaction.type)" />
+        <ColorImage
+          style="margin: 0px 8px"
+          :src="iconByType(transaction.type)"
+          color="#95A7AE"
+        />
       </div>
       <div style="display: flex; flex-direction: column">
         <div v-if="transaction.type === 'Deposit'">
@@ -93,11 +97,12 @@ import dayjs from 'dayjs'
 import { fromWei } from '../utils/wei'
 import BN from 'bn.js'
 import AddressLink from './AddressLink'
+import ColorImage from './ColorImage'
 
 @Component({
   name: 'HistoryCell',
   props: ['transaction', 'isFirst', 'isLast'],
-  components: { AddressLink, },
+  components: { AddressLink, ColorImage, },
 })
 export default class HistoryCell extends Vue {
   dayjs = dayjs
