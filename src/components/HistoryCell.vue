@@ -7,7 +7,7 @@
     `"
   >
     <div class="history-item-header">
-      {{transaction.proposal.timestamp ? dayjs(transaction.proposal.timestamp * 1000).format('dddd, MMMM D YYYY') : 'Pending'}}
+      {{transaction.proposal ? dayjs(transaction.proposal.timestamp * 1000).format('dddd, MMMM D YYYY') : 'Pending'}}
     </div>
     <div class="history-item-body">
       <div style="display: flex; flex-direction: column; padding: 0px 8px;">
@@ -32,10 +32,10 @@
         </div>
         <div spacer style="height: 10px" />
         <div style="display: flex; align-items: center; font-size: 11px">
-          <div>
+          <div v-if="!!transaction.proposal">
             Completed {{ dayjs(transaction.proposal.timestamp * 1000).format('HH:mm')}}
           </div>
-          <div style="height: 16px; width: 1px; background: #4C5F67; margin: 0px 8px;" />
+          <div v-if="!!transaction.proposal" style="height: 16px; width: 1px; background: #4C5F67; margin: 0px 8px;" />
           <div>
             Fee {{ fromWei(transaction.fee, 8) }} Eth
           </div>
@@ -44,34 +44,33 @@
             {{ isExpanded ? 'View Less' : 'View More' }}
           </div>
         </div>
-    <div v-if="isExpanded" style="display: flex; flex: 1; color: white; padding-top: 16px; font-size: 11px">
-          color="#95A7AE"
-      <div style="display: flex; flex-direction: column">
-        <div>
-          <span class="data-info">Block Hash:</span>
-          <span class="data-string">{{ transaction.proposal.hash }}</span>
+        <div v-if="isExpanded" style="display: flex; flex: 1; color: white; padding-top: 16px; font-size: 11px">
+          <div style="display: flex; flex-direction: column">
+            <div>
+              <span class="data-info">Block Hash:</span>
+              <span class="data-string">{{ transaction.proposal.hash }}</span>
+            </div>
+            <div spacer style="height: 8px" />
+            <div>
+              <span class="data-info">Block Number:</span>
+              <span class="data-string">{{ transaction.proposal.canonicalNum }}</span>
+            </div>
+          </div>
+          <div style="height: 100%; width: 1px; background: #4C5F67; margin: 0px 16px;" />
+          <div style="display: flex; flex-direction: column">
+            <div>
+              <span class="data-info">Transaction Hash:</span>
+              <span class="data-string">
+                <AddressLink :txHash="transaction.proposal.proposalTx" />
+              </span>
+            </div>
+            <div spacer style="height: 8px" />
+            <div>
+              <span class="data-info">Proposed By:</span>
+              <AddressLink class="data-string" :address="transaction.proposal.header.proposer" />
+            </div>
+          </div>
         </div>
-        <div spacer style="height: 8px" />
-        <div>
-          <span class="data-info">Block Number:</span>
-          <span class="data-string">{{ transaction.proposal.canonicalNum }}</span>
-        </div>
-      </div>
-      <div style="height: 100%; width: 1px; background: #4C5F67; margin: 0px 16px;" />
-      <div style="display: flex; flex-direction: column">
-        <div>
-          <span class="data-info">Transaction Hash:</span>
-          <span class="data-string">
-            <AddressLink :txHash="transaction.proposal.proposalTx" />
-          </span>
-        </div>
-        <div spacer style="height: 8px" />
-        <div>
-          <span class="data-info">Proposed By:</span>
-          <AddressLink class="data-string" :address="transaction.proposal.header.proposer" />
-        </div>
-      </div>
-    </div>
       </div>
       <div style="display: flex; flex: 1" />
       <div style="display: flex; flex-direction: column; padding: 8px; align-items: flex-end">
@@ -80,8 +79,8 @@
           <div spacer style="width: 8px" />
           <img height="18px" :src="tryLoadAssetIcon(tokenSymbol(transaction.tokenAddr))" />
         </div>
-        <div v-if="transaction.tokenAddr && +transaction.tokenAddr !== 0 && +transaction.eth > 0" style="height: 4px" />
-        <div v-if="+transaction.eth > 0 || +transaction.tokenAddr === 0" style="display: flex">
+        <div v-if="transaction.tokenAddr && +transaction.tokenAddr !== 0 && +transaction.eth > 0" style="height: 4px"></div>
+        <div v-if="+transaction.eth > 0 || !transaction.tokenAddr || +transaction.tokenAddr === 0" style="display: flex">
           <div>{{ fromWei(transaction.eth) }} ETH</div>
           <div spacer style="width: 8px" />
           <img height="18px" :src="tryLoadAssetIcon('ETH')" />
@@ -130,9 +129,6 @@ export default class HistoryCell extends Vue {
     const t = this.$store.state.zkopru.registeredTokens.find((token) => {
       return +token.address === +tokenAddr
     })
-    if (!t) {
-      console.log('Failed to find token at address', tokenAddr)
-    }
     const { decimals, symbol } = t
     const tokenAmount = new BN(amount)
     return `${+tokenAmount.toString() / (10 ** +decimals)} ${symbol}`
