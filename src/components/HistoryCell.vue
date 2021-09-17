@@ -98,6 +98,7 @@ import { fromWei } from '../utils/wei'
 import BN from 'bn.js'
 import AddressLink from './AddressLink'
 import ColorImage from './ColorImage'
+import { tryLoadAssetIcon } from '../utils/token'
 
 @Component({
   name: 'HistoryCell',
@@ -107,6 +108,7 @@ import ColorImage from './ColorImage'
 export default class HistoryCell extends Vue {
   dayjs = dayjs
   fromWei = fromWei
+  tryLoadAssetIcon = tryLoadAssetIcon
 
   isExpanded = false
 
@@ -139,14 +141,6 @@ export default class HistoryCell extends Vue {
       return +token.address === +tokenAddr
     })
     return symbol
-  }
-
-  tryLoadAssetIcon(symbol) {
-    try {
-      return require(`../../assets/token_icons/${symbol.toUpperCase()}.svg`)
-    } catch (_) {
-      return require('../../assets/token_no_icon.png')
-    }
   }
 }
 </script>

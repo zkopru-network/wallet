@@ -17,6 +17,7 @@ import Withdraw from './Withdraw'
 import History from './History'
 import WithdrawType from './WithdrawType'
 import Receive from './Receive'
+import Library from './Library'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -53,6 +54,7 @@ const router = new VueRouter({
     { path: '/wallet/withdraw/type', component: WithdrawType },
     { path: '/wallet/history', component: History },
     { path: '/wallet/receive', component: Receive },
+    { path: '/wallet/library', component: Library },
   ]
 })
 const app = new Vue({
