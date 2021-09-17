@@ -5,7 +5,7 @@
       <div spacer style="height: 46px" />
       <div class="header-container">
         <div style="color: white; border-bottom: 1px solid #9EFFEE; padding-bottom: 4px">Tokens registered with Zkopru</div>
-        <div class="round-button">Register Token</div>
+        <div class="round-button" v-on:click="showingAddPopup = true">Register Token</div>
       </div>
       <div
         class="token-row"
@@ -24,6 +24,7 @@
         <div spacer style="width: 10px" />
       </div>
     </div>
+    <AddTokenPopup v-if="showingAddPopup" :onCancel="() => showingAddPopup = false" />
   </div>
 </template>
 
@@ -32,14 +33,16 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import LeftMenu from './components/LeftMenu'
 import ColorImage from './components/ColorImage'
+import AddTokenPopup from './components/AddTokenPopup'
 import { tryLoadAssetIcon } from './utils/token'
 
 @Component({
   name: 'Library',
-  components: { LeftMenu, ColorImage, },
+  components: { LeftMenu, ColorImage, AddTokenPopup, },
 })
 export default class Library extends Vue {
   tryLoadAssetIcon = tryLoadAssetIcon
+  showingAddPopup = false
 
   addToken(token) {
     this.$router.push(`/wallet/deposit?type=2&asset=${token.symbol}`)
@@ -70,6 +73,8 @@ export default class Library extends Vue {
   border-radius: 20px;
   color: black;
   padding: 4px 24px;
+  cursor: pointer;
+  user-select: none;
 }
 .token-row {
   display: flex;

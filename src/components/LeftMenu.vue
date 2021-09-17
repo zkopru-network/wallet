@@ -1,6 +1,5 @@
 <template>
   <div style="width: 200px; height: 100vh">
-
     <div class="left-bar-container">
       <div class="header-item">
         Zkopru

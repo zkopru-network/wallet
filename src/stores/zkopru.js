@@ -255,7 +255,7 @@ export default {
     },
     registerERC20: async ({ state, rootState }, address) => {
       const data = await state.client.registerERC20Tx(address)
-      await window.ethereum.request({
+      return await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
           data,
