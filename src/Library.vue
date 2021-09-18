@@ -2,7 +2,7 @@
   <div class="container">
     <LeftMenu />
     <div class="body-container">
-      <div spacer style="height: 46px" />
+      <HeaderSection />
       <div class="header-container">
         <div style="color: white; border-bottom: 1px solid #9EFFEE; padding-bottom: 4px">Tokens registered with Zkopru</div>
         <div class="round-button" v-on:click="showingAddPopup = true">Register Token</div>
@@ -35,10 +35,11 @@ import LeftMenu from './components/LeftMenu'
 import ColorImage from './components/ColorImage'
 import AddTokenPopup from './components/AddTokenPopup'
 import { tryLoadAssetIcon } from './utils/token'
+import HeaderSection from './components/HeaderSection'
 
 @Component({
   name: 'Library',
-  components: { LeftMenu, ColorImage, AddTokenPopup, },
+  components: { LeftMenu, ColorImage, AddTokenPopup, HeaderSection, },
 })
 export default class Library extends Vue {
   tryLoadAssetIcon = tryLoadAssetIcon

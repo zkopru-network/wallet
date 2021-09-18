@@ -2,7 +2,7 @@
   <div class="container">
     <LeftMenu />
     <div class="body-container">
-      <div spacer style="height: 46px" />
+      <HeaderSection />
       <div class="header-container">
         <SwitchSelector
           :options="['All', 'Sent', 'Received', 'Deposited', 'Withdrawn']"
@@ -38,6 +38,7 @@ import Component from 'vue-class-component'
 import LeftMenu from './components/LeftMenu'
 import SwitchSelector from './components/SwitchSelector'
 import HistoryCell from './components/HistoryCell'
+import HeaderSection from './components/HeaderSection'
 import dayjs from 'dayjs'
 import dayOfYear from 'dayjs/plugin/dayOfYear'
 
@@ -45,7 +46,7 @@ dayjs.extend(dayOfYear)
 
 @Component({
   name: 'History',
-  components: { LeftMenu, SwitchSelector, HistoryCell }
+  components: { LeftMenu, SwitchSelector, HistoryCell, HeaderSection, }
 })
 export default class History extends Vue {
   selectedType = 0
