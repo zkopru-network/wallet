@@ -20,6 +20,9 @@
           Send
         </div>
       </div>
+      <div style="padding: 16px">
+        <SearchField v-model="searchText" />
+      </div>
       <AssetCell
         symbol="ETH"
       />
@@ -53,12 +56,13 @@ import ColorImage from './components/ColorImage'
 import SettingsPanel from './components/SettingsPanel'
 import LeftMenu from './components/LeftMenu'
 import HeaderSection from './components/HeaderSection'
+import SearchField from './components/SearchField'
 
 @Component({
   name: 'Wallet',
-  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, HeaderSection, },
+  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, HeaderSection, SearchField, },
   watch: {
-    filterText: function() {
+    searchText: function() {
       this.filterAssets()
     },
     assets() {
@@ -73,10 +77,10 @@ import HeaderSection from './components/HeaderSection'
 })
 export default class Wallet extends Vue {
   filteredAssets = []
-  filterText = ''
   displayMode = 1
   assetType = 0
   showingSettings = false
+  searchText = ''
 
   mounted() {
     this.filterAssets()
@@ -85,7 +89,7 @@ export default class Wallet extends Vue {
   filterAssets() {
     this.filteredAssets = this.assets.filter((symbol) => {
       if (symbol === 'ETH') return false
-      return symbol.toLowerCase().indexOf(this.filterText.toLowerCase()) !== -1
+      return symbol.toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1
     })
   }
 }

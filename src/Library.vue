@@ -7,9 +7,12 @@
         <div style="color: white; border-bottom: 1px solid #9EFFEE; padding-bottom: 4px">Tokens registered with Zkopru</div>
         <div class="round-button" v-on:click="showingAddPopup = true">Register Token</div>
       </div>
+      <div style="padding: 16px">
+        <SearchField v-model="searchText" />
+      </div>
       <div
         class="token-row"
-        v-for="token of $store.state.zkopru.registeredTokens"
+        v-for="token of filteredAssets"
       >
         <div style="cursor: pointer" v-on:click="addToken(token)">
           <ColorImage
@@ -36,14 +39,36 @@ import ColorImage from './components/ColorImage'
 import AddTokenPopup from './components/AddTokenPopup'
 import { tryLoadAssetIcon } from './utils/token'
 import HeaderSection from './components/HeaderSection'
+import SearchField from './components/SearchField'
 
 @Component({
   name: 'Library',
-  components: { LeftMenu, ColorImage, AddTokenPopup, HeaderSection, },
+  components: { LeftMenu, ColorImage, AddTokenPopup, HeaderSection, SearchField, },
+  watch: {
+    searchText() {
+      this.filterAssets()
+    },
+    assets() {
+      this.filterAssets()
+    }
+  },
+  computed: {
+    assets() {
+      return [...this.$store.state.zkopru.registeredTokens]
+    }
+  }
 })
 export default class Library extends Vue {
   tryLoadAssetIcon = tryLoadAssetIcon
   showingAddPopup = false
+  searchText = ''
+  filteredAssets = []
+
+  filterAssets() {
+    this.filteredAssets = this.assets.filter(({ symbol }) => {
+      return symbol.toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1
+    })
+  }
 
   addToken(token) {
     this.$router.push(`/wallet/deposit?type=2&asset=${token.symbol}`)
