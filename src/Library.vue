@@ -64,6 +64,10 @@ export default class Library extends Vue {
   searchText = ''
   filteredAssets = []
 
+  mounted() {
+    this.filterAssets()
+  }
+
   filterAssets() {
     this.filteredAssets = this.assets.filter(({ symbol }) => {
       return symbol.toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1

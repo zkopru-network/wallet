@@ -122,7 +122,7 @@ import ColorImage from './ColorImage'
       return this.$route.path.startsWith('/wallet/history')
     },
     isTokenLibrary() {
-      return this.$route.path.startsWith('/wallet/tokens')
+      return this.$route.path.startsWith('/wallet/library')
     },
     isSend() {
       return this.$route.path.startsWith('/wallet/transfer')
