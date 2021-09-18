@@ -2,77 +2,33 @@
   <div class="container">
     <LeftMenu />
     <div style="display: flex; flex-direction: column; flex: 1;height: 100%">
-      <div style="display: flex; align-items: center; box-shadow: 0px 1px 0px #2A3D46;">
-        <div style="position: relative; display: flex; flex: 1">
-          <input
-            type="text"
-            class="search-text-input"
-            v-model="filterText"
-            placeholder="search"
-          />
-          <img
-            style="position: absolute; left: 7px; top: 12px"
-            :src="require('../assets/search_icon.svg')"
-            height="24px"
-            width="24px"
-            color="#5D7078"
-          />
-        </div>
-        <div class="header-button" v-on:click="$router.push({ path: '/wallet/history' })">
-          History
-        </div>
-        <div spacer style="width: 16px" />
-        <div class="header-button" v-on:click="showingSettings = true">
-          Settings
-        </div>
-        <div spacer style="width: 16px" />
-        <div class="header-button">
-          Support
-        </div>
-        <div spacer style="width: 32px" />
-      </div>
+      <HeaderSection />
       <div class="subheader-container">
         <div class="tokens-button">
           Tokens
         </div>
         <div spacer style="flex: 1" />
         <div class="receive-button" v-on:click="$router.push({ path: '/wallet/receive' })">
-          <img :src="require('../assets/receive_button_icon.svg')" />
+          <ColorImage color="#A2EFE1" :src="require('../assets/receive_icon_new.svg')" />
           <div spacer style="width: 13px" />
           Receive
         </div>
         <div spacer style="width: 10px" />
         <div class="send-button" v-on:click="$router.push({ path: '/wallet/transfer' })">
-          <img :src="require('../assets/send_button_icon.svg')" />
+          <ColorImage color="#000000" :src="require('../assets/send_icon_new.svg')" />
           <div spacer style="width: 13px" />
           Send
         </div>
       </div>
-      <div style="display: flex; flex-direction: column; padding: 13px 21px">
-        <div style="display: flex; width: 100%; align-items: center">
-          <div class="detail-text">ETH</div>
-          <div spacer style="flex: 1" />
-          <div class="detail-text">Your wallet and Zkopru transactions are private</div>
-          <img :src="require('../assets/shield_icon.svg')" />
-        </div>
-        <div spacer style="height: 22px" />
-        <div style="display: flex">
-          <AssetCell
-            symbol="ETH"
-          />
-        </div>
-        <div spacer style="height: 54px" />
-        <div class="detail-text">Tokens</div>
-        <div spacer style="height: 22px" />
-        <div style="display: flex">
-          <AssetCell
-            v-for="asset in filteredAssets"
-            :symbol="asset"
-            :tokenAddr="asset.tokenAddr"
-            :key="asset"
-          />
-        </div>
-      </div>
+      <AssetCell
+        symbol="ETH"
+      />
+      <AssetCell
+        v-for="asset in filteredAssets"
+        :symbol="asset"
+        :tokenAddr="asset.tokenAddr"
+        :key="asset"
+      />
       <div spacer style="flex: 1" />
       <div style="padding: 8px;  display: flex">
         <div style="color: white">
@@ -96,10 +52,11 @@ import ZkopruBackground from './components/ZkopruBackground'
 import ColorImage from './components/ColorImage'
 import SettingsPanel from './components/SettingsPanel'
 import LeftMenu from './components/LeftMenu'
+import HeaderSection from './components/HeaderSection'
 
 @Component({
   name: 'Wallet',
-  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, },
+  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, HeaderSection, },
   watch: {
     filterText: function() {
       this.filterAssets()
@@ -162,10 +119,11 @@ export default class Wallet extends Vue {
   cursor: pointer;
 }
 .subheader-container {
-  box-shadow: 0px 1px 0px #2A3D46;
+  border-top: 1px solid #2A3D46;
+  border-bottom: 1px solid #2A3D46;
   display: flex;
   align-items: center;
-  padding: 8px;
+  padding: 8px 16px;
 }
 .tokens-button {
   color: white;
@@ -179,7 +137,7 @@ export default class Wallet extends Vue {
   border-radius: 20px;
   color: #85C7BD;
   font-size: 16px;
-  padding: 8px 24px;
+  padding: 4px 24px;
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -190,7 +148,7 @@ export default class Wallet extends Vue {
   border-radius: 20px;
   color: black;
   font-size: 16px;
-  padding: 8px 24px;
+  padding: 4px 24px;
   cursor: pointer;
   user-select: none;
   display: flex;
