@@ -33,11 +33,7 @@
         :key="asset"
       />
       <div spacer style="flex: 1" />
-      <div style="padding: 8px;  display: flex">
-        <div style="color: white">
-          {{ $store.state.zkopru.syncing ? $store.state.zkopru.status : 'Not synchronizing' }} - {{$store.state.zkopru.syncPercent}}%
-        </div>
-      </div>
+      <SyncIndicator />
     </div>
     <SettingsPanel
       :visible="showingSettings"
@@ -57,10 +53,11 @@ import SettingsPanel from './components/SettingsPanel'
 import LeftMenu from './components/LeftMenu'
 import HeaderSection from './components/HeaderSection'
 import SearchField from './components/SearchField'
+import SyncIndicator from './components/SyncIndicator'
 
 @Component({
   name: 'Wallet',
-  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, HeaderSection, SearchField, },
+  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, HeaderSection, SearchField, SyncIndicator, },
   watch: {
     searchText: function() {
       this.filterAssets()
