@@ -29,6 +29,13 @@
         </div>
       </div>
     </Info>
+    <div spacer style="width: 10px" />
+    <AssetCellInfo
+      title="No ETH"
+      text="ETH is used to cover coordinator fees on the Zkopru network. Deposit ETH to make your first transaction."
+      :onClose="() => showingInfo = false"
+      v-if="showingInfo && symbol.toUpperCase() === 'ETH' && +$store.state.zkopru.balance === 0 && $store.state.zkopru.l2BalanceLoaded"
+    />
   </div>
 </template>
 <script>
@@ -38,11 +45,12 @@ import Button from './Button'
 import Info from './Info'
 import ColorImage from './ColorImage'
 import { tryLoadAssetIcon } from '../utils/token'
+import AssetCellInfo from './AssetCellInfo'
 
 @Component({
   name: 'AssetCell',
   props: ['symbol', 'tokenAddr'],
-  components: { Button, Info, ColorImage, },
+  components: { Button, Info, ColorImage, AssetCellInfo, },
   computed: {
     maxSpend: function() {
       const info = this.$store.state.zkopru.noteInfo[this.symbol]
@@ -58,6 +66,7 @@ import { tryLoadAssetIcon } from '../utils/token'
 })
 export default class AssetCell extends Vue {
   tryLoadAssetIcon = tryLoadAssetIcon
+  showingInfo = true
 
   transfer() {
     this.$router.push({ path: `/wallet/transfer?asset=${this.symbol}` })

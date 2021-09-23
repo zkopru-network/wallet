@@ -23,6 +23,7 @@ export default {
     lockedBalance: null,
     balance: null,
     tokenBalances: {},
+    l2BalanceLoaded: false,
     registeredTokens: [],
     tokensByAddress: {},
     history: [],
@@ -230,6 +231,7 @@ export default {
         const { erc20, erc721, eth } = locked
         state.lockedBalance = fromWei(eth.toString())
       }
+      state.l2BalanceLoaded = true
     },
     loadCurrentWeiPerByte: async ({ state, dispatch }) => {
       if (!state.wallet) {
@@ -270,7 +272,11 @@ export default {
       const l2Address = state.wallet.wallet.account.zkAddress.toString()
       const l1Address = rootState.account.accounts[0]
       const { history } = await state.wallet.transactionsFor(l2Address, l1Address)
-      state.history = history.sort((a, b) => b.proposal.timestamp - a.proposal.timestamp)
+      if (history) {
+        state.history = history.sort((a, b) => b.proposal.timestamp - a.proposal.timestamp)
+      } else {
+        state.history = []
+      }
     }
   },
 }
