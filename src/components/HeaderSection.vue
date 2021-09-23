@@ -6,10 +6,10 @@
       <div class="info-text">Your wallet and Zkopru transactions are private</div>
     </div>
     <div style="display: flex">
-      <div class="header-button">
-        <ColorImage color="#95A7AE" width="18px" height="18px" :src="require('../../assets/info_icon.svg')" />
+      <div class="header-button" v-on:click="openDocs()">
+        <ColorImage color="#95A7AE" width="18px" height="18px" :src="require('../../assets/docs_icon.svg')" />
         <div spacer style="width: 4px" />
-        <div>Info</div>
+        <div>Docs</div>
       </div>
       <div class="header-button" v-on:click="showingSettings = true">
         <ColorImage color="#95A7AE" width="18px" height="18px" :src="require('../../assets/settings_cog.svg')" />
@@ -36,6 +36,10 @@ import SettingsPanel from './SettingsPanel'
 })
 export default class HeaderSection extends Vue {
   showingSettings = false
+
+  openDocs() {
+    window.open('https://docs.zkopru.network', '_blank')
+  }
 }
 </script>
 
