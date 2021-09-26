@@ -18,6 +18,7 @@ import History from './History'
 import WithdrawType from './WithdrawType'
 import Receive from './Receive'
 import Library from './Library'
+import HomeNew from './HomeNew'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -46,6 +47,7 @@ const router = new VueRouter({
   mode: 'history',
   routes: [
     { path: '/', component: Home },
+    { path: '/home', component: HomeNew },
     { path: '/wallet', component: Wallet },
     { path: '/wallet/transfer', component: Transfer },
     { path: '/wallet/deposit', component: Deposit },
