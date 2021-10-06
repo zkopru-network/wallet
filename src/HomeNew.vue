@@ -3,9 +3,10 @@
     class="container"
     :style="`
       background-image: url(${require('../assets/landing_background.jpg')});
-      padding: 64px ${horizontalPadding}px;
+      padding: 0px ${horizontalPadding}px;
     `"
     >
+    <div spacer style="height: 64px" />
     <div style="display: flex; justify-content: space-between; align-items: center">
       <div style="font-weight: 300; font-size: 24px; letter-spacing: 0.16em">
         ZKOPRU
@@ -287,7 +288,7 @@
       Learn How
     </div>
     <div spacer style="height: 136px" />
-    <div :style="`background: black; color: #F2F2F2; display: flex; justify-content: space-around; width: calc(100% + ${0}px); padding: 240px ${horizontalPadding}px; flex-wrap: wrap; margin-top: 0px; position: relative; left: -${horizontalPadding}px; margin-bottom: -64px`">
+    <div :style="`background: black; color: #F2F2F2; display: flex; justify-content: space-around; width: calc(100% + ${0}px); padding: 240px ${horizontalPadding}px; flex-wrap: wrap; margin-top: 0px; position: relative; left: -${horizontalPadding}px`">
       <div style="font-weight: 300; font-size: 48px; latter-spacing: 0.16em; color: white; margin-bottom: 16px">
         ZKOPRU
       </div>
