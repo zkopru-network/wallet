@@ -45,6 +45,7 @@ const store = new Vuex.Store({
   },
 })
 store.dispatch('loadState')
+store.commit('updateViewportSize')
 window.addEventListener('resize', () => store.commit('updateViewportSize'))
 const router = new VueRouter({
   mode: 'history',
