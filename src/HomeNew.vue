@@ -212,16 +212,17 @@
           Trusted Setup
         </div>
         <div spacer style="height: 40px" />
-        <div class="detail-text" style="max-width: 500px; margin-bottom: 50px">
+        <div class="detail-text" style="max-width: 500px; margin-bottom: 50px; line-height: 140%">
           Zkopru was set up using a two–phase process to enhance security. 
           <br />
           <br />
-          Phase 1: Perpetual Powers of Tau Ceremony.
+          Phase 1: Perpetual Powers of Tau Ceremony
           <br />
-          Phase 2: Circuit–specific MPC.
+          Phase 2: Circuit–specific setup
           <br />
           <br />
-          <span style="font-weight: bold">Phase 1</span> used the output of Iden3’s selection process based on the 54th Perpetual Powers of Tau contribution.
+          <span style="font-weight: bold">Phase 1 had 71 contributors</span>
+          <span style="font-weight: 400">used the output of Iden3’s selection process based on the 54th Perpetual Powers of Tau contribution.</span>
         </div>
       </div>
       <div
@@ -230,11 +231,11 @@
       />
       <div style="display: flex; flex-direction: column">
         <div spacer style="height: 150px" />
-        <div class="detail-text" style="max-width: 500px">
-          <span style="font-weight: bold">Phase 2</span> saw to a separate trusted set up for each SNARK that the Zkopru network relies on. This circuit-specific ceremony ensures that no one is able to fake proofs and steal user funds or compromise privacy.
+        <div class="detail-text" style="max-width: 500px; line-height: 140%">
+          <span style="font-weight: bold">Phase 2 circuit-specific ceremony</span>  was held to ensure that no one is able to fake proofs to steal user funds or compromise privacy.
           <br />
           <br />
- The setup is performed in such a way that, to fake a proof, an attacker must compromise every single participant of the ceremony. Therefore, the security goes up with the number of participants.
+ The setup is performed in such a way that, to fake a proof, an attacker must compromise every single contributor in the ceremony. Therefore, the security goes up with the number of contributors.
         </div>
       </div>
     </div>
