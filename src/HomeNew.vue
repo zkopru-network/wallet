@@ -249,7 +249,7 @@
         style="position: absolute; left: calc(50% - 1px); right(50% - 1px); top: 0px; bottom: 0px; width: 2px; background: #2A3D46"
       />
       <div spacer style="display: flex; flex: 1" />
-      <div style="display: flex; flex-direction: column; margin: 25px 50px">
+      <div style="display: flex; flex-direction: column; margin: 25px 0px">
         <div style="color: white; font-size: 56px">
           5147
         </div>
@@ -257,7 +257,7 @@
           Contributions
         </div>
       </div>
-      <div style="display: flex; flex-direction: column; margin: 25px 50px">
+      <div style="display: flex; flex-direction: column; margin: 25px 100px">
         <div style="color: white; font-size: 56px">
           369
         </div>
@@ -265,7 +265,7 @@
           Contributors
         </div>
       </div>
-      <div style="display: flex; flex-direction: column; margin: 25px 50px">
+      <div style="display: flex; flex-direction: column; margin: 25px 0px">
         <div style="color: white; font-size: 56px">
           16
         </div>
