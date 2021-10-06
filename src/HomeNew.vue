@@ -131,7 +131,7 @@
       </div>
     </div>
     <div spacer style="height: 220px" />
-    <div style="display: flex; flex-direction: column; max-width: 890px">
+    <div style="display: flex; flex-direction: column; max-width: 1160px">
       <div class="section-title-text">
         Features
       </div>
@@ -145,7 +145,7 @@
       </div>
       <div spacer style="height: 72px" />
       <div style="display: flex; flex-wrap: wrap">
-        <div v-for="data of featuresSection" style="width: 350px; margin: 34px">
+        <div v-for="data of featuresSection" style="width: 420px; margin: 34px">
           <img
             :src="data.image"
             width="72"
@@ -194,7 +194,7 @@
     </div>
     <div spacer style="height: 40px" />
     <div class="detail-text" style="align-self: center; text-align: center">
-      Zkopru has been audited by Least Authority and Igor Gulamov.
+      Zkopru has been audited by <span style="color: white">Least Authority</span> and <span style="color: white">Igor Gulamov</span>.
     </div>
     <div spacer style="height: 40px" />
     <div class="round-button" style="align-self: center">
@@ -281,7 +281,7 @@
       Earning = Giving
     </div>
     <div spacer style="height: 40px" />
-    <div class="detail-text" style="align-self: center; max-width: 900px; text-align: center">
+    <div class="detail-text" style="align-self: center; max-width: 700px; text-align: center">
       Collect revenue from transaction fees and simultaneously help Zkopru grow by becoming a network coordinator.
     </div>
     <div spacer style="height: 40px" />
