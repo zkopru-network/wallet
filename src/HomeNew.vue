@@ -29,8 +29,8 @@
       </div>
     </div>
     <div spacer style="height: 270px" />
-    <div style="display: flex; justify-content: space-around">
-      <div style="display: flex; flex-direction: column; max-width: 760px">
+    <div style="display: flex">
+      <div style="display: flex; flex-direction: column; max-width: 659px">
         <div class="section-title-text">
           Function
         </div>
@@ -69,7 +69,7 @@
       <div style="display: flex; flex: 1" />
     </div>
     <div spacer style="height: 270px" />
-    <div style="display: flex; flex-wrap: wrap">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between">
       <div class="gas-table-container">
         <div style="color: #F2F2F2; font-weight: bold; font-size: 40px">Gas</div>
         <div>per transaction</div>
@@ -96,8 +96,7 @@
         <div style="width: 100%; height: 12px; background: #F49F2F; border-radius: 24px;" />
         <div spacer style="height: 20px" />
       </div>
-      <div spacer style="display: flex; flex: 1" />
-      <div style="display: flex; flex-direction: column; max-width: 400px; margin: 16px">
+      <div style="display: flex; flex-direction: column; max-width: 400px">
         <div class="section-title-text">
           Scalability
         </div>
@@ -163,12 +162,11 @@
       </div>
     </div>
     <div spacer style="height: 200px" />
-    <div style="display: flex; align-items: center; flex-wrap: wrap">
+    <div style="display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between">
       <img
         style="mix-blend-mode: difference; opacity: 0.6"
         :src="require('../assets/landing_eth.svg')"
       />
-      <div spacer style="display: flex; flex: 1" />
       <div style="display: flex; flex-direction: column; max-width: 500px">
         <div class="section-title-text">
           Value
@@ -203,7 +201,7 @@
     </div>
     <div spacer style="height: 230px" />
     <div :style="`position: relative; left: -${horizontalPadding}px; right: -${horizontalPadding}px; width: 100vw; height: 2px; background: #2A3D46`" />
-    <div style="display: flex; flex-wrap: wrap; position: relative; padding: 88px 0px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; position: relative; padding: 88px 0px;">
       <div style="display: flex; flex-direction: column">
         <div class="section-title-text">
           Creation
@@ -229,7 +227,6 @@
         v-if="$store.state.interface.width > 1200"
         style="position: absolute; left: calc(50% - 1px); right(50% - 1px); top: 0px; bottom: 0px; width: 2px; background: #2A3D46"
       />
-      <div spacer style="display: flex; flex: 1" />
       <div style="display: flex; flex-direction: column">
         <div spacer style="height: 150px" />
         <div class="detail-text" style="max-width: 500px">
