@@ -212,7 +212,7 @@
           Trusted Setup
         </div>
         <div spacer style="height: 40px" />
-        <div class="detail-text" style="max-width: 500px; margin-bottom: 50px; line-height: 140%">
+        <div class="detail-text" style="max-width: 500px; margin-bottom: 50px">
           Zkopru was set up using a two–phase process to enhance security. 
           <br />
           <br />
@@ -231,7 +231,7 @@
       />
       <div style="display: flex; flex-direction: column">
         <div spacer style="height: 150px" />
-        <div class="detail-text" style="max-width: 500px; line-height: 140%">
+        <div class="detail-text" style="max-width: 500px;">
           <span style="font-weight: bold">Phase 2 circuit-specific ceremony</span>  was held to ensure that no one is able to fake proofs to steal user funds or compromise privacy.
           <br />
           <br />
@@ -420,6 +420,7 @@ export default class LandingPage extends Vue {
   font-size: 21px;
   font-weight: 300;
   color: #ACB4B2;
+  line-height: 140%;
 }
 .gas-table-container {
   background: #081B24;
