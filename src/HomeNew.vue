@@ -97,7 +97,7 @@
         <div style="width: 100%; height: 12px; background: #F49F2F; border-radius: 24px;" />
         <div spacer style="height: 20px" />
       </div>
-      <div style="display: flex; flex-direction: column; max-width: 400px">
+      <div style="display: flex; flex-direction: column; max-width: 500px">
         <div class="section-title-text">
           Scalability
         </div>
