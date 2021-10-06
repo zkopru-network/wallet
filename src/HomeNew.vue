@@ -290,7 +290,7 @@
       Learn How
     </div>
     <div spacer style="height: 136px" />
-    <div :style="`background: black; color: #F2F2F2; display: flex; justify-content: space-around; width: calc(100% + ${0}px); padding: 80px ${horizontalPadding}px; flex-wrap: wrap; margin-top: 0px; position: relative; left: -${horizontalPadding}px; margin-bottom: -64px`">
+    <div :style="`background: black; color: #F2F2F2; display: flex; justify-content: space-around; width: calc(100% + ${0}px); padding: 240px ${horizontalPadding}px; flex-wrap: wrap; margin-top: 0px; position: relative; left: -${horizontalPadding}px; margin-bottom: -64px`">
       <div style="font-weight: 300; font-size: 48px; latter-spacing: 0.16em; color: white; margin-bottom: 16px">
         ZKOPRU
       </div>
