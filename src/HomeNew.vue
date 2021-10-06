@@ -36,7 +36,7 @@
           Function
         </div>
         <div spacer style="height: 24px" />
-        <div style="color: #F2F2F2; font-weight: bold; font-size: 56px">
+        <div class="section-subtitle-text">
           Private and affordable
         </div>
         <div spacer style="height: 40px" />
@@ -52,6 +52,7 @@
       </div>
       <div style="display: flex; flex: 1" />
       <div style="display: flex; flex-direction: column">
+        <div spacer style="height: 80px" />
         <div style="color: #F2F2F2; font-size: 24px; font-weight: bold">
           Store + Send
         </div>
