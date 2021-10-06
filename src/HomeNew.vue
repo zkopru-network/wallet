@@ -12,7 +12,7 @@
         ZKOPRU
       </div>
       <div class="round-button">
-        Open A Wallet
+        Open Wallet
       </div>
     </div>
     <div spacer style="height: 200px" />
@@ -46,7 +46,7 @@
         <div spacer style="height: 40px" />
         <div style="display: flex">
           <div class="round-button">
-            Open A Wallet
+            Open Wallet
           </div>
         </div>
       </div>
