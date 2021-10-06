@@ -1,5 +1,11 @@
 <template>
-  <div class="container" :style="`background-image: url(${require('../assets/landing_background.jpg')})`">
+  <div
+    class="container"
+    :style="`
+      background-image: url(${require('../assets/landing_background.jpg')});
+      padding: 64px ${horizontalPadding}px;
+    `"
+    >
     <div style="display: flex; justify-content: space-between; align-items: center">
       <div style="font-weight: 300; font-size: 24px; letter-spacing: 0.16em">
         ZKOPRU
@@ -9,8 +15,8 @@
       </div>
     </div>
     <div spacer style="height: 200px" />
-    <div style="font-weight: 800; font-size: 120px; max-width: 900px; letter-spacing: -0.01em; color: #F2F2F2; line-height: 100%">
-      More than a crypto wallet
+    <div style="font-weight: 800; font-size: 106px; max-width: 1200px; letter-spacing: -0.01em; color: #F2F2F2; line-height: 100%">
+      Affordable Ethereum Privacy Wallet
     </div>
     <div spacer style="height: 72px" />
     <div style="display: flex; justify-content: space-between">
@@ -43,6 +49,7 @@
           </div>
         </div>
       </div>
+      <div style="display: flex; flex: 1" />
       <div style="display: flex; flex-direction: column">
         <div style="color: #F2F2F2; font-size: 24px; font-weight: bold">
           Store + Send
@@ -59,9 +66,10 @@
           </div>
         </div>
       </div>
+      <div style="display: flex; flex: 1" />
     </div>
     <div spacer style="height: 270px" />
-    <div style="display: flex; justify-content: space-around; flex-wrap: wrap">
+    <div style="display: flex; flex-wrap: wrap">
       <div class="gas-table-container">
         <div style="color: #F2F2F2; font-weight: bold; font-size: 40px">Gas</div>
         <div>per transaction</div>
@@ -88,6 +96,7 @@
         <div style="width: 100%; height: 12px; background: #F49F2F; border-radius: 24px;" />
         <div spacer style="height: 20px" />
       </div>
+      <div spacer style="display: flex; flex: 1" />
       <div style="display: flex; flex-direction: column; max-width: 400px; margin: 16px">
         <div class="section-title-text">
           Scalability
@@ -111,12 +120,13 @@
       Send and receive from an extensive list of ERC-20 tokens and register your own.
     </div>
     <div spacer style="height: 80px" />
-    <div style="display: flex; align-self: center; justify-content: space-around; flex-wrap: wrap">
+    <div style="display: flex; align-self: center; justify-content: space-around; overflow: hidden">
       <div v-for="token of tokenList" style="margin: 8px 32px">
         <img
           :src="require(`../assets/token_icons/${token}.svg`)"
           width="64"
           height="64"
+          :style="`opacity: ${1-(Math.abs(tokenList.indexOf(token) - tokenList.length / 2) / (tokenList.length / 1.7))}`"
         />
       </div>
     </div>
@@ -158,7 +168,8 @@
         style="mix-blend-mode: difference; opacity: 0.6"
         :src="require('../assets/landing_eth.svg')"
       />
-      <div style="display: flex; flex-direction: column; max-width: 540px">
+      <div spacer style="display: flex; flex: 1" />
+      <div style="display: flex; flex-direction: column; max-width: 500px">
         <div class="section-title-text">
           Value
         </div>
@@ -191,16 +202,17 @@
       View Audit Results
     </div>
     <div spacer style="height: 230px" />
-    <div style="display: flex; flex-direction: column; align-self: center">
-      <div class="section-title-text">
-        Creation
-      </div>
-      <div spacer style="height: 24px" />
-      <div class="section-subtitle-text">
-        Trusted Setup
-      </div>
-      <div spacer style="height: 40px" />
-      <div style="display: flex; flex-wrap: wrap">
+    <div :style="`position: relative; left: -${horizontalPadding}px; right: -${horizontalPadding}px; width: 100vw; height: 2px; background: #2A3D46`" />
+    <div style="display: flex; flex-wrap: wrap; position: relative; padding: 88px 0px;">
+      <div style="display: flex; flex-direction: column">
+        <div class="section-title-text">
+          Creation
+        </div>
+        <div spacer style="height: 24px" />
+        <div class="section-subtitle-text">
+          Trusted Setup
+        </div>
+        <div spacer style="height: 40px" />
         <div class="detail-text" style="max-width: 500px; margin-bottom: 50px">
           Zkopru was set up using a two–phase process to enhance security. 
           <br />
@@ -212,7 +224,14 @@
           <br />
           <span style="font-weight: bold">Phase 1</span> used the output of Iden3’s selection process based on the 54th Perpetual Powers of Tau contribution.
         </div>
-        <div spacer style="width: 100px" />
+      </div>
+      <div
+        v-if="$store.state.interface.width > 1200"
+        style="position: absolute; left: calc(50% - 1px); right(50% - 1px); top: 0px; bottom: 0px; width: 2px; background: #2A3D46"
+      />
+      <div spacer style="display: flex; flex: 1" />
+      <div style="display: flex; flex-direction: column">
+        <div spacer style="height: 150px" />
         <div class="detail-text" style="max-width: 500px">
           <span style="font-weight: bold">Phase 2</span> saw to a separate trusted set up for each SNARK that the Zkopru network relies on. This circuit-specific ceremony ensures that no one is able to fake proofs and steal user funds or compromise privacy.
           <br />
@@ -221,13 +240,17 @@
         </div>
       </div>
     </div>
-    <div spacer style="height: 80px" />
-    <div style="width: calc(100% + 128px); height: 2px; background: #2A3D46; margin: 0px -64px; margin-bottom: 8px" />
-    <div style="display: flex; align-items: center; flex-wrap: wrap">
+    <div :style="`position: relative; left: -${horizontalPadding}px; right: ${horizontalPadding}px; width: 100vw; height: 2px; background: #2A3D46`" />
+    <div style="display: flex; align-items: center; flex-wrap: wrap; padding: 8px 0px; position: relative">
       <div class="round-button">
         All Ceremony Data
       </div>
-      <div spacer style="flex: 1" />
+      <div spacer style="display: flex; flex: 1" />
+      <div
+        v-if="$store.state.interface.width > 1200"
+        style="position: absolute; left: calc(50% - 1px); right(50% - 1px); top: 0px; bottom: 0px; width: 2px; background: #2A3D46"
+      />
+      <div spacer style="display: flex; flex: 1" />
       <div style="display: flex; flex-direction: column; margin: 25px 50px">
         <div style="color: white; font-size: 56px">
           5147
@@ -253,7 +276,7 @@
         </div>
       </div>
     </div>
-    <div style="width: calc(100% + 128px); height: 2px; background: #2A3D46; margin: 0px -64px; margin-top: 8px" />
+    <div :style="`position: relative; left: -${horizontalPadding}px; right: ${horizontalPadding}px; width: 100vw; height: 2px; background: #2A3D46`" />
     <div spacer style="height: 200px" />
     <div style="align-self: center; color: #F2F2F2; font-size: 40px; font-weight: bold;">
       Earning = Giving
@@ -267,10 +290,11 @@
       Learn How
     </div>
     <div spacer style="height: 136px" />
-    <div style="background: black; color: #F2F2F2; display: flex; justify-content: space-around; width: calc(100% + 128px); padding: 200px 0px; flex-wrap: wrap; margin: -64px; margin-top: 0px">
+    <div :style="`background: black; color: #F2F2F2; display: flex; justify-content: space-around; width: calc(100% + ${0}px); padding: 80px ${horizontalPadding}px; flex-wrap: wrap; margin-top: 0px; position: relative; left: -${horizontalPadding}px; margin-bottom: -64px`">
       <div style="font-weight: 300; font-size: 48px; latter-spacing: 0.16em; color: white; margin-bottom: 16px">
         ZKOPRU
       </div>
+      <div spacer style="display: flex; flex: 1" />
       <div style="display: flex">
         <div style="flex-direction: column">
           <div style="font-size: 24px; font-weight: bold">
@@ -319,6 +343,11 @@ import Component from 'vue-class-component'
 
 @Component({
   name: 'LandingPage',
+  computed: {
+    horizontalPadding: function horizontalPadding() {
+      return Math.min(260, Math.max(32, ((this.$store.state.interface.width - 1162) / 2)))
+    }
+  }
 })
 export default class LandingPage extends Vue {
   tokenList = [
@@ -362,12 +391,11 @@ export default class LandingPage extends Vue {
 .container {
   display: flex;
   flex-direction: column;
-  padding: 64px;
   color: white;
-  max-width: 1400px;
+  max-width: 1162px;
   overflow-x: hidden;
   margin: auto;
-  background-size: contain;
+  background-size: cover;
 }
 .round-button {
   cursor: pointer;
@@ -390,7 +418,7 @@ export default class LandingPage extends Vue {
   color: #F2F2F2;
 }
 .detail-text {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 300;
   color: #919D9B;
 }

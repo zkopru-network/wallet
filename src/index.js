@@ -19,6 +19,7 @@ import WithdrawType from './WithdrawType'
 import Receive from './Receive'
 import Library from './Library'
 import HomeNew from './HomeNew'
+import InterfaceStore from './stores/interface'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -40,9 +41,11 @@ const store = new Vuex.Store({
     wallet: WalletStore,
     testToken: TestTokenStore,
     addressBook: AddressBookStore,
+    interface: InterfaceStore,
   },
 })
 store.dispatch('loadState')
+window.addEventListener('resize', () => store.commit('updateViewportSize'))
 const router = new VueRouter({
   mode: 'history',
   routes: [
