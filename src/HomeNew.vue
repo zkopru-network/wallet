@@ -415,9 +415,9 @@ export default class LandingPage extends Vue {
   color: #F2F2F2;
 }
 .detail-text {
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 300;
-  color: #919D9B;
+  color: #ACB4B2;
 }
 .gas-table-container {
   background: #081B24;
