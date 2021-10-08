@@ -7,15 +7,15 @@ const { exec } = require('child_process')
 
 module.exports = {
   entry: {
-    index: './src/index.js',
+    main: './src/index.js',
     zkopru: '@zkopru/client/browser',
     sha: 'js-sha512'
   },
-  optimization: {
-    splitChunks: {
-      chunks: 'all'
-    }
-  },
+  // optimization: {
+  //   splitChunks: {
+  //     chunks: 'all'
+  //   }
+  // },
   output: {
     path: path.resolve(__dirname, 'build'),
     publicPath: '/',
@@ -27,7 +27,8 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        loader: 'babel-loader'
+        loader: 'babel-loader',
+        exclude: /node_modules/,
       },
       {
         test: /\.vue$/,

@@ -8,8 +8,10 @@
     "dev": "webpack-dev-server",
     "buildnum": "node scripts/buildversion",
     "build": "webpack --config webpack.prod.js --progress",
+    "clean": "rm -rf build",
     "server": "node server",
     "ipfs": "node scripts/ipfsify.js",
+    "stats": " webpack --profile --json > stats.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chance Hudson",
