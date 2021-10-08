@@ -4,6 +4,8 @@ A user interface for interacting with the Zkopru L2 application.
 
 Draft accessible [here](https://zkopru.tubby.cloud/).
 
+[![](./ipfs_badge.svg)](https://ipfs.io/ipfs/QmefC1QcV9Z5DmwXiTLr5zg6HWPK7izoNtNiPpgSFhipCd) <!-- badge -->
+
 ## Setup
 
 Install modules as usual with `npm install`.

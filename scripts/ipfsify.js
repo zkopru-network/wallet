@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
 const { importer } = require('ipfs-unixfs-importer')
+const cidbadge = require('cidbadge')
 
 // first calculate the cid for static assets like svg/png/jpg/ttf
 // then replace their occurences in bundles like js/html files
@@ -64,6 +65,16 @@ async function main() {
     console.log('html', cid.toString())
     processedFiles[file] = `ipfs/${cid.toString()}`
   }
+  const link = `https://ipfs.io/${processedFiles['index.html']}`
+  const badge = cidbadge(processedFiles['index.html'].split('/').pop())
+  fs.writeFileSync(path.join(__dirname, '../ipfs_badge.svg'), Buffer.from(badge))
+  const readmePath = path.join(__dirname, '../README.md')
+  const readme = fs.readFileSync(readmePath).toString()
+  const updatedReadme = readme.replace(
+    /^.+<!-- badge -->/gm,
+    `[![](./ipfs_badge.svg)](${link}) <!-- badge -->`
+  )
+  fs.writeFileSync(readmePath, updatedReadme)
 }
 
 async function generateCid(filepath) {
