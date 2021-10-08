@@ -79,8 +79,9 @@ export default class Wallet extends Vue {
   showingSettings = false
   searchText = ''
 
-  mounted() {
+  async mounted() {
     this.filterAssets()
+    await this.$store.dispatch('connectMetamask')
   }
 
   filterAssets() {

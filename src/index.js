@@ -52,8 +52,8 @@ const isIpfs = pathComponents.indexOf('ipfs') === pathComponents.length - 2
 const router = new VueRouter({
   mode: isIpfs ? 'hash' : 'history',
   routes: [
-    { path: '/', component: Home },
-    { path: '/home', component: HomeNew },
+    { path: '/', component: HomeNew },
+    { path: '/home', component: Home },
     { path: '/wallet', component: Wallet },
     { path: '/wallet/transfer', component: Transfer },
     { path: '/wallet/deposit', component: Deposit },

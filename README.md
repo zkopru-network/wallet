@@ -4,7 +4,7 @@ A user interface for interacting with the Zkopru L2 application.
 
 Draft accessible [here](https://zkopru.tubby.cloud/).
 
-[![](./ipfs_badge.svg)](https://ipfs.io/ipfs/QmefC1QcV9Z5DmwXiTLr5zg6HWPK7izoNtNiPpgSFhipCd) <!-- badge -->
+[![](./ipfs_badge.svg)](https://ipfs.io/ipfs/QmXeY9FAW3RSHVeC8NBpppEZtpTuQxMxrE3P9ZX2v7mf6J) <!-- badge -->
 
 ## Setup
 

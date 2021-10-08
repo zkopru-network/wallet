@@ -11,7 +11,7 @@
       <div style="font-weight: 300; font-size: 24px; letter-spacing: 0.16em">
         ZKOPRU
       </div>
-      <div v-if="!isMobile" class="round-button">
+      <div v-if="!isMobile" class="round-button" v-on:click="openWallet">
         Open Wallet
       </div>
     </div>
@@ -28,7 +28,7 @@
       <div :class="`detail-text ${isMobile ? 'mobile' : ''}`" style="max-width: 500px">
         Zkopru wallets can be used to store and send ETH, ERC-20s, and NFTs anonymously at a lower cost than main net transfers.
       </div>
-      <div v-if="isMobile" class="round-button mobile" style="margin-top: 43px">
+      <div v-on:click="openWallet" v-if="isMobile" class="round-button mobile" style="margin-top: 43px">
         Open Wallet
       </div>
     </div>
@@ -48,7 +48,7 @@
         </div>
         <div spacer v-if="!isMobile" style="height: 40px" />
         <div v-if="!isMobile" style="display: flex">
-          <div class="round-button">
+          <div v-on:click="openWallet" class="round-button">
             Open Wallet
           </div>
         </div>
@@ -230,7 +230,7 @@
         </div>
         <div spacer style="height: 40px" />
         <div style="display: flex">
-          <div :class="`round-button ${isMobile ? 'mobile' : ''}`">
+          <div v-on:click="openPublicGood" :class="`round-button ${isMobile ? 'mobile' : ''}`">
             Read More
           </div>
         </div>
@@ -252,7 +252,7 @@
       </div>
       <div spacer style="height: 40px" />
       <div style="display: flex">
-        <div :class="`round-button ${isMobile ? 'mobile' : ''}`">
+        <div v-on:click="openAuditResults" :class="`round-button ${isMobile ? 'mobile' : ''}`">
           View Audit Results
         </div>
       </div>
@@ -323,7 +323,7 @@
       </div>
     </div>
     <div v-if="isMobile" style="display: flex">
-      <div :class="`round-button ${isMobile ? 'mobile' : ''}`">
+      <div v-on:click="openCeremonyData" :class="`round-button ${isMobile ? 'mobile' : ''}`">
         All Ceremony Data
       </div>
     </div>
@@ -373,7 +373,7 @@
       Collect revenue from transaction fees and simultaneously help Zkopru grow by becoming a network coordinator.
     </div>
     <div spacer style="height: 40px" />
-    <div :class="`round-button ${isMobile ? 'mobile' : ''}`" style="align-self: center">
+    <div v-on:click="openDocs" :class="`round-button ${isMobile ? 'mobile' : ''}`" style="align-self: center">
       Learn How
     </div>
     <div spacer :style="`height: ${isMobile ? '38px' : '136px'}`" />
@@ -388,7 +388,7 @@
             Connect
           </div>
           <div spacer style="height: 32px" />
-          <div class="footer-link">
+          <div v-on:click="openTwitter" class="footer-link">
             <img :src="require('../assets/landing_twitter_icon.svg')" />
             <div spacer style="width: 24px" />
             <div>
@@ -396,7 +396,7 @@
             </div>
           </div>
           <div spacer style="height: 24px" />
-          <div class="footer-link">
+          <div v-on:click="openMedium" class="footer-link">
             <img :src="require('../assets/landing_medium_icon.svg')" />
             <div spacer style="width: 24px" />
             <div>
@@ -410,7 +410,7 @@
             Deploy
           </div>
           <div spacer style="height: 32px" />
-          <div class="footer-link">
+          <div v-on:click="openGithub" class="footer-link">
             <img :src="require('../assets/landing_github_icon.svg')" />
             <div spacer style="width: 24px" />
             <div>
@@ -474,6 +474,35 @@ export default class LandingPage extends Vue {
       description: 'Skip the 7-day standard withdraw period via user-funded lending system.',
     }
   ]
+  openWallet() {
+    this.$router.push('/wallet')
+  }
+
+  openPublicGood() {
+
+  }
+
+  openAuditResults() {
+
+  }
+
+  openCeremonyData() {
+    // TODO
+  }
+
+  openDocs() {
+    window.open('https://docs.zkopru.network', '_blank')
+  }
+
+  openTwitter() {
+    window.open('https://twitter.com/zkoprunetwork', '_blank')
+  }
+  openMedium() {
+    window.open('https://scaling-privacy-explorations.medium.com/', '_blank')
+  }
+  openGithub() {
+    window.open('https://github.com/zkopru-network', '_blank')
+  }
 }
 </script>
 
