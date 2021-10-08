@@ -47,8 +47,10 @@ const store = new Vuex.Store({
 store.dispatch('loadState')
 store.commit('updateViewportSize')
 window.addEventListener('resize', () => store.commit('updateViewportSize'))
+const pathComponents = window.location.pathname.split('/')
+const isIpfs = pathComponents.indexOf('ipfs') === pathComponents.length - 2
 const router = new VueRouter({
-  mode: 'history',
+  mode: isIpfs ? 'hash' : 'history',
   routes: [
     { path: '/', component: Home },
     { path: '/home', component: HomeNew },
