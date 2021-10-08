@@ -1,5 +1,3 @@
-import Zkopru, { ZkAccount, UtxoStatus } from '@zkopru/client/browser'
-import { sha512_256 } from 'js-sha512'
 import { fromWei } from '../utils/wei'
 import dayjs from 'dayjs'
 import BN from 'bn.js'
@@ -46,6 +44,7 @@ export default {
   },
   actions: {
     startSync: async ({ state, dispatch }) => {
+      const { default: Zkopru, ZkAccount } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       if (!state.client) {
         await dispatch('loadWalletKey')
         // initialize the client if it doesn't already exist
@@ -134,11 +133,13 @@ export default {
         method: 'eth_signTypedData_v4',
         params: [rootState.account.accounts[0], msgParams]
       })
+      const { sha512_256 } = await import(/* webpackPrefetch: true */ 'js-sha512')
       state.walletKey = sha512_256(signedData)
       return state.walletKey
     },
     loadWallet: async ({ state, commit, dispatch }) => {
       const key = await dispatch('loadWalletKey')
+      const { default: Zkopru } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       state.wallet = new Zkopru.Wallet(
         state.client,
         key
@@ -149,6 +150,7 @@ export default {
       await dispatch('loadHistory')
     },
     loadL2Balance: async ({ state, dispatch }) => {
+      const { default: Zkopru, UtxoStatus } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       const [
         spendable,
         locked,
@@ -241,6 +243,7 @@ export default {
     },
     resetDB: async ({ state, dispatch }) => {
       // take the db and empty it
+      const { default: Zkopru } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       if (!state.client) {
         state.client = new Zkopru.Node({
           websocket: URL,

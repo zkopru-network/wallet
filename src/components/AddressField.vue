@@ -87,7 +87,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import Zkopru from '@zkopru/client/browser'
+// import Zkopru from '@zkopru/client/browser'
 
 const ethAddressRegex = /^(0x)?[A-Fa-f0-9]{40}$/
 const ensAddressRegex = /^[a-zA-Z0-9\-\._]+\.eth$/
@@ -169,6 +169,7 @@ export default class AddressField extends Vue {
     }
     try {
       const address = `${this.address}`
+      const { default: Zkopru } = await import('@zkopru/client/browser')
       new Zkopru.ZkAddress(address)
       this.$emit('addressChanged', address)
       this.addressState = 1

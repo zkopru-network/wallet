@@ -26,7 +26,6 @@
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import Zkopru from '@zkopru/client/browser'
 
 @Component({
   name: 'AssetAmountField',

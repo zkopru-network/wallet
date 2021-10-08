@@ -6,7 +6,16 @@ const path = require('path')
 const { exec } = require('child_process')
 
 module.exports = {
-  entry: ['./src/index.js'],
+  entry: {
+    index: './src/index.js',
+    zkopru: '@zkopru/client/browser',
+    sha: 'js-sha512'
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all'
+    }
+  },
   output: {
     path: path.resolve(__dirname, 'build'),
     publicPath: '/',

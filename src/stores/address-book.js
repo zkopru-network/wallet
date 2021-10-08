@@ -1,5 +1,4 @@
 import { ABI, address } from '../utils/AddressBook'
-import Zkopru from '@zkopru/client/browser'
 import namehash from 'eth-ens-namehash'
 
 export default {
@@ -39,6 +38,7 @@ export default {
       } else {
         const { l2Addr } = events.pop().returnValues
         const buf = Buffer.from(l2Addr.replace('0x', ''), 'hex')
+        const { default: Zkopru } = await import('@zkopru/client/browser')
         try {
           const zkAddress = Zkopru.ZkAddress.fromBuffer(buf)
           return zkAddress.address
