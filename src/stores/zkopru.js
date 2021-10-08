@@ -44,9 +44,10 @@ export default {
   },
   actions: {
     startSync: async ({ state, dispatch }) => {
-      const { default: Zkopru, ZkAccount } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
+      const ZkopruPromise = import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       if (!state.client) {
         await dispatch('loadWalletKey')
+        const { default: Zkopru, ZkAccount } = await ZkopruPromise
         // initialize the client if it doesn't already exist
         state.client = new Zkopru.Node({
           websocket: URL,
