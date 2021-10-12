@@ -3,23 +3,23 @@ import Vuex from 'vuex'
 import VueRouter from 'vue-router'
 import Meta from 'vue-meta'
 import App from './App'
-import Home from './Home'
-import Wallet from './Wallet'
 import ZkopruStore from './stores/zkopru'
 import EthAccountStore from './stores/eth-account'
 import TestTokenStore from './stores/test-token'
 import WalletStore from './stores/wallet'
-import Transfer from './Transfer'
-import Deposit from './Deposit'
-import DepositType from './DepositType'
 import AddressBookStore from './stores/address-book'
-import Withdraw from './Withdraw'
-import History from './History'
-import WithdrawType from './WithdrawType'
-import Receive from './Receive'
-import Library from './Library'
-import HomeNew from './HomeNew'
 import InterfaceStore from './stores/interface'
+import HomeNew from './HomeNew'
+const Home = () => import('./Home')
+const Wallet = () => import(/* webpackChunkName: "wallet-group" */ './Wallet')
+const Transfer = () => import(/* webpackChunkName: "wallet-group" */ './Transfer')
+const Deposit = () => import(/* webpackChunkName: "wallet-group" */ './Deposit')
+const DepositType = () => import(/* webpackChunkName: "wallet-group" */ './DepositType')
+const Withdraw  = () => import(/* webpackChunkName: "wallet-group" */ './Withdraw')
+const History = () => import(/* webpackChunkName: "wallet-group" */ './History')
+const WithdrawType = () => import(/* webpackChunkName: "wallet-group" */ './WithdrawType')
+const Receive = () => import(/* webpackChunkName: "wallet-group" */ './Receive')
+const Library = () => import(/* webpackChunkName: "wallet-group" */ './Library')
 
 Vue.use(VueRouter)
 Vue.use(Vuex)

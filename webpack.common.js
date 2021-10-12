@@ -11,11 +11,11 @@ module.exports = {
     zkopru: '@zkopru/client/browser',
     sha: 'js-sha512'
   },
-  // optimization: {
-  //   splitChunks: {
-  //     chunks: 'all'
-  //   }
-  // },
+  optimization: {
+    splitChunks: {
+      chunks: 'all'
+    }
+  },
   output: {
     path: path.resolve(__dirname, 'build'),
     publicPath: '/',
