@@ -48,6 +48,7 @@
     "husky": "^6.0.0",
     "ipfs-unixfs-importer": "^9.0.6",
     "memory-fs": "^0.5.0",
+    "svgo-loader": "^3.0.0",
     "vue-loader": "^15.9.3",
     "vue-server-renderer": "^2.6.12",
     "vue-style-loader": "^4.1.2",

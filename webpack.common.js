@@ -43,7 +43,18 @@ module.exports = {
         ]
       },
       {
-        test: /\.(png|svg|jpg|gif|ttf)$/,
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'file-loader',
+          },
+          {
+            loader: 'svgo-loader',
+          },
+        ]
+      },
+      {
+        test: /\.(png|jpg|gif|ttf)$/,
         loader: 'file-loader',
         options: {
           // publicPath: 'build',
