@@ -8,8 +8,6 @@ const { exec } = require('child_process')
 module.exports = {
   entry: {
     main: './src/index.js',
-    zkopru: '@zkopru/client/browser',
-    sha: 'js-sha512'
   },
   optimization: {
     splitChunks: {
