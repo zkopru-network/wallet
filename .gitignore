@@ -9,3 +9,5 @@ dist
 .now
 ipfs
 stats.json
+wrangler.toml
+workers-site
