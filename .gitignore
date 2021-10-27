@@ -11,3 +11,5 @@ ipfs
 stats.json
 wrangler.toml
 workers-site
+
+.vercel

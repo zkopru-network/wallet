@@ -11,10 +11,12 @@ module.exports = {
   },
   optimization: {
     splitChunks: {
-      chunks: 'all'
+      chunks: 'all',
+      automaticNameDelimiter: '-',
     }
   },
   output: {
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'build'),
     publicPath: '/',
   },

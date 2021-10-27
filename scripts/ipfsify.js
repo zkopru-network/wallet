@@ -25,10 +25,16 @@ async function main() {
     fs.copyFileSync(path.join(assetDir, file), path.join(outputDir, cid.toString()))
     processedFiles[file] = `ipfs/${cid.toString()}`
   }
-  files = files.filter(f => !processedFiles[f])
+  files = files.filter(f => !processedFiles[f]).sort((a, b) => {
+    // sort the bundles that rely on chunks last
+    if (a.startsWith('main') || a.startsWith('vendors-main')) {
+      return 1
+    } else if (b.startsWith('main') || b.startsWith('vendors-main')) {
+      return -1
+    }
+    return 0
+  })
   // now process the js
-  // first go through each and replace filenames with their cids
-  // console.log(files)
   for (const file of files) {
     if (path.extname(file) !== '.js') continue
     // first replace all instances of previous files
@@ -37,6 +43,23 @@ async function main() {
       //
       data = data.replace(`/${assetFilename}`, `/${processedFiles[assetFilename]}`)
       data = data.replace(assetFilename, processedFiles[assetFilename])
+      data = data.replace(assetFilename.slice(0, -3), processedFiles[assetFilename])
+      // when automatically loading filenames don't append .js
+      data = data.replace('[e]+".js"', '[e]+""')
+      if (data.indexOf('"group-wallet"') !== -1) {
+        // we need to do some special stuff
+        const groupWalletFilename = files.find(f => f.startsWith('group-wallet'))
+        if (!processedFiles[groupWalletFilename]) {
+          throw new Error('group-wallet chunk has not been processed')
+        }
+        data = data.replace('"group-wallet"}[e]||e)+"."', `"${processedFiles[groupWalletFilename]}"}[e]||"")+""`)
+        data = data.replace(groupWalletFilename.split('.')[1], '')
+        for (const numberedChunk of files.filter(f => /^\d\.[a-z0-9]+\.js$/.test(f))) {
+          if (!processedFiles[numberedChunk])
+            throw new Error('Numbered chunk has not been processed yet')
+          data = data.replace(numberedChunk.split('.')[1], processedFiles[numberedChunk])
+        }
+      }
     }
     const bundleData = Buffer.from(data)
     const tmpPath = path.join(outputDir, 'tmp')
