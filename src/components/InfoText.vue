@@ -1,6 +1,7 @@
 <template>
   <div
     style="position: relative"
+    ref="containerEl"
   >
     <div
       v-on:mouseenter="showingPopup = true"
@@ -8,7 +9,11 @@
     >
       <img width="18px" height="auto" :src="require('../../assets/info_question.svg')" />
     </div>
-    <div v-if="showingPopup" class="info-popup" :style="`width: ${textWidth}`">
+    <div
+      v-if="showingPopup"
+      class="info-popup"
+      :style="`width: ${textWidth}; left: -${textOffsetLeft}px`"
+    >
       {{ text }}
     </div>
   </div>
@@ -23,6 +28,12 @@ import measureText from '../utils/measure-text'
   name: 'InfoText',
   props: ['text'],
   computed: {
+    textOffsetLeft: function () {
+      const { x } = this.$refs.containerEl.getBoundingClientRect()
+      const { width } = this.$store.state.interface
+      const maxWidth = width - x
+      return maxWidth > 220 ? 0 : (220 - maxWidth)
+    },
     textWidth: function () {
       const width = measureText(this.text, {
         fontSize: '12px',
