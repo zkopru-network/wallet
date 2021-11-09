@@ -15,9 +15,12 @@
           :class="`selectable-row ${selectedOption === 1 && 'selectable-active'}`"
           v-on:click="selectedOption = 1"
         >
-          <div>
+          <div style="display: flex; align-items: center">
             <div>ETH and Token</div>
-            <!-- info popup here -->
+            <div spacer style="width: 4px" />
+            <InfoText
+              :text="tooltips.DEPOSIT_TYPE_BOTH"
+            />
           </div>
           <img class="icon-image" :src="require('../assets/deposit_multi.png')" />
         </div>
@@ -54,12 +57,15 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
+import InfoText from './components/InfoText'
+import tooltips from './tooltips'
 
 @Component({
   name: 'DepositType',
-  components: { CenteredLeftMenu, NextButton, },
+  components: { CenteredLeftMenu, NextButton, InfoText, },
 })
 export default class DepositType extends Vue {
+  tooltips = tooltips
   selectedOption = 0
 
   mounted() {

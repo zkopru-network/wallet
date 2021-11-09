@@ -1,0 +1,7 @@
+export default {
+  DEPOSIT_TYPE_BOTH: 'This is your best option if you plan to send tokens using Zkopru. You will pay the transaction fees with ETH which currently run ~0.01 ETH per transaction on the Zkopru network.',
+  DEPOSIT_ETH: 'This Ether will be deposited into your Zkopru wallet.',
+  DEPOSIT_ETH_TOKEN: 'This token will be deposited to your Zkopru wallet in addition to the above Ether.',
+  DEPOSIT_TOKEN: 'This token will be deposited to your Zkopru wallet.',
+  DEPOSIT_FEE: 'This is a fee that will be paid using Ether. The amount selected here will be paid for each byte in the transaction.',
+}

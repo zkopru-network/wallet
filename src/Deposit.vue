@@ -3,9 +3,15 @@
     <div spacer style="height: 70px" />
     <div eth v-if="depositType === 1 || depositType === 3" class="section-container">
       <div class="title-text" style="display: flex; align-items: center">
-        <div>Deposit</div>
-        <div spacer style="width: 10px" />
-        <img height="13px" :src="require('../assets/token_icons/ETH.svg')" />
+        <div style="display: flex; align-items: center">
+          <div>Deposit</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" :src="require('../assets/token_icons/ETH.svg')" />
+        </div>
+        <div spacer style="display: flex; flex: 1" />
+        <InfoText
+          :text="tooltips.DEPOSIT_ETH"
+        />
       </div>
       <div spacer style="height: 23px" />
       <AssetDropdown
@@ -30,9 +36,15 @@
     </div>
     <div eth v-if="depositType === 1 || depositType === 2" class="section-container">
       <div class="title-text" style="display: flex; align-items: center">
-        <div>Deposit</div>
-        <div spacer style="width: 10px" />
-        <img height="13px" :src="tryLoadAssetIcon(activeToken)" />
+        <div style="display: flex; align-items: center">
+          <div>Deposit</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" :src="tryLoadAssetIcon(activeToken)" />
+        </div>
+        <div spacer style="display: flex; flex: 1" />
+        <InfoText
+          :text="depositType === 1 ? tooltips.DEPOSIT_ETH_TOKEN : tooltips.DEPOSIT_TOKEN"
+        />
       </div>
       <div spacer style="height: 23px" />
       <AssetDropdown
@@ -57,7 +69,13 @@
       </div>
     </div>
     <div class="section-container">
-      <div class="title-text">Coordinator Fee</div>
+      <div style="display: flex; align-items: center">
+        <div class="title-text">Coordinator Fee</div>
+        <div style="display: flex; flex: 1" />
+        <InfoText
+          :text="tooltips.DEPOSIT_FEE"
+        />
+      </div>
       <div spacer style="height: 23px" />
       <div style="flex: 1; max-width: 559px">
         <AssetAmountField
@@ -100,10 +118,13 @@ import BN from 'bn.js'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmDepositPopup from './components/ConfirmDepositPopup'
+import measureText from './utils/measure-text'
+import tooltips from './tooltips'
+import InfoText from './components/InfoText'
 
 @Component({
   name: 'Deposit',
-  components: { AssetDropdown, AssetAmountField, Checkbox, NextButton, CenteredLeftMenu, ConfirmDepositPopup, },
+  components: { AssetDropdown, AssetAmountField, Checkbox, NextButton, CenteredLeftMenu, ConfirmDepositPopup, InfoText, },
   watch: {
     etherDepositAmount() {
       this.updateEtherAmountState()
@@ -123,6 +144,7 @@ import ConfirmDepositPopup from './components/ConfirmDepositPopup'
   }
 })
 export default class Deposit extends Vue {
+  tooltips = tooltips
   activeToken = ''
   etherAmountState = 0
   etherDepositAmount = '0'
