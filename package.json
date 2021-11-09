@@ -44,6 +44,7 @@
     "cidbadge": "^0.0.7",
     "css-loader": "^3.2.0",
     "file-loader": "^6.1.0",
+    "has-tostringtag": "^1.0.0",
     "html-webpack-inline-source-plugin": "0.0.10",
     "html-webpack-plugin": "^4.4.1",
     "husky": "^6.0.0",
