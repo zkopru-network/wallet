@@ -57,7 +57,7 @@
         style="width: 100%"
       />
     </div>
-    <div class="popup" v-if="withdrawState === 2" style="text-align: center;">
+    <div class="popup" v-show="withdrawState === 2" style="text-align: center;">
       <div spacer style="height: 47px" />
       <div class="title-text">
         Sending Transaction
@@ -67,10 +67,7 @@
         Calculating SNARK
       </div>
       <div spacer style="height: 24px" />
-      <img
-        :src="require('../../assets/deposit_loading_image.png')"
-        style="width: 100%"
-      />
+      <div ref="animationEl" style="margin: 0px -22px; width: calc(100% + 44px)" />
     </div>
     <div class="popup" v-if="withdrawState === 3" style="text-align: center;">
       <div spacer style="height: 47px" />
@@ -82,10 +79,6 @@
         Closing this window will NOT interrupt the withdrawal.
       </div>
       <div spacer style="height: 24px" />
-      <img
-        :src="require('../../assets/deposit_loading_image.png')"
-        style="width: 100%"
-      />
       <NextButton
         text="See Transaction History"
         :onNext="() => $router.push('/wallet/history')"
@@ -100,6 +93,7 @@ import Component from 'vue-class-component'
 import NextButton from './NextButton'
 import { fromWei } from '../utils/wei'
 import BN from 'bn.js'
+import lottie from 'lottie-web'
 
 @Component({
   name: 'ConfirmWithdrawPopup',
@@ -122,6 +116,16 @@ import BN from 'bn.js'
 export default class ConfirmWithdrawPopup extends Vue {
   withdrawState = 0
   prepayInfo = undefined
+
+  mounted() {
+    lottie.loadAnimation({
+      container: this.$refs.animationEl,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      animationData: require('../../assets/loading_animation.json'),
+    })
+  }
 
   async signInstantWithdraw() {
     if (this.tx.withdrawals.length !== 1)
@@ -214,6 +218,7 @@ export default class ConfirmWithdrawPopup extends Vue {
       this.withdrawState = 1
       await this.signInstantWithdraw()
     } else if (this.withdrawType === 1 && this.withdrawState === 0) {
+      this.withdrawState = 2
       await this.sendTx()
     }
   }
