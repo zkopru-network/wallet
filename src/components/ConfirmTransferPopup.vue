@@ -41,7 +41,7 @@
         :onNext="() => send()"
       />
     </div>
-    <div class="popup" v-if="sending" style="text-align: center;">
+    <div class="popup" v-show="sending" style="text-align: center;">
       <div spacer style="height: 47px" />
       <div class="title-text">
         Sending Transaction
@@ -51,10 +51,7 @@
         {{ sendMessages[currentMessageIndex] }}
       </div>
       <div spacer style="height: 24px" />
-      <img
-        :src="require('../../assets/deposit_loading_image.png')"
-        style="width: 100%"
-      />
+      <div ref="animationEl" style="margin: 0px -22px; width: calc(100% + 44px)" />
     </div>
   </div>
 </template>
@@ -63,6 +60,7 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import NextButton from './NextButton'
 import { toWei, fromWei } from '../utils/wei'
+import lottie from 'lottie-web'
 
 @Component({
   name: 'ConfirmDepositPopup',
@@ -83,6 +81,17 @@ export default class ConfirmDepositPopup extends Vue {
     'Broadcasting transaction',
   ]
   currentMessageIndex = 0
+
+  mounted() {
+    lottie.loadAnimation({
+      container: this.$refs.animationEl,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      animationData: require('../../assets/loading_animation.json'),
+    })
+  }
+
   async send() {
     if (!this.tx) return
     this.sending = true
