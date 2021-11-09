@@ -3,6 +3,8 @@
     <div
       :class="`next-button ${disabled && 'disabled'}`"
       v-on:click="nextClicked"
+      v-on:keyup.enter="nextClicked"
+      tabindex="0"
     >
       {{ text || 'Next' }}
     </div>
@@ -10,6 +12,8 @@
       v-if="typeof onBack === 'function'"
       class="back-button"
       v-on:click="backClicked"
+      v-on:keyup.enter="backClicked"
+      tabindex="0"
     >
       <img :src="require('../../assets/arrow_left.svg')" />
       <div spacer style="width: 15px" />
@@ -49,10 +53,17 @@ export default class NextButton extends Vue {
   margin-top: 27px;
   cursor: pointer;
   user-select: none;
+  border: 1px solid transparent;
+}
+.next-button:focus {
+  border: 1px solid maroon;
+}
+.disabled:focus {
+  border: 1px solid transparent;
 }
 .disabled {
   background-color: #3F6767;
-  border: 1px solid black;
+  border: 1px solid transparent;
 }
 .back-button {
   display: flex;
@@ -63,5 +74,8 @@ export default class NextButton extends Vue {
   color: #85C7BD;
   margin-top: 28px;
   user-select: none;
+}
+.back-button:focus {
+  border: 1px solid #2A3D46;
 }
 </style>
