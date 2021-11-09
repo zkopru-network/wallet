@@ -82,7 +82,7 @@
         style="width: 100%"
       />
     </div>
-    <div class="popup" v-if="depositState === 4" style="text-align: center;">
+    <div class="popup" v-show="depositState === 4" style="text-align: center;">
       <div style="width: 100%; display: flex; justify-content: flex-end">
         <img
           :src="require('../../assets/close_icon.svg')"
@@ -99,10 +99,7 @@
         Closing this window will NOT interrupt the deposit.
       </div>
       <div spacer style="height: 24px" />
-      <img
-        :src="require('../../assets/deposit_loading_image.png')"
-        style="width: 100%"
-      />
+      <div ref="animationEl" style="margin: 0px -22px; width: calc(100% + 44px)" />
       <NextButton
         text="See Transaction History"
         :onNext="() => $router.push('/wallet/history')"
@@ -115,6 +112,7 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import NextButton from './NextButton'
 import { toWei, fromWei } from '../utils/wei'
+import lottie from 'lottie-web'
 
 @Component({
   name: 'ConfirmDepositPopup',
@@ -142,6 +140,13 @@ export default class ConfirmDepositPopup extends Vue {
     } else {
       this.depositState = 1
     }
+    lottie.loadAnimation({
+      container: this.$refs.animationEl,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      animationData: require('../../assets/loading_animation.json'),
+    })
   }
 
   async approve() {
