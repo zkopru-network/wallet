@@ -4,4 +4,6 @@ export default {
   DEPOSIT_ETH_TOKEN: 'This token will be deposited to your Zkopru wallet in addition to the above Ether.',
   DEPOSIT_TOKEN: 'This token will be deposited to your Zkopru wallet.',
   DEPOSIT_FEE: 'This is a fee that will be paid using Ether. The amount selected here will be paid for each byte in the transaction.',
+  WITHDRAW_INSTANT: 'Pay an additional fee for your withdrawal to be processed more quickly.',
+  WITHDRAW_STANDARD: 'Standard withdrawals take 7 days to allow time for fraud proofs to be submitted.',
 }
