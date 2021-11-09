@@ -52,37 +52,7 @@
         :onNext="() => deposit()"
       />
     </div>
-    <div class="popup" v-if="depositState === 2" style="text-align: center;">
-      <div spacer style="height: 47px" />
-      <div class="title-text">
-        Approving Spend Amount
-      </div>
-      <div spacer style="height: 32px" />
-      <div class="detail-text">
-        Please wait for confirmation.
-      </div>
-      <div spacer style="height: 24px" />
-      <img
-        :src="require('../../assets/deposit_loading_image.png')"
-        style="width: 100%"
-      />
-    </div>
-    <div class="popup" v-if="depositState === 3" style="text-align: center;">
-      <div spacer style="height: 47px" />
-      <div class="title-text">
-        Spend Amount Approved
-      </div>
-      <div spacer style="height: 32px" />
-      <div class="detail-text">
-        Please confirm the transaction to complete your deposit.
-      </div>
-      <div spacer style="height: 24px" />
-      <img
-        :src="require('../../assets/deposit_loading_image.png')"
-        style="width: 100%"
-      />
-    </div>
-    <div class="popup" v-show="depositState === 4" style="text-align: center;">
+    <div class="popup" v-if="depositState === 4" style="text-align: center;">
       <div style="width: 100%; display: flex; justify-content: flex-end">
         <img
           :src="require('../../assets/close_icon.svg')"
@@ -99,11 +69,22 @@
         Closing this window will NOT interrupt the deposit.
       </div>
       <div spacer style="height: 24px" />
-      <div ref="animationEl" style="margin: 0px -22px; width: calc(100% + 44px)" />
       <NextButton
         text="See Transaction History"
         :onNext="() => $router.push('/wallet/history')"
       />
+    </div>
+    <div class="popup" v-show="depositState === 5" style="text-align: center;">
+      <div spacer style="height: 47px" />
+      <div class="title-text">
+        {{ loadingTitle }}
+      </div>
+      <div spacer style="height: 32px" v-if="loadingSubtitle" />
+      <div class="detail-text" v-if="loadingSubtitle">
+        {{ loadingSubtitle }}
+      </div>
+      <div spacer style="height: 24px" />
+      <div ref="animationEl" style="margin: 0px -22px; width: calc(100% + 44px)" />
     </div>
   </div>
 </template>
@@ -129,10 +110,13 @@ export default class ConfirmDepositPopup extends Vue {
   // possible states
   // 0 - showing button to set spending approval for token
   // 1 - showing button to deposit ether
-  // 2 - waiting for token approval to complete
-  // 3 - showing metamask popup for deposit tx
   // 4 - waiting for deposit tx to complete
+  // 5 - showing loading screen with loadingTitle and loadingSubtitle
+  // 6 - deposit aborted
   depositState = 0
+  loadingTitle = ''
+  loadingSubtitle = ''
+
   mounted() {
     // if (!isNaN(this.tokenDepositAmount) && +this.tokenDepositAmount > 0) {
     if (this.activeToken) {
@@ -150,6 +134,9 @@ export default class ConfirmDepositPopup extends Vue {
   }
 
   async approve() {
+    this.depositState = 5
+    this.loadingTitle = 'Waiting for Metamask'
+    this.loadingSubtitle = 'Please confirm the transaction to complete your deposit.'
     const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeToken)
     const amountDecimals = `${(+this.tokenDepositAmount)*(10**(+token.decimals))}`
     const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
@@ -160,38 +147,52 @@ export default class ConfirmDepositPopup extends Vue {
     )
     const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(token.address)
     const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
-    const txHash = await window.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [{
-        data: transferData,
-        to: token.address,
-        value: '0',
-        from: this.$store.state.account.accounts[0],
-      }]
-    })
-    this.depositState = 2
+    try {
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          data: transferData,
+          to: token.address,
+          value: '0',
+          from: this.$store.state.account.accounts[0],
+        }]
+      })
+    } catch (err) {
+      this.depositState = 0
+      return
+    }
+    this.depositState = 5
+    this.loadingTitle = 'Approving Spend Amount'
+    this.loadingSubtitle = 'Please wait for confirmation.'
     // TODO: watch tx/poll for approval
     setTimeout(() => {
-      this.depositState = 3
-      this.deposit()
+      this.deposit('Spend Amount Approved')
     }, 30000)
   }
 
-  async deposit() {
+  async deposit(customMessage) {
+    this.depositState = 5
+    this.loadingTitle = customMessage || 'Waiting for Metamask'
+    this.loadingSubtitle = 'Please confirm the transaction to complete your deposit.'
     if (!this.activeToken) {
       const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
         toWei(this.etherDepositAmount),
         toWei(this.feeAmount),
       )
-      await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data,
-          to,
-          value,
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
+      try {
+        await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            data,
+            to,
+            value,
+            from: this.$store.state.account.accounts[0],
+          }]
+        })
+      } catch (err) {
+        this.depositState = 1
+        return
+      }
       await onComplete()
       await this.$store.dispatch('loadL2Balance')
     } else {
@@ -203,15 +204,20 @@ export default class ConfirmDepositPopup extends Vue {
         amountDecimals,
         toWei(this.feeAmount),
       )
-      await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data,
-          to,
-          value,
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
+      try {
+        await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            data,
+            to,
+            value,
+            from: this.$store.state.account.accounts[0],
+          }]
+        })
+      } catch (err) {
+        this.depositState = 1
+        return
+      }
       await onComplete()
       await this.$store.dispatch('loadL2Balance')
     }
