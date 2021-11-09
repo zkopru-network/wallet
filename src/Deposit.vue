@@ -193,7 +193,7 @@ export default class Deposit extends Vue {
   }
 
   updateEtherAmountState() {
-    if (this.feeAmount === '' || this.feeAmount === '0') {
+    if (this.feeAmount === '' || +this.feeAmount === 0) {
       this.feeAmountState = 0
     } else if (isNaN(this.feeAmount) || +this.feeAmount < 0) {
       this.feeAmountState = 2
