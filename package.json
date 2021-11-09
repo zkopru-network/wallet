@@ -24,6 +24,7 @@
     "eth-ens-namehash": "^2.0.8",
     "express": "^4.17.1",
     "js-sha512": "^0.8.0",
+    "lottie-web": "^5.8.1",
     "route-cache": "^0.4.5",
     "vue": "^2.6.12",
     "vue-class-component": "^7.2.5",
