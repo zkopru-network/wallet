@@ -3,9 +3,15 @@
     <div spacer style="height: 70px" />
     <div class="section-container">
       <div class="title-text" style="display: flex; align-items: center">
-        <div>Withdraw</div>
-        <div spacer style="width: 10px" />
-        <img height="13px" v-if="!!activeAsset" :src="tryLoadAssetIcon(activeAsset)" />
+        <div style="display: flex">
+          <div>Withdraw</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" v-if="!!activeAsset" :src="tryLoadAssetIcon(activeAsset)" />
+        </div>
+        <div spacer style="flex: 1" />
+        <InfoText
+          :text="tooltips.WITHDRAW_ASSET"
+        />
       </div>
       <div spacer style="height: 23px" />
       <AssetDropdown
@@ -32,9 +38,15 @@
     </div>
     <div v-if="withdrawType === 2" class="section-container">
       <div style="display: flex; align-items: center">
-        <div class="title-text">Instant Withdraw Fee</div>
-        <div spacer style="width: 10px" />
-        <img height="13px" v-if="!!activeAsset" :src="tryLoadAssetIcon(activeAsset)" />
+        <div style="display: flex">
+          <div class="title-text">Instant Withdraw Fee</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" v-if="!!activeAsset" :src="tryLoadAssetIcon(activeAsset)" />
+        </div>
+        <div spacer style="flex: 1" />
+        <InfoText
+          :text="tooltips.WITHDRAW_INSTANT_FEE"
+        />
       </div>
       <div spacer style="height: 27px" />
       <AssetAmountField
@@ -44,7 +56,13 @@
       />
     </div>
     <div class="section-container">
-      <div class="title-text">Network Fee in GWEI</div>
+      <div style="display: flex; align-items: center">
+        <div class="title-text">Network Fee in GWEI</div>
+        <div spacer style="flex: 1" />
+        <InfoText
+          :text="tooltips.WITHDRAW_FEE"
+        />
+      </div>
       <div spacer style="height: 20px" />
       <div style="flex: 1; max-width: 559px">
         <AssetAmountField
@@ -90,10 +108,12 @@ import BN from 'bn.js'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
+import InfoText from './components/InfoText'
+import tooltips from './tooltips'
 
 @Component({
   name: 'Withdraw',
-  components: { Header, AssetDropdown, Button, FeeField, AssetAmountField, Checkbox, CenteredLeftMenu, NextButton, ConfirmWithdrawPopup, },
+  components: { Header, AssetDropdown, Button, FeeField, AssetAmountField, Checkbox, CenteredLeftMenu, NextButton, ConfirmWithdrawPopup, InfoText, },
   watch: {
     withdrawAmount() {
       this.generateTx()
@@ -148,6 +168,7 @@ import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
   }
 })
 export default class Withdraw extends Vue {
+  tooltips = tooltips
   activeAsset = 'ETH'
   withdrawAmount = '0'
   amountState = 0
