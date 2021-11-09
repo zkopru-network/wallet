@@ -76,8 +76,8 @@
     </div>
     <NextButton
       :disabled="
-        (withdrawType === 1 && (amountState !== 1) || (feeAmountState !== 1)) ||
-        (withdrawType === 2 && (amountState !== 1) || (feeAmountState !== 1) || (instantWithdrawFeeState !== 1))
+        (withdrawType === 1 && (amountState !== 1 || feeAmountState !== 1)) ||
+        (withdrawType === 2 && (amountState !== 1 || feeAmountState !== 1 || instantWithdrawFeeState !== 1))
       "
       :onNext="() => showWithdraw()"
       :onBack="() => $router.push(`/wallet/withdraw/type?type=${withdrawType}`)"
@@ -141,9 +141,6 @@ import tooltips from './tooltips'
       } else {
         this.instantWithdrawFeeState = 2
       }
-    },
-    zkAddress() {
-      this.generateTx()
     },
     feeAmount() {
       this.generateTx()
