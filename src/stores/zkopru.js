@@ -277,7 +277,9 @@ export default {
       const l1Address = rootState.account.accounts[0]
       const { history } = await state.wallet.transactionsFor(l2Address, l1Address)
       if (history) {
-        state.history = history.sort((a, b) => b.proposal.timestamp - a.proposal.timestamp)
+        state.history = history
+          .filter(h => !!h.proposal)
+          .sort((a, b) => b.proposal.timestamp - a.proposal.timestamp)
       } else {
         state.history = []
       }
