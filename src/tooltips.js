@@ -9,4 +9,7 @@ export default {
   WITHDRAW_ASSET: 'Select which asset to withdraw and how much.',
   WITHDRAW_INSTANT_FEE: 'This is a fee that will be paid in the asset your are withdrawing. This fee is only paid if your withdrawal is fulfilled early. The total amount you will receive is the withdrawal amount less this fee.',
   WITHDRAW_FEE: 'This is a fee that will be paid using Ether. The amount selected here will be paid for each byte in the transaction.',
+  SEND_ASSET: 'Select which asset to send and how much.',
+  SEND_TO: 'Enter either a Zkopru address, an Ethereum address, or an ENS address.',
+  SEND_FEE: 'This is a fee that will be paid using Ether. The amount selected here will be paid for each byte in the transaction.',
 }

@@ -3,9 +3,15 @@
     <div spacer style="height: 70px" />
     <div class="section-container">
       <div class="title-text" style="display: flex; align-items: center">
-        <div>Send</div>
-        <div spacer style="width: 10px" />
-        <img height="13px" :src="tryLoadAssetIcon(activeAsset)" />
+        <div style="display: flex">
+          <div>Send</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" :src="tryLoadAssetIcon(activeAsset)" />
+        </div>
+        <div spacer style="flex: 1" />
+        <InfoText
+          :text="tooltips.SEND_ASSET"
+        />
       </div>
       <div spacer style="height: 23px" />
       <AssetDropdown
@@ -25,7 +31,13 @@
     </div>
     <div class="section-container">
       <div class="title-text">
-        To
+        <div style="display: flex; align-items: center">
+          <div>To</div>
+          <div spacer style="flex: 1" />
+          <InfoText
+            :text="tooltips.SEND_TO"
+          />
+        </div>
       </div>
       <div spacer style="height: 23px" />
       <AddressField
@@ -36,7 +48,13 @@
     <div class="section-container" style="margin-bottom: 0px">
       <div style="display: flex; flex-direction: column; justify-content: center">
         <div class="title-text">
-          Fee in GWEI
+          <div style="display: flex; align-items: center">
+            <div>Fee in GWEI</div>
+            <div spacer style="flex: 1" />
+            <InfoText
+              :text="tooltips.SEND_FEE"
+            />
+          </div>
         </div>
         <div spacer style="height: 23px" />
         <AssetAmountField
@@ -75,10 +93,12 @@ import BN from 'bn.js'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmTransferPopup from './components/ConfirmTransferPopup'
+import tooltips from './tooltips'
+import InfoText from './components/InfoText'
 
 @Component({
   name: 'Transfer',
-  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, CenteredLeftMenu, NextButton, ConfirmTransferPopup, },
+  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, CenteredLeftMenu, NextButton, ConfirmTransferPopup, InfoText, },
   watch: {
     transferAmount() {
       this.generateTx()
@@ -101,6 +121,7 @@ import ConfirmTransferPopup from './components/ConfirmTransferPopup'
   },
 })
 export default class Transfer extends Vue {
+  tooltips = tooltips
   activeAsset = ''
   transferAmount = '0'
   amountState = 0
