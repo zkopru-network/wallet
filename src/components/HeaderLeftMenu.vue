@@ -2,7 +2,7 @@
   <div class="container">
     <LeftMenu />
     <div style="display: flex; flex-direction: column; flex: 1; height: 100%">
-      <HeaderSection />
+      <HeaderSection style="background: #05141A"/>
       <slot></slot>
     </div>
   </div>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <HeaderLeftMenu>
+    <HeaderLeftMenu style="background: #081B24">
       <div class="subheader-container">
         <div class="tokens-button">
           Tokens

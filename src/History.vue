@@ -107,11 +107,6 @@ export default class History extends Vue {
 }
 </script>
 <style scoped>
-.container {
-  display: flex;
-  min-height: 100vh;
-  background-color: #05141A;
-}
 .header-container {
   background: #081B24;
   border-bottom: 1px solid #2A3D46;

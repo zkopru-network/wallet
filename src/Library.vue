@@ -1,5 +1,5 @@
 <template>
-  <HeaderLeftMenu>
+  <HeaderLeftMenu style="background: #081B24">
     <div class="header-container">
       <div style="color: white; border-bottom: 1px solid #9EFFEE; padding-bottom: 4px">Tokens registered with Zkopru</div>
       <div class="round-button" v-on:click="showingAddPopup = true">Register Token</div>
