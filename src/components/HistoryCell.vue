@@ -18,8 +18,15 @@
         />
       </div>
       <div style="display: flex; flex-direction: column">
-        <div v-if="transaction.type === 'Deposit'">
+        <div v-if="transaction.type === 'Deposit' && transaction.includedIn">
           Deposited from <AddressLink :address="transaction.from" />
+        </div>
+        <div v-if="transaction.type === 'Deposit' && !transaction.includedIn" style="display: flex; align-items: center">
+          <div>Deposit (awaiting block inclusion)</div>
+          <div spacer style="width: 4px" />
+          <InfoText
+            :text="tooltips.PENDING_DEPOSIT_INFO"
+          />
         </div>
         <div v-if="transaction.type === 'Withdraw'">
           Withdrawn from <AddressLink :address="transaction.to" />
@@ -30,6 +37,16 @@
         <div v-if="transaction.type === 'Receive'">
           Received
         </div>
+        <div v-if="transaction.type === 'PendingDeposit'" style="display: flex; align-items: center">
+          <div>Deposit (awaiting commit)</div>
+          <div spacer style="width: 4px" />
+          <InfoText
+            :text="tooltips.PENDING_DEPOSIT_INFO"
+          />
+        </div>
+        <div v-if="transaction.type === 'PendingSend'">
+          Sent
+        </div>
         <div spacer style="height: 10px" />
         <div style="display: flex; align-items: center; font-size: 11px">
           <div v-if="!!transaction.proposal">
@@ -39,8 +56,8 @@
           <div>
             Fee {{ fromWei(transaction.fee, 8) }} Eth
           </div>
-          <div style="height: 16px; width: 1px; background: #4C5F67; margin: 0px 8px;" />
-          <div class="view-more-text" v-on:click="isExpanded = !isExpanded">
+          <div v-if="transaction.proposal" style="height: 16px; width: 1px; background: #4C5F67; margin: 0px 8px;" />
+          <div class="view-more-text" v-if="transaction.proposal" v-on:click="isExpanded = !isExpanded">
             {{ isExpanded ? 'View Less' : 'View More' }}
           </div>
         </div>
@@ -99,13 +116,16 @@ import BN from 'bn.js'
 import AddressLink from './AddressLink'
 import ColorImage from './ColorImage'
 import { tryLoadAssetIcon } from '../utils/token'
+import InfoText from './InfoText'
+import tooltips from '../tooltips'
 
 @Component({
   name: 'HistoryCell',
   props: ['transaction', 'isFirst', 'isLast'],
-  components: { AddressLink, ColorImage, },
+  components: { AddressLink, ColorImage, InfoText, },
 })
 export default class HistoryCell extends Vue {
+  tooltips = tooltips
   dayjs = dayjs
   fromWei = fromWei
   tryLoadAssetIcon = tryLoadAssetIcon
@@ -113,7 +133,7 @@ export default class HistoryCell extends Vue {
   isExpanded = false
 
   iconByType(type) {
-    if (type === 'Deposit') {
+    if (type === 'Deposit' || type === 'PendingDeposit') {
       return require('../../assets/deposit_icon.svg')
     }
     if (type === 'Withdraw') {
@@ -150,7 +170,7 @@ export default class HistoryCell extends Vue {
   border-left: 1px solid #3B4E56;
   border-right: 1px solid #3B4E56;
   margin: 0px 8px;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 .history-item-container.top {
   border-top: 1px solid #3B4E56;

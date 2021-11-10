@@ -275,11 +275,15 @@ export default {
       const { web3 } = state.client.node.layer1
       const l2Address = state.wallet.wallet.account.zkAddress.toString()
       const l1Address = rootState.account.accounts[0]
-      const { history } = await state.wallet.transactionsFor(l2Address, l1Address)
+      const { history, pending } = await state.wallet.transactionsFor(l2Address, l1Address)
       if (history) {
-        state.history = history
-          .filter(h => !!h.proposal)
-          .sort((a, b) => b.proposal.timestamp - a.proposal.timestamp)
+        state.history =
+        [
+          ...pending,
+          ...history
+            .filter(h => !!h.proposal)
+            .sort((a, b) => b.proposal.timestamp - a.proposal.timestamp),
+        ]
       } else {
         state.history = []
       }

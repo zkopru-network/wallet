@@ -59,6 +59,6 @@ export default class InfoText extends Vue {
   background: #05141A;
   border: 1px solid #5D7078;
   padding: 8px;
-  z-index: 100;
+  z-index: 100000;
 }
 </style>

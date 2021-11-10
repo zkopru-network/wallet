@@ -12,4 +12,5 @@ export default {
   SEND_ASSET: 'Select which asset to send and how much.',
   SEND_TO: 'Enter either a Zkopru address, an Ethereum address, or an ENS address.',
   SEND_FEE: 'This is a fee that will be paid using Ether. The amount selected here will be paid for each byte in the transaction.',
+  PENDING_DEPOSIT_INFO: 'Deposits happen in two stages. First the deposit is committed, then the deposit is included in a layer 2 block. After step 2 the funds will be visible in your wallet.',
 }

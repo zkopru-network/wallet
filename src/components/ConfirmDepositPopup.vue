@@ -189,12 +189,11 @@ export default class ConfirmDepositPopup extends Vue {
             from: this.$store.state.account.accounts[0],
           }]
         })
+        await onComplete()
       } catch (err) {
         this.depositState = 1
         return
       }
-      await onComplete()
-      await this.$store.dispatch('loadL2Balance')
     } else {
       const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeToken)
       const amountDecimals = `${(+this.tokenDepositAmount)*(10**(+token.decimals))}`
@@ -214,13 +213,16 @@ export default class ConfirmDepositPopup extends Vue {
             from: this.$store.state.account.accounts[0],
           }]
         })
+        await onComplete()
       } catch (err) {
         this.depositState = 1
         return
       }
-      await onComplete()
-      await this.$store.dispatch('loadL2Balance')
     }
+    await Promise.all([
+      this.$store.dispatch('loadL2Balance'),
+      this.$store.dispatch('loadHistory'),
+    ])
     this.depositState = 4
   }
   closeClicked() {
