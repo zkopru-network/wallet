@@ -99,6 +99,18 @@
           </div>
           <div>Withdraw</div>
         </div>
+        <div spacer style="flex: 1" />
+        <div
+          style="display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none"
+          v-on:click="openTwitter"
+        >
+          <img :src="require('../../assets/twitter_logo_filled.svg')" />
+          <div spacer style="width: 8px" />
+          <div style="font-size: 14px; color: #95A7AE;">
+            Support <span style="text-decoration: underline">@zkopru</span>
+          </div>
+        </div>
+        <div spacer style="height: 16px" />
       </div>
     </div>
   </div>
@@ -136,7 +148,8 @@ import ColorImage from './ColorImage'
   }
 })
 export default class LeftMenu extends Vue {
-  mounted() {
+  openTwitter() {
+    window.open('https://twitter.com/zkoprunetwork', '_blank')
   }
 }
 </script>
