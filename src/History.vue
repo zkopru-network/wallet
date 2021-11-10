@@ -1,8 +1,6 @@
 <template>
-  <div class="container">
-    <LeftMenu />
+  <HeaderLeftMenu>
     <div class="body-container">
-      <HeaderSection />
       <div class="header-container">
         <SwitchSelector
           :options="['All', 'Sent', 'Received', 'Deposited', 'Withdrawn']"
@@ -30,7 +28,7 @@
         :isLast="history.indexOf(item) === history.length - 1"
       />
     </div>
-  </div>
+  </HeaderLeftMenu>
 </template>
 <script>
 import Vue from 'vue'
@@ -38,15 +36,15 @@ import Component from 'vue-class-component'
 import LeftMenu from './components/LeftMenu'
 import SwitchSelector from './components/SwitchSelector'
 import HistoryCell from './components/HistoryCell'
-import HeaderSection from './components/HeaderSection'
 import dayjs from 'dayjs'
 import dayOfYear from 'dayjs/plugin/dayOfYear'
+import HeaderLeftMenu from './components/HeaderLeftMenu'
 
 dayjs.extend(dayOfYear)
 
 @Component({
   name: 'History',
-  components: { LeftMenu, SwitchSelector, HistoryCell, HeaderSection, }
+  components: { LeftMenu, SwitchSelector, HistoryCell, HeaderLeftMenu, }
 })
 export default class History extends Vue {
   selectedType = 0
@@ -116,7 +114,6 @@ export default class History extends Vue {
 }
 .header-container {
   background: #081B24;
-  border-top: 1px solid #2A3D46;
   border-bottom: 1px solid #2A3D46;
   display: flex;
   flex-direction: row;

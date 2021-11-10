@@ -2,100 +2,103 @@
   <div style="width: 200px; height: 100vh">
     <div class="left-bar-container">
       <div class="header-item">
-        Zkopru
+        ZKOPRU
       </div>
-      <div
-        :class="`item ${isWallet && 'selected'}`"
-        v-on:click="$router.push('/wallet')"
-      >
-        <div class="image-container">
-          <ColorImage
-            class="image-icon"
-            :src="require('../../assets/wallet_icon.svg')"
-            :color="isWallet ? 'white' : '#95A7AE'"
-          />
+      <div style="display: flex; flex: 1; flex-direction: column; border-right: 1px solid #2A3D46;">
+        <div spacer style="height: 24px" />
+        <div
+          :class="`item ${isWallet && 'selected'}`"
+          v-on:click="$router.push('/wallet')"
+        >
+          <div class="image-container">
+            <ColorImage
+              class="image-icon"
+              :src="require('../../assets/wallet_icon.svg')"
+              :color="isWallet ? 'white' : '#95A7AE'"
+            />
+          </div>
+          <div>My Wallet</div>
         </div>
-        <div>My Wallet</div>
-      </div>
-      <div
-        :class="`item ${isHistory && 'selected'}`"
-        v-on:click="$router.push('/wallet/history')"
-      >
-        <div class="image-container">
-          <ColorImage
-            class="image-icon"
-            :src="require('../../assets/history_icon.svg')"
-            :color="isHistory ? 'white' : '#95A7AE'"
-          />
+        <div
+          :class="`item ${isHistory && 'selected'}`"
+          v-on:click="$router.push('/wallet/history')"
+        >
+          <div class="image-container">
+            <ColorImage
+              class="image-icon"
+              :src="require('../../assets/history_icon.svg')"
+              :color="isHistory ? 'white' : '#95A7AE'"
+            />
+          </div>
+          <div>History</div>
         </div>
-        <div>History</div>
-      </div>
-      <div
-        :class="`item ${isTokenLibrary && 'selected'}`"
-        v-on:click="$router.push('/wallet/library')"
-      >
-        <div class="image-container">
-          <ColorImage
-            class="image-icon"
-            :src="require('../../assets/token_library_icon.svg')"
-            :color="isTokenLibrary ? 'white' : '#95A7AE'"
-          />
+        <div
+          :class="`item ${isTokenLibrary && 'selected'}`"
+          v-on:click="$router.push('/wallet/library')"
+        >
+          <div class="image-container">
+            <ColorImage
+              class="image-icon"
+              :src="require('../../assets/token_library_icon.svg')"
+              :color="isTokenLibrary ? 'white' : '#95A7AE'"
+            />
+          </div>
+          <div>Token Library</div>
         </div>
-        <div>Token Library</div>
-      </div>
-      <div class="divider" />
-      <div
-        :class="`item ${isSend && 'selected'}`"
-        v-on:click="$router.push('/wallet/transfer')"
-      >
-        <div class="image-container">
-          <ColorImage
-            class="image-icon"
-            :src="require('../../assets/send_icon_new.svg')"
-            :color="isSend ? 'white' : '#95A7AE'"
-          />
+        <div class="divider" />
+        <div
+          :class="`item ${isSend && 'selected'}`"
+          v-on:click="$router.push('/wallet/transfer')"
+        >
+          <div class="image-container">
+            <ColorImage
+              class="image-icon"
+              :src="require('../../assets/send_icon_new.svg')"
+              :color="isSend ? 'white' : '#95A7AE'"
+            />
+          </div>
+          <div>Send</div>
         </div>
-        <div>Send</div>
-      </div>
-      <div
-        :class="`item ${isReceive && 'selected'}`"
-        v-on:click="$router.push('/wallet/receive')"
-      >
-        <div class="image-container">
-          <ColorImage
-            class="image-icon"
-            :src="require('../../assets/receive_icon_new.svg')"
-            :color="isReceive ? 'white' : '#95A7AE'"
-          />
+        <div
+          :class="`item ${isReceive && 'selected'}`"
+          v-on:click="$router.push('/wallet/receive')"
+        >
+          <div class="image-container">
+            <ColorImage
+              class="image-icon"
+              :src="require('../../assets/receive_icon_new.svg')"
+              :color="isReceive ? 'white' : '#95A7AE'"
+            />
+          </div>
+          <div>Receive</div>
         </div>
-        <div>Receive</div>
-      </div>
-      <div class="divider" />
-      <div
-        :class="`item ${isDeposit && 'selected'}`"
-        v-on:click="$router.push('/wallet/deposit/type')"
-      >
-        <div class="image-container">
-          <ColorImage
-            class="image-icon"
-            :src="require('../../assets/deposit_icon.svg')"
-            :color="isDeposit ? 'white' : '#95A7AE'"
-          />
+        <div class="divider" />
+        <div
+          :class="`item ${isDeposit && 'selected'}`"
+          v-on:click="$router.push('/wallet/deposit/type')"
+        >
+          <div class="image-container">
+            <ColorImage
+              class="image-icon"
+              :src="require('../../assets/deposit_icon.svg')"
+              :color="isDeposit ? 'white' : '#95A7AE'"
+            />
+          </div>
+          <div>Deposit</div>
         </div>
-        <div>Deposit</div>
-      </div>
-      <div
-        :class="`item ${isWithdraw && 'selected'}`"
-        v-on:click="$router.push('/wallet/withdraw/type')"
-      >
-        <div class="image-container">
-          <ColorImage
-            class="image-icon"
-            :src="require('../../assets/withdraw_icon.svg')"
-            :color="isWithdraw ? 'white' : '#95A7AE'"
-          />
+        <div
+          :class="`item ${isWithdraw && 'selected'}`"
+          v-on:click="$router.push('/wallet/withdraw/type')"
+        >
+          <div class="image-container">
+            <ColorImage
+              class="image-icon"
+              :src="require('../../assets/withdraw_icon.svg')"
+              :color="isWithdraw ? 'white' : '#95A7AE'"
+            />
+          </div>
+          <div>Withdraw</div>
         </div>
-        <div>Withdraw</div>
       </div>
     </div>
   </div>
@@ -143,7 +146,6 @@ export default class LeftMenu extends Vue {
   width: 200px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #2A3D46;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -177,15 +179,15 @@ export default class LeftMenu extends Vue {
   max-height: 40px;
 }
 .header-item {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 300;
   line-height: 140%;
+  letter-spacing: 0.16em;
   color: white;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 10.5px;
+  padding-bottom: 10.5px;
   padding-left: 32px;
   box-shadow: 0px 1px 0px #2A3D46;
-  margin-bottom: 24px;
 }
 .divider {
   width: calc(100% - 32px);

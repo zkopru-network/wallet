@@ -1,34 +1,30 @@
 <template>
-  <div class="container">
-    <LeftMenu />
-    <div class="body-container">
-      <HeaderSection />
-      <div class="header-container">
-        <div style="color: white; border-bottom: 1px solid #9EFFEE; padding-bottom: 4px">Tokens registered with Zkopru</div>
-        <div class="round-button" v-on:click="showingAddPopup = true">Register Token</div>
+  <HeaderLeftMenu>
+    <div class="header-container">
+      <div style="color: white; border-bottom: 1px solid #9EFFEE; padding-bottom: 4px">Tokens registered with Zkopru</div>
+      <div class="round-button" v-on:click="showingAddPopup = true">Register Token</div>
+    </div>
+    <div style="padding: 16px">
+      <SearchField v-model="searchText" />
+    </div>
+    <div
+      class="token-row"
+      v-for="token of filteredAssets"
+    >
+      <div style="cursor: pointer" v-on:click="addToken(token)">
+        <ColorImage
+          :src="require('../assets/add_icon.svg')"
+          :color="true ? '#9EFFEE' : '#95A7AE'"
+        />
       </div>
-      <div style="padding: 16px">
-        <SearchField v-model="searchText" />
-      </div>
-      <div
-        class="token-row"
-        v-for="token of filteredAssets"
-      >
-        <div style="cursor: pointer" v-on:click="addToken(token)">
-          <ColorImage
-            :src="require('../assets/add_icon.svg')"
-            :color="true ? '#9EFFEE' : '#95A7AE'"
-          />
-        </div>
-        <div spacer style="width: 10px" />
-        <img :src="tryLoadAssetIcon(token.symbol)" />
-        <div spacer style="width: 10px" />
-        <div>{{ token.symbol }}</div>
-        <div spacer style="width: 10px" />
-      </div>
+      <div spacer style="width: 10px" />
+      <img :src="tryLoadAssetIcon(token.symbol)" />
+      <div spacer style="width: 10px" />
+      <div>{{ token.symbol }}</div>
+      <div spacer style="width: 10px" />
     </div>
     <AddTokenPopup v-if="showingAddPopup" :onCancel="() => showingAddPopup = false" />
-  </div>
+  </HeaderLeftMenu>
 </template>
 
 <script>
@@ -38,12 +34,12 @@ import LeftMenu from './components/LeftMenu'
 import ColorImage from './components/ColorImage'
 import AddTokenPopup from './components/AddTokenPopup'
 import { tryLoadAssetIcon } from './utils/token'
-import HeaderSection from './components/HeaderSection'
 import SearchField from './components/SearchField'
+import HeaderLeftMenu from './components/HeaderLeftMenu'
 
 @Component({
   name: 'Library',
-  components: { LeftMenu, ColorImage, AddTokenPopup, HeaderSection, SearchField, },
+  components: { LeftMenu, ColorImage, AddTokenPopup, SearchField, HeaderLeftMenu, },
   watch: {
     searchText() {
       this.filterAssets()
@@ -81,16 +77,7 @@ export default class Library extends Vue {
 </script>
 
 <style scoped>
-.container {
-  display: flex;
-  min-height: 100vh;
-}
-.body-container {
-  flex: 1;
-  bottom: 0px;
-}
 .header-container {
-  border-top: 1px solid #2A3D46;
   border-bottom: 1px solid #2A3D46;
   display: flex;
   align-items: center;

@@ -1,21 +1,20 @@
 <template>
-  <div class="container">
-    <LeftMenu />
+  <HeaderLeftMenu>
     <div style="display: flex; flex: 1; justify-content: center; position: relative">
       <div style="display: flex; flex-direction: column; align-items: center;">
         <slot></slot>
       </div>
     </div>
-  </div>
+  </HeaderLeftMenu>
 </template>
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import LeftMenu from './LeftMenu'
+import HeaderLeftMenu from './HeaderLeftMenu'
 
 @Component({
   name: 'CenteredLeftMenu',
-  components: { LeftMenu, },
+  components: { HeaderLeftMenu, },
 })
 export default class CenteredLeftMenu extends Vue {}
 </script>

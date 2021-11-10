@@ -47,8 +47,9 @@ export default class HeaderSection extends Vue {
 .header-section-container {
   display: flex;
   justify-content: space-between;
-  padding: 0px 20px;
+  padding: 0px 10px;
   height: 46px;
+  border-bottom: 1px solid #2A3D46;
 }
 .info-text {
   color: #95A7AE;

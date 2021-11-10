@@ -1,8 +1,6 @@
 <template>
-  <div class="container">
-    <LeftMenu />
-    <div style="display: flex; flex-direction: column; flex: 1;height: 100%">
-      <HeaderSection />
+  <div>
+    <HeaderLeftMenu>
       <div class="subheader-container">
         <div class="tokens-button">
           Tokens
@@ -34,7 +32,7 @@
       />
       <div spacer style="flex: 1" />
       <SyncIndicator />
-    </div>
+    </HeaderLeftMenu>
     <SettingsPanel
       :visible="showingSettings"
       :onClose="() => showingSettings = false"
@@ -54,10 +52,11 @@ import LeftMenu from './components/LeftMenu'
 import HeaderSection from './components/HeaderSection'
 import SearchField from './components/SearchField'
 import SyncIndicator from './components/SyncIndicator'
+import HeaderLeftMenu from './components/HeaderLeftMenu'
 
 @Component({
   name: 'Wallet',
-  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, HeaderSection, SearchField, SyncIndicator, },
+  components: { Header, Button, AssetCell, ZkopruBackground, ColorImage, SettingsPanel, LeftMenu, HeaderSection, SearchField, SyncIndicator, HeaderLeftMenu, },
   watch: {
     searchText: function() {
       this.filterAssets()
@@ -121,7 +120,6 @@ export default class Wallet extends Vue {
   cursor: pointer;
 }
 .subheader-container {
-  border-top: 1px solid #2A3D46;
   border-bottom: 1px solid #2A3D46;
   display: flex;
   align-items: center;
