@@ -1,8 +1,13 @@
 <template>
   <div class="container">
     <LeftMenu />
-    <div style="display: flex; flex-direction: column; flex: 1; height: 100%">
-      <HeaderSection style="background: #05141A"/>
+    <!-- left is 200px to account for LeftMenu width -->
+    <HeaderSection
+      style="background: #05141A; position: fixed; top: 0px; right: 0px; left: 200px; z-index: 10000000"
+    />
+    <!-- subtract 46px from height to account for HeaderSection height -->
+    <!-- TODO: refactor to avoid these calculations -->
+    <div style="display: flex; flex-direction: column; flex: 1; height: calc(100% - 46px); margin-top: 46px">
       <slot></slot>
     </div>
   </div>
