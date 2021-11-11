@@ -16,7 +16,7 @@
     </div>
     <div spacer style="width: 10px" />
     <div class="cell-text">
-      {{balance(symbol)}}
+      {{ $store.getters.balance(symbol) }}
     </div>
     <div spacer style="width: 10px" />
     <Info style="margin-left: 8px">
@@ -61,7 +61,7 @@ import AssetCellInfo from './AssetCellInfo'
       const info = this.$store.state.zkopru.noteInfo[this.symbol]
       if (!info) return 0
       return info.count
-    }
+    },
   }
 })
 export default class AssetCell extends Vue {
@@ -74,14 +74,6 @@ export default class AssetCell extends Vue {
 
   deposit() {
     this.$router.push({ path: `/wallet/deposit?asset=${this.symbol}` })
-  }
-
-  balance(symbol) {
-    if (symbol.toUpperCase() === 'ETH') {
-      return this.$store.state.zkopru.balance || '0'
-    }
-    const tokenBalance = this.$store.state.zkopru.tokenBalances[symbol.toUpperCase()]
-    return tokenBalance || '0'
   }
 }
 </script>

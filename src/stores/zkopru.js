@@ -33,6 +33,12 @@ export default {
       const { latestBlock, proposalCount } = state
       if (!proposalCount) return 0
       return 100 * latestBlock / proposalCount
+    },
+    balance: (state) => (assetSymbol) => {
+      if (assetSymbol.toUpperCase() === 'ETH') {
+        return state.balance || '0'
+      }
+      return state.tokenBalances[assetSymbol.toUpperCase()] || '0'
     }
   },
   mutations: {
