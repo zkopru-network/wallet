@@ -37,6 +37,9 @@
         <div v-if="transaction.type === 'Receive'">
           Received
         </div>
+        <div v-if="transaction.type === 'Self'">
+          Sent to self
+        </div>
         <div v-if="transaction.type === 'PendingDeposit'" style="display: flex; align-items: center">
           <div>Deposit (awaiting commit)</div>
           <div spacer style="width: 4px" />
@@ -139,7 +142,7 @@ export default class HistoryCell extends Vue {
     if (type === 'Withdraw') {
       return require('../../assets/withdraw_icon.svg')
     }
-    if (type === 'Send') {
+    if (type === 'Send' || type === 'PendingSend') {
       return require('../../assets/send_icon_new.svg')
     }
     if (type === 'Receive') {
