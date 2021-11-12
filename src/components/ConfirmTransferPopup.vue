@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="popup" v-if="!sending">
+    <div class="popup" v-if="!sending && !sendComplete">
       <div style="display: flex; justify-content: space-between; align-items: center">
         <div class="title-text">
           Confirm Transaction
@@ -53,6 +53,21 @@
       <div spacer style="height: 24px" />
       <div ref="animationEl" style="margin: 0px -22px; width: calc(100% + 44px)" />
     </div>
+    <div class="popup" v-if="sendComplete" style="text-align: center;">
+      <div spacer style="height: 47px" />
+      <div class="title-text">
+        Confirming Transfer
+      </div>
+      <div spacer style="height: 32px" />
+      <div class="detail-text">
+        Closing this window will NOT interrupt the transfer.
+      </div>
+      <div spacer style="height: 24px" />
+      <NextButton
+        text="See Transaction History"
+        :onNext="() => $router.push('/wallet/history')"
+      />
+    </div>
   </div>
 </template>
 <script>
@@ -81,6 +96,7 @@ export default class ConfirmDepositPopup extends Vue {
     'Broadcasting transaction',
   ]
   currentMessageIndex = 0
+  sendComplete = false
 
   mounted() {
     lottie.loadAnimation({
@@ -103,7 +119,9 @@ export default class ConfirmDepositPopup extends Vue {
       this.currentMessageIndex = 1
       await this.$store.state.zkopru.wallet.wallet.sendLayer2Tx(zkTx)
       await this.$store.dispatch('loadL2Balance')
-      this.$router.push({ path: '/wallet' })
+      await this.$store.dispatch('loadHistory')
+      this.sending = false
+      this.sendComplete = true
     } catch (err) {
       this.sending = false
       console.log(err)
