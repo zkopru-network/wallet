@@ -57,14 +57,14 @@
         style="width: 100%"
       />
     </div>
-    <div class="popup" v-show="withdrawState === 2" style="text-align: center;">
+    <div class="popup" v-show="withdrawState === 5" style="text-align: center;">
       <div spacer style="height: 47px" />
       <div class="title-text">
-        Sending Transaction
+        {{ loadingTitle }}
       </div>
-      <div spacer style="height: 32px" />
-      <div class="detail-text">
-        Calculating SNARK
+      <div spacer style="height: 32px" v-if="loadingSubtitle" />
+      <div class="detail-text" v-if="loadingSubtitle">
+        {{ loadingSubtitle }}
       </div>
       <div spacer style="height: 24px" />
       <div ref="animationEl" style="margin: 0px -22px; width: calc(100% + 44px)" />
@@ -116,6 +116,8 @@ import lottie from 'lottie-web'
 export default class ConfirmWithdrawPopup extends Vue {
   withdrawState = 0
   prepayInfo = undefined
+  loadingTitle = ''
+  loadingSubtitle = ''
 
   mounted() {
     lottie.loadAnimation({
@@ -196,7 +198,9 @@ export default class ConfirmWithdrawPopup extends Vue {
       signer: this.$store.state.account.accounts[0]
     }
     // then run withdraw
-    this.withdrawState = 2
+    this.withdrawState = 5
+    this.loadingTitle = 'Sending Transaction'
+    this.loadingSubtitle = 'Calculating SNARK'
     await this.sendTx()
   }
 
@@ -215,10 +219,14 @@ export default class ConfirmWithdrawPopup extends Vue {
 
   async withdraw() {
     if (this.withdrawType === 2 && this.withdrawState === 0) {
-      this.withdrawState = 1
+      this.withdrawState = 5
+      this.loadingTitle = 'Signing Instant Withdraw'
+      this.loadingSubtitle = 'Waiting for signature.'
       await this.signInstantWithdraw()
     } else if (this.withdrawType === 1 && this.withdrawState === 0) {
-      this.withdrawState = 2
+      this.withdrawState = 5
+      this.loadingTitle = 'Sending Transaction'
+      this.loadingSubtitle = 'Calculating SNARK'
       await this.sendTx()
     }
   }
