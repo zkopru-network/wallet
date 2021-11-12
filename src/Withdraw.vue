@@ -128,6 +128,11 @@ import tooltips from './tooltips'
       } else {
         this.amountState = 0
       }
+      if (!isNaN(this.withdrawAmount) && !isNaN(this.instantWithdrawFee) && +this.withdrawAmount <= +this.instantWithdrawFee) {
+        this.instantWithdrawFeeState = 2
+      } else if (!isNaN(this.withdrawAmount) && !isNaN(this.instantWithdrawFee) && +this.withdrawAmount > +this.instantWithdrawFee && +this.instantWithdrawFee > 0) {
+        this.instantWithdrawFeeState = 1
+      }
     },
     instantWithdrawFee() {
       if (this.instantWithdrawFee === '') {
@@ -139,6 +144,10 @@ import tooltips from './tooltips'
       } else if (this.activeAsset && +this.instantWithdrawFee < this.$store.state.zkopru.tokenBalances[this.activeAsset]) {
         this.instantWithdrawFeeState = 1
       } else {
+        this.instantWithdrawFeeState = 2
+      }
+
+      if (!isNaN(this.withdrawAmount) && !isNaN(this.instantWithdrawFee) && +this.withdrawAmount <= +this.instantWithdrawFee) {
         this.instantWithdrawFeeState = 2
       }
     },
