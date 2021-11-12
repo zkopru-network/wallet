@@ -193,18 +193,23 @@ export default class Withdraw extends Vue {
   }
 
   async suggestedFee(clickedButton) {
-    const multiplier = clickedButton === 'Fast' ? new BN('400000') : new BN('200000')
-    this.feeAmountState = 3
-    try {
-      const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-      // Assume 2000 bytes for a simple deposit tx in a block
-      const feeWeiAmount = new BN(weiPerByte).mul(multiplier)
-      this.feeAmount = ''
-      Vue.nextTick(() => {
-        this.feeAmount = fromWei(feeWeiAmount, 9).toString()
-      })
-    } catch (err) {
-      this.feeAmountState = 2
+    if (clickedButton === 'Standard') {
+      try {
+        this.feeAmountState = 3
+        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
+        this.feeAmount = (+weiPerByte / (10**9)).toString()
+      } catch (err) {
+        this.feeAmountState = 2
+      }
+    }
+    if (clickedButton === 'Fast') {
+      try {
+        this.feeAmountState = 3
+        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
+        this.feeAmount = (2 * +weiPerByte / (10**9)).toString()
+      } catch (err) {
+        this.feeAmountState = 2
+      }
     }
   }
 
