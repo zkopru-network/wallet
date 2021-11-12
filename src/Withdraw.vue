@@ -238,8 +238,9 @@ export default class Withdraw extends Vue {
       const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
         return symbol === this.activeAsset
       })
-      const tokenAmount = new BN(this.withdrawAmount).add(new BN(this.instantWithdrawFee || '0'))
-      const decimalAmount = `${+tokenAmount.toString() * (10 ** +decimals)}`
+      const withdrawAmountDecimal = +this.withdrawAmount * (10 ** +decimals)
+      const instantWithdrawFeeDecimal = +(this.instantWithdrawFee || 0) * (10 ** +decimals)
+      const decimalAmount = new BN(withdrawAmountDecimal).add(new BN(instantWithdrawFeeDecimal))
       const tx = await this.$store.state.zkopru.wallet.generateTokenWithdrawal(
         this.$store.state.account.accounts[0],
         decimalAmount,
