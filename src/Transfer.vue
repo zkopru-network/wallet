@@ -95,6 +95,7 @@ import NextButton from './components/NextButton'
 import ConfirmTransferPopup from './components/ConfirmTransferPopup'
 import tooltips from './tooltips'
 import InfoText from './components/InfoText'
+import decimalCount from './utils/decimal-count'
 
 @Component({
   name: 'Transfer',
@@ -238,14 +239,34 @@ export default class Transfer extends Vue {
   }
 
   updateAmountStates() {
+    let decimals
+    const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+      return symbol === this.activeAsset
+    })
+    if (this.activeAsset.toUpperCase() === 'ETH') {
+      decimals = 18
+    } else if (token) {
+      decimals = token.decimals
+    } else {
+      throw new Error('Invalid asset selected')
+    }
     if (this.transferAmount === '') {
       this.amountState = 0
     } else if (isNaN(this.transferAmount)) {
       this.amountState = 2
-    } else if (this.activeAsset === 'ETH') {
-      this.amountState = +this.transferAmount > this.$store.state.zkopru.balance ? 2 : 1
+    } else if (
+      this.activeAsset === 'ETH' &&
+      +this.transferAmount <= +this.$store.state.zkopru.balance &&
+      decimalCount(this.transferAmount) <= decimals
+    ) {
+      this.amountState = 1
+    } else if (
+      +this.transferAmount <= +this.$store.state.zkopru.tokenBalances[this.activeAsset] &&
+      decimalCount(this.transferAmount) <= decimals
+    ) {
+      this.amountState = 1
     } else {
-      this.amountState = +this.transferAmount > this.$store.state.zkopru.tokenBalances[this.activeAsset] ? 2 : 1
+      this.amountState = 2
     }
     if (!this.fee) {
       this.feeState = 0

@@ -121,6 +121,7 @@ import ConfirmDepositPopup from './components/ConfirmDepositPopup'
 import measureText from './utils/measure-text'
 import tooltips from './tooltips'
 import InfoText from './components/InfoText'
+import decimalCount from './utils/decimal-count'
 
 @Component({
   name: 'Deposit',
@@ -130,13 +131,7 @@ import InfoText from './components/InfoText'
       this.updateEtherAmountState()
     },
     tokenDepositAmount() {
-      if (this.tokenDepositAmount === '') {
-        this.tokenAmountState = 0
-      } else if (isNaN(this.tokenDepositAmount) || +this.tokenDepositAmount <= 0) {
-        this.tokenAmountState = 2
-      } else {
-        this.tokenAmountState = 1
-      }
+      this.updateTokenAmountState()
     },
     feeAmount() {
       this.updateEtherAmountState()
@@ -197,15 +192,25 @@ export default class Deposit extends Vue {
       this.feeAmountState = 0
     } else if (isNaN(this.feeAmount) || +this.feeAmount < 0) {
       this.feeAmountState = 2
+    } else if (
+      +this.feeAmount <= +this.$store.state.account.balance &&
+      decimalCount(this.feeAmount) <= 18
+    ) {
+      this.feeAmountState = 1
     } else {
-      this.feeAmountState = +this.feeAmount > +this.$store.state.account.balance ? 2 : 1
+      this.feeAmountState = 2
     }
     if (this.etherDepositAmount === '') {
       this.etherAmountState = 0
     } else if (isNaN(this.etherDepositAmount) || +this.etherDepositAmount <= 0) {
       this.etherAmountState = 2
+    } else if (
+      +this.etherDepositAmount <= +this.$store.state.account.balance &&
+      decimalCount(this.etherDepositAmount) <= 18
+    ) {
+      this.etherAmountState = 1
     } else {
-      this.etherAmountState = +this.etherDepositAmount > +this.$store.state.account.balance ? 2 : 1
+      this.etherAmountState = 2
     }
     // check total amount if needed
     if (isNaN(this.feeAmount)) return
@@ -215,6 +220,29 @@ export default class Deposit extends Vue {
     if (total > +this.$store.state.account.balance) {
       this.feeAmountState = 2
       this.etherAmountState = 2
+    }
+  }
+
+  updateTokenAmountState() {
+    const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+      return symbol === this.activeToken
+    })
+    if (!token) {
+      this.tokenAmountState = 0
+      return
+    }
+    console.log(this.tokenDepositAmount, +this.$store.state.account.tokenBalances[this.activeToken])
+    if (this.tokenDepositAmount === '' || +this.tokenDepositAmount === 0) {
+      this.tokenAmountState = 0
+    } else if (isNaN(this.tokenDepositAmount) || +this.tokenDepositAmount <= 0) {
+      this.tokenAmountState = 2
+    } else if (
+      +this.tokenDepositAmount <= +this.$store.state.account.tokenBalances[this.activeToken] &&
+      decimalCount(this.tokenDepositAmount) <= token.decimals
+    ) {
+      this.tokenAmountState = 1
+    } else {
+      this.tokenAmountState = 2
     }
   }
 

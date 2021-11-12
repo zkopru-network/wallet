@@ -110,6 +110,7 @@ import NextButton from './components/NextButton'
 import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
 import InfoText from './components/InfoText'
 import tooltips from './tooltips'
+import decimalCount from './utils/decimal-count'
 
 @Component({
   name: 'Withdraw',
@@ -117,39 +118,10 @@ import tooltips from './tooltips'
   watch: {
     withdrawAmount() {
       this.generateTx()
-      if (this.withdrawAmount === '') {
-        this.amountState = 0
-      } else if (isNaN(this.withdrawAmount)) {
-        this.amountState = 2
-      } else if (this.activeAsset === 'ETH') {
-        this.amountState = +this.withdrawAmount > this.$store.state.zkopru.balance ? 2 : 1
-      } else if (this.activeAsset) {
-        this.amountState = +this.withdrawAmount > this.$store.state.zkopru.tokenBalances[this.activeAsset] ? 2 : 1
-      } else {
-        this.amountState = 0
-      }
-      if (!isNaN(this.withdrawAmount) && !isNaN(this.instantWithdrawFee) && +this.withdrawAmount <= +this.instantWithdrawFee) {
-        this.instantWithdrawFeeState = 2
-      } else if (!isNaN(this.withdrawAmount) && !isNaN(this.instantWithdrawFee) && +this.withdrawAmount > +this.instantWithdrawFee && +this.instantWithdrawFee > 0) {
-        this.instantWithdrawFeeState = 1
-      }
+      this.validateWithdrawAmount()
     },
     instantWithdrawFee() {
-      if (this.instantWithdrawFee === '') {
-        this.instantWithdrawFeeState = 0
-      } else if (isNaN(this.instantWithdrawFee)) {
-        this.instantWithdrawFeeState = 2
-      } else if (this.activeAsset === 'ETH' && +this.instantWithdrawFee < this.$store.state.zkopru.balance) {
-        this.instantWithdrawFeeState = 1
-      } else if (this.activeAsset && +this.instantWithdrawFee < this.$store.state.zkopru.tokenBalances[this.activeAsset]) {
-        this.instantWithdrawFeeState = 1
-      } else {
-        this.instantWithdrawFeeState = 2
-      }
-
-      if (!isNaN(this.withdrawAmount) && !isNaN(this.instantWithdrawFee) && +this.withdrawAmount <= +this.instantWithdrawFee) {
-        this.instantWithdrawFeeState = 2
-      }
+      this.validateInstantWithdrawFee()
     },
     feeAmount() {
       this.generateTx()
@@ -271,6 +243,82 @@ export default class Withdraw extends Vue {
     })
     await this.$store.dispatch('loadL2Balance')
     this.$router.push({ path: '/wallet' })
+  }
+
+  validateWithdrawAmount() {
+    let decimals
+    const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+      return symbol === this.activeAsset
+    })
+    if (this.activeAsset.toUpperCase() === 'ETH') {
+      decimals = 18
+    } else if (token) {
+      decimals = token.decimals
+    } else {
+      throw new Error('Invalid asset selected')
+    }
+    if (this.withdrawAmount === '') {
+      this.amountState = 0
+    } else if (isNaN(this.withdrawAmount)) {
+      this.amountState = 2
+    } else if (
+      this.activeAsset === 'ETH' &&
+      +this.withdrawAmount <= this.$store.state.zkopru.balance &&
+      decimalCount(this.withdrawAmount) <= decimals
+    ) {
+      this.amountState = 1
+    } else if (
+      this.activeAsset &&
+      +this.withdrawAmount <= this.$store.state.zkopru.tokenBalances[this.activeAsset] &&
+      decimalCount(this.withdrawAmount) <= decimals
+    ) {
+      this.amountState = 1
+    } else {
+      this.amountState = 2
+    }
+    this.validateInstantWithdrawFee()
+  }
+
+  validateInstantWithdrawFee() {
+    let decimals
+    const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+      return symbol === this.activeAsset
+    })
+    if (this.activeAsset.toUpperCase() === 'ETH') {
+      decimals = 18
+    } else if (token) {
+      decimals = token.decimals
+    } else {
+      throw new Error('Invalid asset selected')
+    }
+    if (this.instantWithdrawFee === '' || +this.instantWithdrawFee === 0) {
+      this.instantWithdrawFeeState = 0
+    } else if (isNaN(this.instantWithdrawFee)) {
+      this.instantWithdrawFeeState = 2
+    } else if (
+      this.activeAsset === 'ETH' &&
+      +this.instantWithdrawFee < this.$store.state.zkopru.balance &&
+      decimalCount(this.instantWithdrawFee) <= decimals
+    ) {
+      this.instantWithdrawFeeState = 1
+    } else if (
+      this.activeAsset &&
+      +this.instantWithdrawFee < this.$store.state.zkopru.tokenBalances[this.activeAsset] &&
+      decimalCount(this.instantWithdrawFee) <= decimals
+    ) {
+      this.instantWithdrawFeeState = 1
+    } else {
+      this.instantWithdrawFeeState = 2
+    }
+
+    if (
+      !isNaN(this.withdrawAmount) &&
+      !isNaN(this.instantWithdrawFee) &&
+      +this.instantWithdrawFee !== 0 &&
+      +this.withdrawAmount <= +this.instantWithdrawFee
+    ) {
+      this.instantWithdrawFeeState = 2
+    }
   }
 
   tryLoadAssetIcon(symbol) {
