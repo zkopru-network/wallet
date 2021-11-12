@@ -209,11 +209,15 @@ export default class ConfirmWithdrawPopup extends Vue {
       tx: this.tx,
       prepayInfo: this.prepayInfo,
     })
+    this.withdrawState = 5
+    this.loadingTitle = 'Sending Transaction'
+    this.loadingSubtitle = 'Broadcasting transaction'
     const response = await this.$store.state.zkopru.wallet.wallet.sendLayer2Tx(shieldedTx)
     if (response.status !== 200) {
       await this.$store.state.zkopru.wallet.wallet.unlockUtxos(this.tx.inflow)
       throw Error(await response.text())
     }
+    await this.$store.dispatch('loadHistory')
     this.withdrawState = 3
   }
 
