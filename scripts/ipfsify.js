@@ -45,15 +45,17 @@ async function main() {
       data = data.replace(assetFilename, processedFiles[assetFilename])
       data = data.replace(assetFilename.slice(0, -3), processedFiles[assetFilename])
       // when automatically loading filenames don't append .js
-      data = data.replace('[e]+".js"', '[e]+""')
-      if (data.indexOf('"group-wallet"') !== -1) {
-        // we need to do some special stuff
-        const groupWalletFilename = files.find(f => f.startsWith('group-wallet'))
-        if (!processedFiles[groupWalletFilename]) {
-          throw new Error('group-wallet chunk has not been processed')
+      data = data.replace('+".js"', '+""')
+      const bundles = ['group-wallet', 'vendors-group-wallet']
+      for (const name of bundles) {
+        if (data.indexOf(`:"${name}"`) === -1) continue
+        const filename = files.find(f => f.startsWith(`${name}.`))
+        if (!processedFiles[filename]) {
+          throw new Error(`${name} chunk has not been processed`)
         }
-        data = data.replace('"group-wallet"}[e]||e)+"."', `"${processedFiles[groupWalletFilename]}"}[e]||"")+""`)
-        data = data.replace(groupWalletFilename.split('.')[1], '')
+        data = data.replace('[e]||e)+"."+', '[e]||"")+""+')
+        data = data.replace(`:"${name}"`, `:"${processedFiles[filename]}"`)
+        data = data.replace(filename.split('.')[1], '')
         for (const numberedChunk of files.filter(f => /^\d\.[a-z0-9]+\.js$/.test(f))) {
           if (!processedFiles[numberedChunk])
             throw new Error('Numbered chunk has not been processed yet')
