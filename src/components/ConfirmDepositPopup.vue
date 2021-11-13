@@ -241,8 +241,10 @@ export default class ConfirmDepositPopup extends Vue {
   bottom: 0px;
   background: linear-gradient(323.78deg, rgba(0, 0, 0, 0.8) -10.87%, rgba(1, 18, 18, 0.8) 47.21%, rgba(0, 0, 0, 0.8) 101.17%, rgba(0, 0, 0, 0.8) 101.17%);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
+  padding-top: 117px;
 }
 .popup {
   border-radius: 8px;

@@ -127,14 +127,16 @@ export default class AddTokenPopup extends Vue {
 
 <style scoped>
 .popup-container {
-  position: absolute;
-  top: 47px;
+  position: fixed;
+  top: 0px;
   left: 200px;
   right: 0px;
   bottom: 0px;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  padding-top: 117px;
   background-color: rgba(0,0,0,0.6);
 }
 .popup {
@@ -144,7 +146,7 @@ export default class AddTokenPopup extends Vue {
   max-width: 505px;
   width: 100vw;
   padding: 22px;
-  margin-top: 20%;
+  /* margin-top: 20%; */
 }
 .title-text {
   color: #F2F2F2;
