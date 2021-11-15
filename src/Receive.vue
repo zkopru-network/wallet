@@ -8,6 +8,7 @@
       <div spacer style="height: 23px" />
       <div class="readonly-address-field">
         <div>{{ $store.state.zkopru.zkAddress || 'Loading...' }}</div>
+        <div spacer style="width: 20px" />
         <div style="cursor: pointer" v-on:click="copyAddress">
           <img
             :src="showingCopyCheckmark ?
@@ -17,7 +18,7 @@
         </div>
       </div>
       <div spacer style="height: 24px" />
-      <div style="font-size: 14px; color: #95A7AE">
+      <div style="font-size: 14px; color: #F2F2F2">
         When receiving funds from another party, they will need to paste your public address in the send field.
       </div>
       <div class="share-button">
@@ -90,14 +91,16 @@ export default class Receive extends Vue {
   font-size: 11px;
 }
 .readonly-address-field {
-  color: white;
+  color: #95A7AE;
+  font-size: 14px;
+  line-height: 140%;
   background: #081B24;
   border: 1px solid #5d7078;
   border-radius: 8px;
   padding: 8px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
   word-wrap: break-word;
   word-break: break-word;
 }
