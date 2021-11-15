@@ -3,14 +3,14 @@
     <div class="body-container">
       <div class="header-container">
         <SwitchSelector
-          :options="['All', 'Sent', 'Received', 'Deposited', 'Withdrawn']"
+          :options="['Any', 'Sent', 'Received', 'Deposited', 'Withdrawn']"
           :selectedOption="selectedType"
           v-model="selectedType"
         />
       </div>
       <div class="subheader-container">
         <SwitchSelector
-          :options="['1w', '4w', '1y', 'Mtd', 'Ytd', 'All']"
+          :options="['All Time', '1w', '4w', '1y', 'Mtd', 'Ytd']"
           :selectedOption="selectedTimePeriod"
           v-model="selectedTimePeriod"
           style="font-size: 11px"
@@ -53,19 +53,19 @@ export default class History extends Vue {
   get activeTimePeriod() {
     const format = 'MMMM D, YYYY'
     const now = dayjs().format(format)
-    if (this.selectedTimePeriod === 0) {
+    if (this.selectedTimePeriod === 1) {
       return `${dayjs().subtract(1, 'week').format(format)} - ${now}`
     }
-    if (this.selectedTimePeriod === 1) {
+    if (this.selectedTimePeriod === 2) {
       return `${dayjs().subtract(4, 'week').format(format)} - ${now}`
     }
-    if (this.selectedTimePeriod === 2) {
+    if (this.selectedTimePeriod === 3) {
       return `${dayjs().subtract(1, 'year').format(format)} - ${now}`
     }
-    if (this.selectedTimePeriod === 3) {
+    if (this.selectedTimePeriod === 4) {
       return `${dayjs().date(1).format(format)} - ${now}`
     }
-    if (this.selectedTimePeriod === 4) {
+    if (this.selectedTimePeriod === 5) {
       return `${dayjs().dayOfYear(1).format(format)} - ${now}`
     }
     return `All Time`
