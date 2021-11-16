@@ -19,6 +19,10 @@
       {{ $store.getters.balance(symbol) }}
     </div>
     <div spacer style="width: 10px" />
+    <div class="cell-text" v-if="$store.getters.lockedBalance(symbol) !== '0'">
+      ({{ $store.getters.lockedBalance(symbol) }})
+    </div>
+    <div spacer style="width: 10px" />
     <Info style="margin-left: 8px">
       <div style="display: flex; flex-direction: column">
         <div>

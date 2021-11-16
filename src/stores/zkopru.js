@@ -21,6 +21,7 @@ export default {
     lockedBalance: null,
     balance: null,
     tokenBalances: {},
+    lockedTokenBalances: {},
     l2BalanceLoaded: false,
     registeredTokens: [],
     tokensByAddress: {},
@@ -39,6 +40,12 @@ export default {
         return state.balance || '0'
       }
       return state.tokenBalances[assetSymbol.toUpperCase()] || '0'
+    },
+    lockedBalance: (state) => (assetSymbol) => {
+      if (assetSymbol.toUpperCase() === 'ETH') {
+        return state.lockedBalance || '0'
+      }
+      return state.lockedTokenBalances[assetSymbol.toUpperCase()] || '0'
     }
   },
   mutations: {
@@ -192,7 +199,16 @@ export default {
           if (!token) continue
           state.tokenBalances = {
             ...state.tokenBalances,
-            [token.symbol]: (+erc20[_address].toString()/(10**(+token.decimals)))
+            [token.symbol]: (+erc20[_address].toString()/(10**(+token.decimals))),
+          }
+        }
+        state.lockedTokenBalances = {}
+        for (const _address of Object.keys(locked.erc20)) {
+          const token = state.tokensByAddress[_address.toLowerCase()]
+          if (!token) continue
+          state.lockedTokenBalances = {
+            ...state.lockedTokenBalances,
+            [token.symbol]: (+locked.erc20[_address].toString()/(10**(+token.decimals))),
           }
         }
         const info = {}
@@ -231,6 +247,7 @@ export default {
             maxSpendDecimal,
           }
         }
+
         state.noteInfo = info
         // state.tokenBalances = erc20
         // load l1 token balances
