@@ -12,7 +12,7 @@ export default {
     proposalCount: 0,
     uncleCount: 0,
     syncPercent: 0,
-    status: 'Not synchronizing',
+    status: 'Initializing',
     syncing: false,
     wallet: null,
     walletKey: null,
