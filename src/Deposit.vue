@@ -238,7 +238,6 @@ export default class Deposit extends Vue {
       this.tokenAmountState = 0
       return
     }
-    console.log(this.tokenDepositAmount, +this.$store.state.account.tokenBalances[this.activeToken])
     if (this.tokenDepositAmount === '' || +this.tokenDepositAmount === 0) {
       this.tokenAmountState = 0
     } else if (isNaN(this.tokenDepositAmount) || +this.tokenDepositAmount <= 0) {

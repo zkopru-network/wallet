@@ -243,7 +243,7 @@ export default class Transfer extends Vue {
     } else if (token) {
       decimals = token.decimals
     } else {
-      throw new Error('Invalid asset selected')
+      decimals = 0
     }
     if (this.transferAmount === '') {
       this.amountState = 0

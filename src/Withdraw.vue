@@ -250,7 +250,7 @@ export default class Withdraw extends Vue {
     } else if (token) {
       decimals = token.decimals
     } else {
-      throw new Error('Invalid asset selected')
+      decimals = 0
     }
     if (this.withdrawAmount === '') {
       this.amountState = 0
