@@ -158,6 +158,7 @@ export default class Withdraw extends Vue {
   instantWithdrawFeeState = 0
   withdrawType = 0
   showingWithdrawConfirm = false
+  activeFeePromise = undefined
 
   mounted() {
     const { type, asset } = this.$route.query
@@ -174,23 +175,17 @@ export default class Withdraw extends Vue {
   }
 
   async suggestedFee(clickedButton) {
-    if (clickedButton === 'Standard') {
-      try {
-        this.feeAmountState = 3
-        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-        this.feeAmount = (+weiPerByte / (10**9)).toString()
-      } catch (err) {
-        this.feeAmountState = 2
-      }
-    }
-    if (clickedButton === 'Fast') {
-      try {
-        this.feeAmountState = 3
-        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-        this.feeAmount = (2 * +weiPerByte / (10**9)).toString()
-      } catch (err) {
-        this.feeAmountState = 2
-      }
+    try {
+      this.feeAmountState = 3
+      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      this.activeFeePromise = feePromise
+      const weiPerByte = await feePromise
+      if (this.activeFeePromise !== feePromise) return
+      this.activeFeePromise = undefined
+      this.feeAmount = ((clickedButton === 'Standard' ? 1 : 2) * (+weiPerByte / (10**9))).toString()
+    } catch (err) {
+      if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined
+      this.feeAmountState = 2
     }
   }
 

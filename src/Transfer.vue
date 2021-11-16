@@ -132,6 +132,7 @@ export default class Transfer extends Vue {
   totalFee = '-'
   tx = undefined
   showingTransferConfirm = false
+  activeFeePromise = undefined
 
   mounted() {
     if (this.$route.query.asset) {
@@ -154,23 +155,17 @@ export default class Transfer extends Vue {
   }
 
   async suggestedFee(clickedButton) {
-    if (clickedButton === 'Standard') {
-      try {
-        this.feeState = 3
-        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-        this.fee = +weiPerByte / (10**9)
-      } catch (err) {
-        this.feeState = 2
-      }
-    }
-    if (clickedButton === 'Fast') {
-      try {
-        this.feeState = 3
-        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-        this.fee = 2 * +weiPerByte / (10**9)
-      } catch (err) {
-        this.feeState = 2
-      }
+    try {
+      this.feeState = 3
+      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      this.activeFeePromise = feePromise
+      const weiPerByte = await feePromise
+      if (this.activeFeePromise !== feePromise) return
+      this.activeFeePromise = undefined
+      this.fee = (clickedButton === 'Standard' ? 1 : 2) * +weiPerByte / (10**9)
+    } catch (err) {
+      if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined
+      this.feeState = 2
     }
   }
 
