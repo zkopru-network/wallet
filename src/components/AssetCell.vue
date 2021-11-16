@@ -18,7 +18,7 @@
     <div class="cell-text">
       {{ $store.getters.balance(symbol) }}
     </div>
-    <div spacer style="width: 10px" />
+    <div spacer style="width: 10px" v-if="$store.getters.lockedBalance(symbol) !== '0'" />
     <div class="cell-text" v-if="$store.getters.lockedBalance(symbol) !== '0'">
       ({{ $store.getters.lockedBalance(symbol) }})
     </div>

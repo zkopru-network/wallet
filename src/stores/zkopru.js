@@ -194,6 +194,7 @@ export default {
         }, {})
         const { erc20, erc721, eth } = spendable
         state.balance = fromWei(eth.toString())
+        state.tokenBalances = {}
         for (const _address of Object.keys(erc20)) {
           const token = state.tokensByAddress[_address.toLowerCase()]
           if (!token) continue
