@@ -28,6 +28,10 @@ export default {
     history: [],
     // dev only
     noteInfo: {},
+    tokenBlacklist: [
+      '0x560bd972e69f4dc15abf6093fcff2bc7e14f9239'.toLowerCase(),
+      '0x2471942920ADf662c140F612DBd4Ca343805499d'.toLowerCase(),
+    ]
   },
   getters: {
     percent: state => {
@@ -178,16 +182,12 @@ export default {
       ])
       {
         // DEV: skip the bugged test token contract
-        const tokenBlacklist = [
-          '0x560bd972e69f4dc15abf6093fcff2bc7e14f9239'.toLowerCase(),
-          '0x2471942920ADf662c140F612DBd4Ca343805499d'.toLowerCase(),
-        ]
         state.registeredTokens = erc20Info.filter(({ address }) => {
-          return tokenBlacklist.indexOf(address.toLowerCase()) === -1
+          return state.tokenBlacklist.indexOf(address.toLowerCase()) === -1
         })
         state.tokensByAddress = erc20Info.reduce((acc, token) => {
           // DEV: skip the bugged test token contract
-          if (tokenBlacklist.indexOf(token.address.toLowerCase()) !== -1) return acc
+          if (state.tokenBlacklist.indexOf(token.address.toLowerCase()) !== -1) return acc
           return {
             [token.address.toLowerCase()]: token,
             ...acc
@@ -303,9 +303,10 @@ export default {
       const { history, pending } = await state.wallet.transactionsFor(l2Address, l1Address)
       state.history =
         [
-          ...pending,
-          ...history
+          ...(pending || []),
+          ...(history || [])
             .filter(h => !!h.proposal)
+            .filter(h => state.tokenBlacklist.indexOf(h.tokenAddr.toLowerCase()) === -1)
             .sort((a, b) => b.proposal.timestamp - a.proposal.timestamp),
         ]
     }
