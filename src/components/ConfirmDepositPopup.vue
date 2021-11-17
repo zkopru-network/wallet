@@ -94,6 +94,7 @@ import Component from 'vue-class-component'
 import NextButton from './NextButton'
 import { toWei, fromWei } from '../utils/wei'
 import lottie from 'lottie-web'
+import BN from 'bn.js'
 
 @Component({
   name: 'ConfirmDepositPopup',
@@ -146,28 +147,34 @@ export default class ConfirmDepositPopup extends Vue {
       toWei(this.feeAmount),
     )
     const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(token.address)
-    const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
-    try {
-      const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data: transferData,
-          to: token.address,
-          value: '0',
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
-    } catch (err) {
-      this.depositState = 0
-      return
-    }
-    this.depositState = 5
-    this.loadingTitle = 'Approving Spend Amount'
-    this.loadingSubtitle = 'Please wait for confirmation.'
-    // TODO: watch tx/poll for approval
-    setTimeout(() => {
+    const amount = new BN(this.tokenDepositAmount)
+    const existingAllowance = await this.$store.dispatch('loadTokenAllowance', token.address)
+    if (new BN(existingAllowance).lt(amount)) {
+      const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
+      try {
+        const txHash = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            data: transferData,
+            to: token.address,
+            value: '0',
+            from: this.$store.state.account.accounts[0],
+          }]
+        })
+      } catch (err) {
+        this.depositState = 0
+        return
+      }
+      this.depositState = 5
+      this.loadingTitle = 'Approving Spend Amount'
+      this.loadingSubtitle = 'Please wait for confirmation.'
+      // TODO: watch tx/poll for approval
+      setTimeout(() => {
+        this.deposit('Spend Amount Approved')
+      }, 30000)
+    } else {
       this.deposit('Spend Amount Approved')
-    }, 30000)
+    }
   }
 
   async deposit(customMessage) {

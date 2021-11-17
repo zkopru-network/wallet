@@ -65,6 +65,15 @@ export default {
         const balanceDecimal = +balance.toString() / (10**+decimals.toString())
         state.tokenBalances = { ...state.tokenBalances, [symbol]: balanceDecimal }
       }
+    },
+    loadTokenAllowance: async ({ state, rootState }, address) => {
+      const tokenContract = await rootState.zkopru.client.getERC20Contract(address)
+      const myAddress = state.accounts[0]
+      const allowance = await tokenContract.methods.allowance(
+        myAddress,
+        rootState.zkopru.client.node.layer1.address
+      ).call()
+      return allowance
     }
   }
 }

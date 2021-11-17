@@ -179,7 +179,8 @@ export default {
       {
         // DEV: skip the bugged test token contract
         const tokenBlacklist = [
-          '0x560bd972e69f4dc15abf6093fcff2bc7e14f9239'.toLowerCase()
+          '0x560bd972e69f4dc15abf6093fcff2bc7e14f9239'.toLowerCase(),
+          '0x2471942920ADf662c140F612DBd4Ca343805499d'.toLowerCase(),
         ]
         state.registeredTokens = erc20Info.filter(({ address }) => {
           return tokenBlacklist.indexOf(address.toLowerCase()) === -1
