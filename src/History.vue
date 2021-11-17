@@ -86,19 +86,19 @@ export default class History extends Vue {
         return false
       }
       const itemTime = historyItem.proposal ? dayjs(historyItem.proposal.timestamp * 1000) : dayjs()
-      if (this.selectedTimePeriod === 0 && itemTime.isBefore(dayjs().subtract(1, 'week'))) {
+      if (this.selectedTimePeriod === 1 && itemTime.isBefore(dayjs().subtract(1, 'week'))) {
         return false
       }
-      if (this.selectedTimePeriod === 1 && itemTime.isBefore(dayjs().subtract(4, 'week'))) {
+      if (this.selectedTimePeriod === 2 && itemTime.isBefore(dayjs().subtract(4, 'week'))) {
         return false
       }
-      if (this.selectedTimePeriod === 2 && itemTime.isBefore(dayjs().subtract(1, 'year'))) {
+      if (this.selectedTimePeriod === 3 && itemTime.isBefore(dayjs().subtract(1, 'year'))) {
         return false
       }
-      if (this.selectedTimePeriod === 3 && itemTime.isBefore(dayjs().date(1))) {
+      if (this.selectedTimePeriod === 4 && itemTime.isBefore(dayjs().date(1))) {
         return false
       }
-      if (this.selectedTimePeriod === 4 && itemTime.isBefore(dayjs().dayOfYear(1))) {
+      if (this.selectedTimePeriod === 5 && itemTime.isBefore(dayjs().dayOfYear(1))) {
         return false
       }
       return true
