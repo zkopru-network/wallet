@@ -90,7 +90,7 @@ async function main() {
     console.log('html', cid.toString())
     processedFiles[file] = `ipfs/${cid.toString()}`
   }
-  const link = `https://ipfs.tubby.cloud/${processedFiles['index.html']}`
+  const link = `https://ipfs.zkopru.network/${processedFiles['index.html']}`
   const badge = cidbadge(processedFiles['index.html'].split('/').pop())
   fs.writeFileSync(path.join(__dirname, '../ipfs_badge.svg'), Buffer.from(badge))
   const readmePath = path.join(__dirname, '../README.md')
