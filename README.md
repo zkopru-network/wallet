@@ -2,7 +2,7 @@
 
 A user interface for interacting with the Zkopru L2 application.
 
-Draft accessible [here](https://zkopru.tubby.cloud/).
+Draft accessible [here](https://alpha.wallet.zkopru.network/).
 
 [![](./ipfs_badge.svg)](https://ipfs.zkopru.network/ipfs/Qmb7eArt2A13mBgrAjKwnR2AXg5cU5AAefWxAMS2NmaGp7) <!-- badge -->
 
