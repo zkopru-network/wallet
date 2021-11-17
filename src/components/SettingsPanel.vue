@@ -111,7 +111,6 @@ import ColorImage from './ColorImage'
 export default class SettingsPanel extends Vue {
   currentbuild = buildnum
   showingClearDataPopup = false
-  mintAmount = ''
   tokenAddress = ''
   showingCopyCheckmark = ''
 
@@ -126,9 +125,8 @@ export default class SettingsPanel extends Vue {
     this.tokenAddress = ''
   }
 
-  async mintTokens() {
-    await this.$store.dispatch('mint', this.mintAmount)
-    this.mintAmount = ''
+  async mintTokens(amount) {
+    await this.$store.dispatch('mint', amount)
   }
 
   copyAddress() {
