@@ -169,7 +169,7 @@ export default class Deposit extends Vue {
   }
 
   async setFeeAmount(clickedButton) {
-    const multiplier = clickedButton === 'Fast' ? new BN('400000') : new BN('200000')
+    const multiplier = clickedButton === 'Fast' ? new BN('200000') : new BN('100000')
     this.feeAmountState = 3
     try {
       const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
