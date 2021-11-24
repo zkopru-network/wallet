@@ -182,7 +182,7 @@ export default class Withdraw extends Vue {
       const weiPerByte = await feePromise
       if (this.activeFeePromise !== feePromise) return
       this.activeFeePromise = undefined
-      this.feeAmount = ((clickedButton === 'Standard' ? 5 : 15) * (+weiPerByte / (10**9))).toString()
+      this.feeAmount = Math.floor(((clickedButton === 'Standard' ? 5 : 15) * (+weiPerByte / (10**9)))).toString()
     } catch (err) {
       if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined
       this.feeAmountState = 2
