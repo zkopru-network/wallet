@@ -162,7 +162,7 @@ export default class Transfer extends Vue {
       const weiPerByte = await feePromise
       if (this.activeFeePromise !== feePromise) return
       this.activeFeePromise = undefined
-      this.fee = (clickedButton === 'Standard' ? 5 : 10) * +weiPerByte / (10**9)
+      this.fee = (clickedButton === 'Standard' ? 5 : 15) * +weiPerByte / (10**9)
     } catch (err) {
       if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined
       this.feeState = 2
