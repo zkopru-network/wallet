@@ -2,7 +2,8 @@ import { fromWei } from '../utils/wei'
 import dayjs from 'dayjs'
 import BN from 'bn.js'
 
-const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
+// const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
+const URL = 'wss://goerli2.zkopru.network'
 // const URL = 'ws://localhost:8546'
 
 export default {
