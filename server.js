@@ -27,6 +27,7 @@ app.use((req, res, next) => {
   next()
 })
 app.use('/', serve('./build'))
+app.use('/wallet', serve('./build'))
 app.use('/wallet/*', serve('./build'))
 
 app.use(microcache.cacheSeconds(1, req => req.originalUrl))
