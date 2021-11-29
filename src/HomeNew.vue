@@ -329,7 +329,7 @@
     </div>
     <div v-if="!isMobile" :style="`position: relative; left: -${horizontalPadding}px; right: ${horizontalPadding}px; width: 100vw; height: 2px; background: #2A3D46`" />
     <div v-if="!isMobile" style="display: flex; align-items: center; flex-wrap: wrap; padding: 8px 0px; position: relative">
-      <div :class="`round-button ${isMobile ? 'mobile' : ''}`">
+      <div v-on:click="openCeremonyData" :class="`round-button ${isMobile ? 'mobile' : ''}`">
         All Ceremony Data
       </div>
       <div spacer style="display: flex; flex: 1" />
@@ -479,15 +479,15 @@ export default class LandingPage extends Vue {
   }
 
   openPublicGood() {
-
+    window.open('https://ethereum-magicians.org/t/a-rollup-centric-ethereum-roadmap/4698/1', '_blank')
   }
 
   openAuditResults() {
-
+    window.open('https://github.com/zkopru-network/resources', '_blank')
   }
 
   openCeremonyData() {
-    // TODO
+    window.open('https://medium.com/privacy-scaling-explorations/zkopru-trusted-setup-completed-92e614ba44ef', '_blank')
   }
 
   openDocs() {
