@@ -1,9 +1,9 @@
-import Zkopru, { ZkAccount } from '@zkopru/client/browser'
-import { sha512_256 } from 'js-sha512'
 import { fromWei } from '../utils/wei'
 import dayjs from 'dayjs'
+import BN from 'bn.js'
 
-const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
+// const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
+const URL = 'wss://goerli2.zkopru.network'
 // const URL = 'ws://localhost:8546'
 
 export default {
@@ -13,7 +13,7 @@ export default {
     proposalCount: 0,
     uncleCount: 0,
     syncPercent: 0,
-    status: 'Not synchronizing',
+    status: 'Initializing',
     syncing: false,
     wallet: null,
     walletKey: null,
@@ -22,15 +22,35 @@ export default {
     lockedBalance: null,
     balance: null,
     tokenBalances: {},
+    lockedTokenBalances: {},
+    l2BalanceLoaded: false,
     registeredTokens: [],
     tokensByAddress: {},
     history: [],
+    // dev only
+    noteInfo: {},
+    tokenBlacklist: [
+      '0x560bd972e69f4dc15abf6093fcff2bc7e14f9239'.toLowerCase(),
+      '0x2471942920ADf662c140F612DBd4Ca343805499d'.toLowerCase(),
+    ]
   },
   getters: {
     percent: state => {
       const { latestBlock, proposalCount } = state
       if (!proposalCount) return 0
       return 100 * latestBlock / proposalCount
+    },
+    balance: (state) => (assetSymbol) => {
+      if (assetSymbol.toUpperCase() === 'ETH') {
+        return state.balance || '0'
+      }
+      return state.tokenBalances[assetSymbol.toUpperCase()] || '0'
+    },
+    lockedBalance: (state) => (assetSymbol) => {
+      if (assetSymbol.toUpperCase() === 'ETH') {
+        return state.lockedBalance || '0'
+      }
+      return state.lockedTokenBalances[assetSymbol.toUpperCase()] || '0'
     }
   },
   mutations: {
@@ -42,8 +62,10 @@ export default {
   },
   actions: {
     startSync: async ({ state, dispatch }) => {
+      const ZkopruPromise = import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       if (!state.client) {
         await dispatch('loadWalletKey')
+        const { default: Zkopru, ZkAccount } = await ZkopruPromise
         // initialize the client if it doesn't already exist
         state.client = new Zkopru.Node({
           websocket: URL,
@@ -130,11 +152,13 @@ export default {
         method: 'eth_signTypedData_v4',
         params: [rootState.account.accounts[0], msgParams]
       })
+      const { sha512_256 } = await import(/* webpackPrefetch: true */ 'js-sha512')
       state.walletKey = sha512_256(signedData)
       return state.walletKey
     },
     loadWallet: async ({ state, commit, dispatch }) => {
       const key = await dispatch('loadWalletKey')
+      const { default: Zkopru } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       state.wallet = new Zkopru.Wallet(
         state.client,
         key
@@ -145,26 +169,26 @@ export default {
       await dispatch('loadHistory')
     },
     loadL2Balance: async ({ state, dispatch }) => {
+      const { default: Zkopru, UtxoStatus } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       const [
         spendable,
         locked,
         erc20Info,
+        notes
       ] = await Promise.all([
         state.wallet.wallet.getSpendableAmount(),
         state.wallet.wallet.getLockedAmount(),
         state.client.node.loadERC20Info(),
+        state.wallet.wallet.getUtxos(null, [UtxoStatus.UNSPENT, UtxoStatus.SPENDING])
       ])
       {
         // DEV: skip the bugged test token contract
-        const tokenBlacklist = [
-          '0x560bd972e69f4dc15abf6093fcff2bc7e14f9239'.toLowerCase()
-        ]
         state.registeredTokens = erc20Info.filter(({ address }) => {
-          return tokenBlacklist.indexOf(address.toLowerCase()) === -1
+          return state.tokenBlacklist.indexOf(address.toLowerCase()) === -1
         })
         state.tokensByAddress = erc20Info.reduce((acc, token) => {
           // DEV: skip the bugged test token contract
-          if (tokenBlacklist.indexOf(token.address.toLowerCase()) !== -1) return acc
+          if (state.tokenBlacklist.indexOf(token.address.toLowerCase()) !== -1) return acc
           return {
             [token.address.toLowerCase()]: token,
             ...acc
@@ -172,14 +196,62 @@ export default {
         }, {})
         const { erc20, erc721, eth } = spendable
         state.balance = fromWei(eth.toString())
+        state.tokenBalances = {}
         for (const _address of Object.keys(erc20)) {
           const token = state.tokensByAddress[_address.toLowerCase()]
           if (!token) continue
           state.tokenBalances = {
             ...state.tokenBalances,
-            [token.symbol]: (+erc20[_address].toString()/(10**(+token.decimals)))
+            [token.symbol]: (+erc20[_address].toString()/(10**(+token.decimals))),
           }
         }
+        state.lockedTokenBalances = {}
+        for (const _address of Object.keys(locked.erc20)) {
+          const token = state.tokensByAddress[_address.toLowerCase()]
+          if (!token) continue
+          state.lockedTokenBalances = {
+            ...state.lockedTokenBalances,
+            [token.symbol]: (+locked.erc20[_address].toString()/(10**(+token.decimals))),
+          }
+        }
+        const info = {}
+        for (const { asset } of notes) {
+          // TODO: handle notes that have both an ERC20 balance and an eth balance
+          const token = state.tokensByAddress[`0x${asset.tokenAddr.toString(16)}`]
+          const key = token ? token.symbol : 'ETH'
+          const existing = info[key] || {}
+          const count = existing.count ?? 0;
+          const total = existing.total ?? new BN('0');
+          const largestNotes = existing.largestNotes || []
+          const amount = key === 'ETH' ? asset.eth : asset.erc20Amount.add(asset.nft)
+          if (largestNotes.length < 4) {
+            largestNotes.push(amount)
+          } else {
+            largestNotes.sort((a, b) => {
+              if (a.eq(b)) return 0
+              if (a.gt(b)) return 1
+              return -1
+            })
+            if (largestNotes[0].lt(amount)) {
+              largestNotes[0] = amount
+            }
+          }
+          const maxSpend = largestNotes.reduce((total, current) => {
+            return total.add(current)
+          }, new BN('0'))
+          const decimals = token ? token.decimals : 18
+          const offsetDecimals = Math.min(3, decimals)
+          const maxSpendDecimal = +maxSpend.div(new BN(`${10**(decimals - offsetDecimals)}`)).toString() / (10**offsetDecimals)
+          info[key] = {
+            count: count + 1,
+            total: total.add(amount),
+            largestNotes,
+            maxSpend,
+            maxSpendDecimal,
+          }
+        }
+
+        state.noteInfo = info
         // state.tokenBalances = erc20
         // load l1 token balances
         dispatch('loadTokenBalances', { root: true })
@@ -188,15 +260,17 @@ export default {
         const { erc20, erc721, eth } = locked
         state.lockedBalance = fromWei(eth.toString())
       }
+      state.l2BalanceLoaded = true
     },
     loadCurrentWeiPerByte: async ({ state, dispatch }) => {
       if (!state.wallet) {
         await dispatch('loadWallet')
       }
-      return state.wallet.loadCurrentPrice()
+      return state.wallet.calculateWeiPerByte()
     },
     resetDB: async ({ state, dispatch }) => {
       // take the db and empty it
+      const { default: Zkopru } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       if (!state.client) {
         state.client = new Zkopru.Node({
           websocket: URL,
@@ -213,7 +287,7 @@ export default {
     },
     registerERC20: async ({ state, rootState }, address) => {
       const data = await state.client.registerERC20Tx(address)
-      await window.ethereum.request({
+      return await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
           data,
@@ -227,69 +301,15 @@ export default {
       const { web3 } = state.client.node.layer1
       const l2Address = state.wallet.wallet.account.zkAddress.toString()
       const l1Address = rootState.account.accounts[0]
-      const deposits = await db.findMany('Deposit', {
-        where: {
-          ownerAddress: [l2Address],
-        }
-      })
-
-      // because case sensitivity differes in l1Address and database,
-      // need to filter after querying all records in database.
-      const withdrawals = (await db.findMany('Withdrawal', { where: {}, include: { proposal: true } }))
-        .filter(withdraw => withdraw.to.toLocaleLowerCase() === l1Address)
-      const sendTxs = await db.findMany('Tx', {
-        where: { senderAddress: l2Address },
-        include: { proposal: true }
-      })
-      const receiveTxs = await db.findMany('Tx', {
-        where: { receiverAddress: l2Address },
-        include: { proposal: true }
-      })
-      const pendingTxs = await db.findMany('PendingTx', {
-        where: { senderAddress: l2Address },
-      })
-
-      // use utxos to get deposit amount
-      const utxos = await db.findMany('Utxo', {
-        where: {
-          owner: [l2Address],
-        }
-      })
-
-      const history = [
-        ...await Promise.all(deposits.map(async (deposit) => {
-          const utxo = utxos.find(utxo => utxo.hash === deposit.note)
-          const block = await web3.eth.getBlock(deposit.blockNumber)
-          return {
-            type: 'Deposit',
-            ...deposit,
-            ...utxo,
-            timestamp: block.timestamp
-          }
-        })),
-        ...pendingTxs.map((tx) => ({
-          type: 'Send',
-          ...tx,
-          timestamp: dayjs().unix()
-        })),
-        ...receiveTxs.map((tx) => ({
-            type: 'Receive',
-            ...tx,
-            timestamp: (tx.proposal || {}).timestamp
-          })
-        ),
-        ...sendTxs.map((tx) => ({
-          type: 'Send',
-          ...tx,
-          timestamp: (tx.proposal || {}).timestamp
-        })),
-        ...withdrawals.map((withdraw) => ({
-          type: 'Withdraw',
-          ...withdraw,
-          timestamp: (withdraw.proposal || {}).timestamp
-        }))
-      ]
-      state.history = history.sort((a, b) => b.timestamp - a.timestamp)
+      const { history, pending } = await state.wallet.transactionsFor(l2Address, l1Address)
+      state.history =
+        [
+          ...(pending || []),
+          ...(history || [])
+            .filter(h => !!h.proposal)
+            .filter(h => state.tokenBlacklist.indexOf(h.tokenAddr.toLowerCase()) === -1)
+            .sort((a, b) => b.proposal.timestamp - a.proposal.timestamp),
+        ]
     }
   },
 }

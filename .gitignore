@@ -7,3 +7,9 @@ dist
 .DS_Store
 
 .now
+ipfs
+stats.json
+wrangler.toml
+workers-site
+
+.vercel

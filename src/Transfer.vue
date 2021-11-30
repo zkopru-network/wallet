@@ -1,93 +1,83 @@
 <template>
-  <div class="container">
-    <Header showBackButton=true prevPath="/wallet" />
-    <div spacer style="height: 44px" />
-    <div container style="display: flex; flex-direction: column; align-items: center; font-size: 12px">
-      <div class="section-container">
+  <CenteredLeftMenu>
+    <div spacer style="height: 70px" />
+    <div class="section-container">
+      <div class="title-text" style="display: flex; align-items: center">
+        <div style="display: flex">
+          <div>Send</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" :src="tryLoadAssetIcon(activeAsset)" />
+        </div>
+        <div spacer style="flex: 1" />
+        <InfoText
+          :text="tooltips.SEND_ASSET"
+        />
+      </div>
+      <div spacer style="height: 23px" />
+      <AssetDropdown
+        :activeAsset="activeAsset"
+        v-model="activeAsset"
+        :showIcon="false"
+      />
+      <div spacer v-if="!!activeAsset" style="height: 16px" />
+      <AssetAmountField
+        v-if="!!activeAsset"
+        :asset="activeAsset"
+        v-model="transferAmount"
+        :assetAmountState="amountState"
+        :buttons="['Max']"
+        :buttonClicked="maxAmount.bind(this)"
+      />
+    </div>
+    <div class="section-container">
+      <div class="title-text">
+        <div style="display: flex; align-items: center">
+          <div>To</div>
+          <div spacer style="flex: 1" />
+          <InfoText
+            :text="tooltips.SEND_TO"
+          />
+        </div>
+      </div>
+      <div spacer style="height: 23px" />
+      <AddressField
+        v-model="zkAddress"
+        :address="zkAddress"
+      />
+    </div>
+    <div class="section-container" style="margin-bottom: 0px">
+      <div style="display: flex; flex-direction: column; justify-content: center">
         <div class="title-text">
-          Send
+          <div style="display: flex; align-items: center">
+            <div>Fee in GWEI</div>
+            <div spacer style="flex: 1" />
+            <InfoText
+              :text="tooltips.SEND_FEE"
+            />
+          </div>
         </div>
         <div spacer style="height: 23px" />
-        <AssetDropdown
-          :activeAsset="activeAsset"
-          v-model="activeAsset"
-        />
-        <div spacer style="height: 27px" />
         <AssetAmountField
-          :asset="activeAsset"
-          v-model="transferAmount"
-          :assetAmountState="amountState"
+          v-model="fee"
+          :assetAmountState="feeState"
+          :buttons="['Fast', 'Standard']"
+          :buttonClicked="suggestedFee.bind(this)"
         />
-        <div spacer style="height: 42px" />
-        <div class="title-text">
-          To Zkopru address
-        </div>
-        <div spacer style="height: 21px" />
-        <AddressField
-          v-model="zkAddress"
-          :address="zkAddress"
-        />
-      </div>
-      <div spacer style="height: 32px" />
-      <div class="section-container">
-        <div style="display: flex; flex-direction: column; justify-content: center">
-          <div class="title-text">
-            Transaction fee per byte
-          </div>
-          <div spacer style="height: 20px" />
-          <FeeField
-            v-model="fee"
-            :fee="fee"
-            :buttons="['Suggested fee']"
-            :buttonClicked="suggestedFee.bind(this)"
-          />
-          <div spacer style="height: 10px" />
-          <div class="detail-text">
-            Suggested fee is calculated based on the current gas market.
-          </div>
-        </div>
-      </div>
-      <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center; font-size: 12px">
-        <div style="flex: 1; max-width: 452px">
-          <div spacer style="height: 37px" />
-          <div style="display: flex; justify-content: space-between; color: white; border-bottom: 0.5px solid #2a3d46; padding-bottom: 5px">
-            <div style="display: flex; flex-direction: column">
-              <div>Transaction Total</div>
-              <div spacer style="height: 10px" />
-              <div>Fee</div>
-            </div>
-            <div style="display: flex; flex-direction: column">
-              <div>{{transferAmount || '0'}} {{activeAsset}}</div>
-              <div spacer style="height: 10px" />
-              <div>{{totalFee}} ETH</div>
-            </div>
-          </div>
-          <div spacer style="height: 5px" />
-          <div style="display: flex; justify-content: space-between; color: white; padding-bottom: 5px">
-            <div style="display: flex; flex-direction: column">
-              <div>Total</div>
-            </div>
-            <div style="display: flex; flex-direction: column">
-              <div>{{activeAsset === 'ETH' ? '' : `${transferAmount} ${activeAsset} + `}}{{activeAsset === 'ETH' ? +transferAmount + +totalFee : totalFee}} ETH</div>
-            </div>
-          </div>
-          <div spacer style="height: 45px" />
-          <Button buttonStyle="background: #00FFD1; color: #0E2936" :onClick="() => sendTx()">
-            SEND
-          </Button>
-          <div spacer style="height: 39px" />
-          <div style="display: flex; justify-content: center">
-            <div
-              style="font-weight: bold; font-size: 14px; text-decoration: underline; cursor: pointer"
-              v-on:click="$router.push({ path: '/wallet' })"
-            >
-              Cancel
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-  </div>
+    <NextButton
+      :onNext="() => showingTransferConfirm = true"
+    />
+    <ConfirmTransferPopup
+      v-if="showingTransferConfirm"
+      :transferAmount="transferAmount"
+      :feeAmount="totalFee"
+      :activeToken="activeAsset"
+      :zkAddress="zkAddress"
+      :tx="tx"
+      :onClose="() => showingTransferConfirm = false"
+    />
+  </CenteredLeftMenu>
 </template>
 <script>
 import Vue from 'vue'
@@ -100,44 +90,49 @@ import FeeField from './components/FeeField'
 import AssetAmountField from './components/AssetAmountField'
 import { toWei, fromWei } from './utils/wei'
 import BN from 'bn.js'
+import CenteredLeftMenu from './components/CenteredLeftMenu'
+import NextButton from './components/NextButton'
+import ConfirmTransferPopup from './components/ConfirmTransferPopup'
+import tooltips from './tooltips'
+import InfoText from './components/InfoText'
+import decimalCount from './utils/decimal-count'
 
 @Component({
   name: 'Transfer',
-  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, },
+  components: { Header, AssetDropdown, Button, AddressField, FeeField, AssetAmountField, CenteredLeftMenu, NextButton, ConfirmTransferPopup, InfoText, },
   watch: {
     transferAmount() {
       this.generateTx()
-      if (this.transferAmount === '') {
-        this.amountState = 0
-      } else if (isNaN(this.transferAmount)) {
-        this.amountState = 2
-      } else if (this.activeAsset === 'ETH') {
-        this.amountState = +this.transferAmount > this.$store.state.zkopru.balance ? 2 : 1
-      } else {
-        this.amountState = 0
-      }
+      this.updateAmountStates()
     },
     zkAddress() {
       this.generateTx()
     },
     fee() {
       this.generateTx()
+      this.updateAmountStates()
+    },
+    etherAmount() {
+      this.updateAmountStates()
     },
     activeAsset(newVal, oldVal) {
       if (newVal === oldVal) return
       this.transferAmount = ''
-      this.fee = '200'
     }
   },
 })
 export default class Transfer extends Vue {
-  activeAsset = 'ETH'
+  tooltips = tooltips
+  activeAsset = ''
   transferAmount = '0'
   amountState = 0
   zkAddress = ''
-  fee = '0'
+  fee = ''
+  feeState = 0
   totalFee = '-'
   tx = undefined
+  showingTransferConfirm = false
+  activeFeePromise = undefined
 
   mounted() {
     if (this.$route.query.asset) {
@@ -149,13 +144,28 @@ export default class Transfer extends Vue {
     return `${this.zkAddress}-${this.fee}-${this.transferAmount}`
   }
 
+  async maxAmount() {
+    if (this.activeAsset === 'ETH') {
+      const fee = isNaN(this.totalFee) ? 0 : +this.totalFee
+      this.transferAmount = +this.$store.state.zkopru.balance - fee
+    } else {
+      const balance = this.$store.state.zkopru.tokenBalances[this.activeAsset]
+      this.transferAmount = balance
+    }
+  }
+
   async suggestedFee(clickedButton) {
-    if (clickedButton === 'Suggested fee') {
-      try {
-        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-        this.fee = +weiPerByte / (10**9)
-      } catch (err) {
-      }
+    try {
+      this.feeState = 3
+      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      this.activeFeePromise = feePromise
+      const weiPerByte = await feePromise
+      if (this.activeFeePromise !== feePromise) return
+      this.activeFeePromise = undefined
+      this.fee = Math.floor((clickedButton === 'Standard' ? 5 : 15) * +weiPerByte / (10**9))
+    } catch (err) {
+      if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined
+      this.feeState = 2
     }
   }
 
@@ -169,29 +179,40 @@ export default class Transfer extends Vue {
       this.tx = undefined
       return
     }
-    if (this.activeAsset === 'ETH') {
-      const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
-        this.zkAddress,
-        toWei(this.transferAmount),
-        (+this.fee * (10 ** 9)).toString()
-      )
-      this.totalFee = fromWei(tx.fee.toString(), 8)
-      this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
-      this.tx = tx
-    } else {
-      const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
-        return symbol === this.activeAsset
-      })
-      const decimalAmount = `${+this.transferAmount * (10 ** +decimals)}`
-      const tx = await this.$store.state.zkopru.wallet.generateTokenTransfer(
-        this.zkAddress,
-        decimalAmount,
-        address,
-        (+this.fee * (10 ** 9)).toString()
-      )
-      this.totalFee = fromWei(tx.fee.toString(), 8)
-      this.totalEther = fromWei(new BN(tx.fee)).toString()
-      this.tx = tx
+    try {
+      if (this.activeAsset === 'ETH') {
+        const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
+          this.zkAddress,
+          toWei(this.transferAmount),
+          (+this.fee * (10 ** 9)).toString()
+        )
+        this.totalFee = fromWei(tx.fee.toString(), 8)
+        this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
+        this.tx = tx
+      } else {
+        const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+          return symbol === this.activeAsset
+        })
+        const decimalAmount = `${+this.transferAmount * (10 ** +decimals)}`
+        const tx = await this.$store.state.zkopru.wallet.generateTokenTransfer(
+          this.zkAddress,
+          decimalAmount,
+          address,
+          (+this.fee * (10 ** 9)).toString()
+        )
+        this.totalFee = fromWei(tx.fee.toString(), 8)
+        this.totalEther = fromWei(new BN(tx.fee)).toString()
+        this.tx = tx
+      }
+    } catch (err) {
+      if (err.toString().indexOf('Not enough Ether') !== -1) {
+        this.totalFee = Infinity
+        this.totalEther = Infinity
+        this.feeState = 2
+        if (this.activeAsset === 'ETH') {
+          this.amountState = 2
+        }
+      }
     }
   }
 
@@ -202,19 +223,64 @@ export default class Transfer extends Vue {
     })
     await this.$store.dispatch('loadL2Balance')
     this.$router.push({ path: '/wallet' })
+  }
 
+  tryLoadAssetIcon(symbol) {
+    try {
+      return require(`../assets/token_icons/${symbol.toUpperCase()}.svg`)
+    } catch (_) {
+      return require('../assets/token_no_icon.png')
+    }
+  }
+
+  updateAmountStates() {
+    let decimals
+    const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+      return symbol === this.activeAsset
+    })
+    if (this.activeAsset.toUpperCase() === 'ETH') {
+      decimals = 18
+    } else if (token) {
+      decimals = token.decimals
+    } else {
+      decimals = 0
+    }
+    if (this.transferAmount === '') {
+      this.amountState = 0
+    } else if (isNaN(this.transferAmount)) {
+      this.amountState = 2
+    } else if (
+      this.activeAsset === 'ETH' &&
+      +this.transferAmount <= +this.$store.state.zkopru.balance &&
+      decimalCount(this.transferAmount) <= decimals
+    ) {
+      this.amountState = 1
+    } else if (
+      +this.transferAmount <= +this.$store.state.zkopru.tokenBalances[this.activeAsset] &&
+      decimalCount(this.transferAmount) <= decimals
+    ) {
+      this.amountState = 1
+    } else {
+      this.amountState = 2
+    }
+    if (!this.fee) {
+      this.feeState = 0
+    } else if (isNaN(this.fee) || +this.fee <= 0) {
+      this.feeState = 2
+    } else {
+      this.feeState = 1
+    }
+    if (isNaN(this.totalEther)) return
+    if (+this.totalEther > +this.$store.state.zkopru.balance) {
+      if (this.activeAsset === 'ETH') {
+        this.amountState = 2
+      }
+      this.feeState = 2
+    }
   }
 }
 </script>
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding-left: 8px;
-  padding-right: 8px;
-  color: white;
-}
 .small-text {
   font-size: 12px;
 }
@@ -223,10 +289,11 @@ export default class Transfer extends Vue {
   flex-direction: column;
   max-width: 452px;
   width: 100vw;
-  background-color: #192C35;
+  background-color: #081B24;
+  border: 1px solid #2A3D46;
   border-radius: 8px;
-  padding: 16px;
-  font-size: 11px;
+  padding: 14px;
+  margin-bottom: 16px;
 }
 .title-text {
   color: #F2F2F2;

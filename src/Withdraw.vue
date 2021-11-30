@@ -1,109 +1,98 @@
 <template>
-  <div class="container">
-    <Header showBackButton=true prevPath="/wallet" />
-    <div spacer style="height: 44px" />
-    <div container style="display: flex; flex-direction: column; align-items: center; font-size: 12px">
-      <div class="section-container">
-        <div class="title-text">
-          Withdraw
+  <CenteredLeftMenu>
+    <div spacer style="height: 70px" />
+    <div class="section-container">
+      <div class="title-text" style="display: flex; align-items: center">
+        <div style="display: flex">
+          <div>Withdraw</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" v-if="!!activeAsset" :src="tryLoadAssetIcon(activeAsset)" />
         </div>
-        <div spacer style="height: 23px" />
-        <AssetDropdown
-          :activeAsset="activeAsset"
-          v-model="activeAsset"
+        <div spacer style="flex: 1" />
+        <InfoText
+          :text="tooltips.WITHDRAW_ASSET"
         />
-        <div spacer style="height: 27px" />
+      </div>
+      <div spacer style="height: 23px" />
+      <AssetDropdown
+        :activeAsset="activeAsset"
+        v-model="activeAsset"
+        :showIcon="false"
+      />
+      <div v-if="activeAsset" spacer style="height: 16px" />
+      <div v-if="activeAsset" style="flex: 1; max-width: 559px">
         <AssetAmountField
           :asset="activeAsset"
           v-model="withdrawAmount"
           :assetAmountState="amountState"
+          :buttons="['Max']"
+          :buttonClicked="() => {
+            if (activeAsset === 'ETH' && $store.state.zkopru.balance) {
+              withdrawAmount = $store.state.zkopru.balance
+            } else if ($store.state.zkopru.tokenBalances[activeAsset]) {
+              withdrawAmount = $store.state.zkopru.tokenBalance[activeAsset]
+            }
+          }"
         />
-        <div spacer style="height: 18px" />
-        <div class="detail-text">
-          Withdrawals take ~7 days
-        </div>
-        <div spacer style="height: 18px" />
-        <div style="align-self: flex-start">
-          <Checkbox
-            v-model="useInstantWithdraw"
-            :checked="useInstantWithdraw"
-            text="Use instant withdraw"
-          />
-        </div>
-      </div>
-      <div spacer v-if="useInstantWithdraw" style="height: 16px" />
-      <div v-if="useInstantWithdraw" class="section-container">
-        <div style="display: flex; align-items: center">
-          <img :src="require('../assets/lightning_bolt.svg')" />
-          <div spacer style="width: 17px" />
-          <div class="title-text">Instant withdraw fee</div>
-        </div>
-        <div spacer style="height: 27px" />
-        <AssetAmountField
-          asset="ETH"
-          v-model="instantWithdrawFee"
-          :assetAmountState="instantWithdrawFeeState"
-        />
-      </div>
-      <div spacer style="height: 16px" />
-      <div class="section-container">
-        <div style="display: flex; flex-direction: column; justify-content: center">
-          <div class="title-text">Transaction fee per byte</div>
-          <div spacer style="height: 20px" />
-          <FeeField
-            v-model="fee"
-            :fee="fee"
-            :buttons="['Suggested fee']"
-            :buttonClicked="suggestedFee.bind(this)"
-          />
-          <div spacer style="height: 10px" />
-          <div class="detail-text">
-            Suggested fee is calculated based on the current gas market.
-          </div>
-        </div>
-      </div>
-      <div container style="display: flex; justify-content: center; flex: 1; width: 100vw; align-self: center; font-size: 12px">
-        <div style="flex: 1; max-width: 452px">
-          <div spacer style="height: 37px" />
-          <div style="display: flex; justify-content: space-between; color: white; border-bottom: 0.5px solid #2a3d46; padding-bottom: 5px">
-            <div style="display: flex; flex-direction: column">
-              <div>Withdraw Total</div>
-              <div>Fee</div>
-            </div>
-            <div style="display: flex; flex-direction: column">
-              <div>{{withdrawAmount || '0'}} {{activeAsset}}</div>
-              <div>{{totalFee}} ETH</div>
-            </div>
-          </div>
-          <div spacer style="height: 5px" />
-          <div style="display: flex; justify-content: space-between; color: white; padding-bottom: 5px">
-            <div style="display: flex; flex-direction: column">
-              <div>Total</div>
-            </div>
-            <div style="display: flex; flex-direction: column">
-              <div>
-                {{activeAsset === 'ETH' ? '' : `${withdrawAmount} ${activeAsset} + `}}
-                {{activeAsset === 'ETH' ? +withdrawAmount + totalEthFee : totalEthFee}} ETH
-              </div>
-            </div>
-          </div>
-          <div spacer style="height: 45px" />
-          <Button buttonStyle="background: #00FFD1; color: #0E2936" :onClick="() => sendTx()">
-            WITHDRAW
-          </Button>
-          <div spacer style="height: 39px" />
-          <div style="display: flex; justify-content: center">
-            <div
-              style="font-weight: bold; font-size: 14px; text-decoration: underline; cursor: pointer"
-              v-on:click="$router.push({ path: '/wallet' })"
-            >
-              Cancel
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-  </div>
+    <div v-if="withdrawType === 2" class="section-container">
+      <div style="display: flex; align-items: center">
+        <div style="display: flex">
+          <div class="title-text">Instant Withdraw Fee</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" v-if="!!activeAsset" :src="tryLoadAssetIcon(activeAsset)" />
+        </div>
+        <div spacer style="flex: 1" />
+        <InfoText
+          :text="tooltips.WITHDRAW_INSTANT_FEE"
+        />
+      </div>
+      <div spacer style="height: 27px" />
+      <AssetAmountField
+        asset="ETH"
+        v-model="instantWithdrawFee"
+        :assetAmountState="instantWithdrawFeeState"
+      />
+    </div>
+    <div class="section-container">
+      <div style="display: flex; align-items: center">
+        <div class="title-text">Network Fee in GWEI</div>
+        <div spacer style="flex: 1" />
+        <InfoText
+          :text="tooltips.WITHDRAW_FEE"
+        />
+      </div>
+      <div spacer style="height: 20px" />
+      <div style="flex: 1; max-width: 559px">
+        <AssetAmountField
+          v-model="feeAmount"
+          :assetAmountState="feeAmountState"
+          asset="ETH"
+          :buttons="['Fast', 'Standard']"
+          :buttonClicked="suggestedFee.bind(this)"
+        />
+      </div>
+    </div>
+    <NextButton
+      :disabled="
+        (withdrawType === 1 && (amountState !== 1 || feeAmountState !== 1)) ||
+        (withdrawType === 2 && (amountState !== 1 || feeAmountState !== 1 || instantWithdrawFeeState !== 1))
+      "
+      :onNext="() => showWithdraw()"
+      :onBack="() => $router.push(`/wallet/withdraw/type?type=${withdrawType}`)"
+    />
+    <ConfirmWithdrawPopup
+      v-if="showingWithdrawConfirm"
+      :withdrawAmount="withdrawAmount"
+      :activeAsset="activeAsset"
+      :feeAmount="feeAmount"
+      :instantWithdrawFee="instantWithdrawFee"
+      :withdrawType="withdrawType"
+      :tx="tx"
+      :onClose="() => showingWithdrawConfirm = false"
+    />
+  </CenteredLeftMenu>
 </template>
 <script>
 import Vue from 'vue'
@@ -116,51 +105,37 @@ import Button from './components/Button'
 import Checkbox from './components/Checkbox'
 import { toWei, fromWei } from './utils/wei'
 import BN from 'bn.js'
+import CenteredLeftMenu from './components/CenteredLeftMenu'
+import NextButton from './components/NextButton'
+import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
+import InfoText from './components/InfoText'
+import tooltips from './tooltips'
+import decimalCount from './utils/decimal-count'
 
 @Component({
   name: 'Withdraw',
-  components: { Header, AssetDropdown, Button, FeeField, AssetAmountField, Checkbox, },
+  components: { Header, AssetDropdown, Button, FeeField, AssetAmountField, Checkbox, CenteredLeftMenu, NextButton, ConfirmWithdrawPopup, InfoText, },
   watch: {
     withdrawAmount() {
       this.generateTx()
-      if (this.withdrawAmount === '') {
-        this.amountState = 0
-      } else if (isNaN(this.withdrawAmount)) {
-        this.amountState = 2
-      } else if (this.activeAsset === 'ETH') {
-        this.amountState = +this.withdrawAmount > this.$store.state.zkopru.balance ? 2 : 1
-      } else {
-        this.amountState = 0
-      }
+      this.validateWithdrawAmount()
     },
     instantWithdrawFee() {
-      if (this.instantWithdrawFee === '') {
-        this.instantWithdrawFeeState = 0
-      } else if (isNaN(this.instantWithdrawFee)) {
-        this.instantWithdrawFeeState = 2
-      } else if (+this.instantWithdrawFee > this.$store.state.zkopru.balance) {
-        this.instantWithdrawFeeState = 2
-      } else {
-        this.instantWithdrawFeeState = 1
-      }
+      this.validateInstantWithdrawFee()
     },
-    zkAddress() {
+    feeAmount() {
       this.generateTx()
-    },
-    fee() {
-      this.generateTx()
+      this.feeAmountState = 1
     },
     activeAsset(newVal, oldVal) {
       if (newVal === oldVal) return
       this.withdrawAmount = '0'
-      this.fee = '200'
-      this.instantWithdrawFee = ''
     }
   },
   computed: {
     totalEthFee() {
       let total = 0
-      if (this.useInstantWithdraw) {
+      if (this.withdrawType === 2) {
         total += +this.instantWithdrawFee
       }
       if (!isNaN(this.totalFee)) {
@@ -171,29 +146,52 @@ import BN from 'bn.js'
   }
 })
 export default class Withdraw extends Vue {
+  tooltips = tooltips
   activeAsset = 'ETH'
   withdrawAmount = '0'
   amountState = 0
-  fee = '200'
+  feeAmount = '0'
+  feeAmountState = 0
   totalFee = '-'
   tx = undefined
-  useInstantWithdraw = false
   instantWithdrawFee = '0'
   instantWithdrawFeeState = 0
+  withdrawType = 0
+  showingWithdrawConfirm = false
+  activeFeePromise = undefined
+
+  mounted() {
+    const { type, asset } = this.$route.query
+    if (asset) {
+      this.activeAsset = asset.toUpperCase()
+    }
+    if (type && !isNaN(type)) {
+      this.withdrawType = +type
+    }
+  }
+
+  showWithdraw() {
+    this.showingWithdrawConfirm = true
+  }
 
   async suggestedFee(clickedButton) {
-    if (clickedButton === 'Suggested fee') {
-      try {
-        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-        this.fee = +weiPerByte / (10**9)
-      } catch (err) {
-      }
+    try {
+      this.feeAmountState = 3
+      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      this.activeFeePromise = feePromise
+      const weiPerByte = await feePromise
+      if (this.activeFeePromise !== feePromise) return
+      this.activeFeePromise = undefined
+      this.feeAmount = Math.floor(((clickedButton === 'Standard' ? 5 : 15) * (+weiPerByte / (10**9)))).toString()
+    } catch (err) {
+      if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined
+      this.feeAmountState = 2
     }
   }
 
   async generateTx() {
     if (
-      !this.fee ||
+      !this.feeAmount ||
       !this.withdrawAmount
     ) {
       this.totalFee = '-'
@@ -204,30 +202,30 @@ export default class Withdraw extends Vue {
       const tx = await this.$store.state.zkopru.wallet.generateWithdrawal(
         this.$store.state.account.accounts[0],
         toWei(this.withdrawAmount),
-        (+this.fee * (10 ** 9)).toString(),
+        (+this.feeAmount * (10 ** 9)).toString(),
         toWei(this.instantWithdrawFee || '0')
       )
       this.totalFee = fromWei(tx.fee.toString(), 8)
       this.totalEther = fromWei(new BN(tx.fee)
         .add(new BN(toWei(this.withdrawAmount)))
-        .add(new BN(toWei(this.instantWithdrawFee || '0')))
         .toString())
       this.tx = tx
     } else {
       const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
         return symbol === this.activeAsset
       })
-      const decimalAmount = `${+this.withdrawAmount * (10 ** +decimals)}`
+      const withdrawAmountDecimal = +this.withdrawAmount * (10 ** +decimals)
+      const instantWithdrawFeeDecimal = +(this.instantWithdrawFee || 0) * (10 ** +decimals)
+      const decimalAmount = new BN(withdrawAmountDecimal).add(new BN(instantWithdrawFeeDecimal))
       const tx = await this.$store.state.zkopru.wallet.generateTokenWithdrawal(
         this.$store.state.account.accounts[0],
         decimalAmount,
         address,
-        (+this.fee * (10 ** 9)).toString(),
-        toWei(this.instantWithdrawFee || '0')
+        (+this.feeAmount * (10 ** 9)).toString(),
+        '0',
       )
       this.totalFee = fromWei(tx.fee.toString(), 8)
       this.totalEther = fromWei(new BN(tx.fee)
-        .add(new BN(toWei(this.instantWithdrawFee || '0')))
         .toString())
       this.tx = tx
     }
@@ -241,26 +239,103 @@ export default class Withdraw extends Vue {
     await this.$store.dispatch('loadL2Balance')
     this.$router.push({ path: '/wallet' })
   }
+
+  validateWithdrawAmount() {
+    let decimals
+    const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+      return symbol === this.activeAsset
+    })
+    if (this.activeAsset.toUpperCase() === 'ETH') {
+      decimals = 18
+    } else if (token) {
+      decimals = token.decimals
+    } else {
+      decimals = 0
+    }
+    if (this.withdrawAmount === '') {
+      this.amountState = 0
+    } else if (isNaN(this.withdrawAmount)) {
+      this.amountState = 2
+    } else if (
+      this.activeAsset === 'ETH' &&
+      +this.withdrawAmount <= this.$store.state.zkopru.balance &&
+      decimalCount(this.withdrawAmount) <= decimals
+    ) {
+      this.amountState = 1
+    } else if (
+      this.activeAsset &&
+      +this.withdrawAmount <= this.$store.state.zkopru.tokenBalances[this.activeAsset] &&
+      decimalCount(this.withdrawAmount) <= decimals
+    ) {
+      this.amountState = 1
+    } else {
+      this.amountState = 2
+    }
+    this.validateInstantWithdrawFee()
+  }
+
+  validateInstantWithdrawFee() {
+    let decimals
+    const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+      return symbol === this.activeAsset
+    })
+    if (this.activeAsset.toUpperCase() === 'ETH') {
+      decimals = 18
+    } else if (token) {
+      decimals = token.decimals
+    } else {
+      throw new Error('Invalid asset selected')
+    }
+    if (this.instantWithdrawFee === '' || +this.instantWithdrawFee === 0) {
+      this.instantWithdrawFeeState = 0
+    } else if (isNaN(this.instantWithdrawFee)) {
+      this.instantWithdrawFeeState = 2
+    } else if (
+      this.activeAsset === 'ETH' &&
+      +this.instantWithdrawFee < this.$store.state.zkopru.balance &&
+      decimalCount(this.instantWithdrawFee) <= decimals
+    ) {
+      this.instantWithdrawFeeState = 1
+    } else if (
+      this.activeAsset &&
+      +this.instantWithdrawFee < this.$store.state.zkopru.tokenBalances[this.activeAsset] &&
+      decimalCount(this.instantWithdrawFee) <= decimals
+    ) {
+      this.instantWithdrawFeeState = 1
+    } else {
+      this.instantWithdrawFeeState = 2
+    }
+
+    if (
+      !isNaN(this.withdrawAmount) &&
+      !isNaN(this.instantWithdrawFee) &&
+      +this.instantWithdrawFee !== 0 &&
+      +this.withdrawAmount <= +this.instantWithdrawFee
+    ) {
+      this.instantWithdrawFeeState = 2
+    }
+  }
+
+  tryLoadAssetIcon(symbol) {
+    try {
+      return require(`../assets/token_icons/${symbol.toUpperCase()}.svg`)
+    } catch (_) {
+      return require('../assets/token_no_icon.png')
+    }
+  }
 }
 </script>
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding-left: 8px;
-  padding-right: 8px;
-  color: white;
-}
 .section-container {
   display: flex;
   flex-direction: column;
   max-width: 452px;
   width: 100vw;
-  background-color: #192C35;
+  background-color: #081B24;
+  border: 1px solid #2A3D46;
   border-radius: 8px;
-  padding: 16px;
-  font-size: 11px;
+  padding: 14px;
+  margin-bottom: 16px;
 }
 .title-text {
   color: #F2F2F2;

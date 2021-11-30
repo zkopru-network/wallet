@@ -6,8 +6,17 @@ const path = require('path')
 const { exec } = require('child_process')
 
 module.exports = {
-  entry: ['./src/index.js'],
+  entry: {
+    main: './src/index.js',
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      automaticNameDelimiter: '-',
+    }
+  },
   output: {
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'build'),
     publicPath: '/',
   },
@@ -18,7 +27,8 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        loader: 'babel-loader'
+        loader: 'babel-loader',
+        exclude: /node_modules/,
       },
       {
         test: /\.vue$/,
@@ -35,7 +45,21 @@ module.exports = {
         ]
       },
       {
-        test: /\.(png|svg|jpg|gif|ttf)$/,
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'file-loader',
+	    options: {
+	      esModule: false
+	    }
+          },
+          {
+            loader: 'svgo-loader',
+          },
+        ]
+      },
+      {
+        test: /\.(png|jpg|gif|ttf)$/,
         loader: 'file-loader',
         options: {
           // publicPath: 'build',

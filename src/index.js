@@ -3,18 +3,23 @@ import Vuex from 'vuex'
 import VueRouter from 'vue-router'
 import Meta from 'vue-meta'
 import App from './App'
-import Home from './Home'
-import WalletOld from './WalletOld'
-import Wallet from './Wallet'
 import ZkopruStore from './stores/zkopru'
 import EthAccountStore from './stores/eth-account'
 import TestTokenStore from './stores/test-token'
 import WalletStore from './stores/wallet'
-import Transfer from './Transfer'
-import Deposit from './Deposit'
 import AddressBookStore from './stores/address-book'
-import Withdraw from './Withdraw'
-import History from './History'
+import InterfaceStore from './stores/interface'
+import HomeNew from './HomeNew'
+const Home = () => import('./Home')
+const Wallet = () => import(/* webpackChunkName: "group-wallet" */ './Wallet')
+const Transfer = () => import(/* webpackChunkName: "group-wallet" */ './Transfer')
+const Deposit = () => import(/* webpackChunkName: "group-wallet" */ './Deposit')
+const DepositType = () => import(/* webpackChunkName: "group-wallet" */ './DepositType')
+const Withdraw  = () => import(/* webpackChunkName: "group-wallet" */ './Withdraw')
+const History = () => import(/* webpackChunkName: "group-wallet" */ './History')
+const WithdrawType = () => import(/* webpackChunkName: "group-wallet" */ './WithdrawType')
+const Receive = () => import(/* webpackChunkName: "group-wallet" */ './Receive')
+const Library = () => import(/* webpackChunkName: "group-wallet" */ './Library')
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
@@ -36,19 +41,28 @@ const store = new Vuex.Store({
     wallet: WalletStore,
     testToken: TestTokenStore,
     addressBook: AddressBookStore,
+    interface: InterfaceStore,
   },
 })
 store.dispatch('loadState')
+store.commit('updateViewportSize')
+window.addEventListener('resize', () => store.commit('updateViewportSize'))
+const pathComponents = window.location.pathname.split('/')
+const isIpfs = pathComponents.indexOf('ipfs') === pathComponents.length - 2
 const router = new VueRouter({
-  mode: 'history',
+  mode: isIpfs ? 'hash' : 'history',
   routes: [
-    { path: '/', component: Home },
-    { path: '/wallet_old', component: WalletOld },
+    { path: '/', component: HomeNew },
+    { path: '/home', component: Home },
     { path: '/wallet', component: Wallet },
     { path: '/wallet/transfer', component: Transfer },
     { path: '/wallet/deposit', component: Deposit },
+    { path: '/wallet/deposit/type', component: DepositType },
     { path: '/wallet/withdraw', component: Withdraw },
-    { path: '/wallet/history', component: History }
+    { path: '/wallet/withdraw/type', component: WithdrawType },
+    { path: '/wallet/history', component: History },
+    { path: '/wallet/receive', component: Receive },
+    { path: '/wallet/library', component: Library },
   ]
 })
 const app = new Vue({

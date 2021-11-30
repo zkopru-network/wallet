@@ -1,159 +1,163 @@
 <template>
-  <div class="container">
-    <Header showBackButton=true prevPath="/wallet" />
-    <div spacer style="height: 44px" />
-    <div container style="display: flex; flex-direction: column; align-items: center;/*justify-content: center; flex: 1; width: 100vw; align-self: center;*/ font-size: 11px">
-      <div class="section-container">
-        <div class="title-text">Deposit</div>
-        <div spacer style="height: 23px" />
-        <AssetDropdown
-          :activeAsset="activeAsset"
-          v-model="activeAsset"
-          :loadBalance="loadBalance.bind(this)"
-        />
-        <div spacer style="height: 55px" />
-        <div style="flex: 1; max-width: 559px">
-          <AssetAmountField
-            :asset="activeAsset"
-            v-model="depositAmount"
-            :assetAmountState="amountState"
-          />
-        </div>
-        <div spacer style="height: 13px" />
-        <div class="detail-text">
-          Current price for one Zkopru transaction is ~0.01 ETH.
-        </div>
-        <div spacer style="height: 20px" />
-        <div v-if="activeAsset !== 'ETH' && +$store.state.zkopru.balance === 0" style="display: flex">
-          <img :src="require('../assets/warning.svg')" />
+  <CenteredLeftMenu>
+    <div spacer style="height: 70px" />
+    <div eth v-if="depositType === 1 || depositType === 3" class="section-container">
+      <div class="title-text" style="display: flex; align-items: center">
+        <div style="display: flex; align-items: center">
+          <div>Deposit</div>
           <div spacer style="width: 10px" />
-          <div style="color: #F49F2F; font-size: 12px">
-            You will need ETH in your wallet to send transactions with Zkopru
-          </div>
+          <img height="13px" :src="require('../assets/token_icons/ETH.svg')" />
         </div>
-        <div v-if="activeAsset !== 'ETH'" spacer style="height: 20px" />
-        <Checkbox
-          v-if="activeAsset !== 'ETH'"
-          style="align-self: flex-start"
-          text="Add ETH to deposit"
-          v-model="addEther"
-          :checked="addEther"
+        <div spacer style="display: flex; flex: 1" />
+        <InfoText
+          :text="tooltips.DEPOSIT_ETH"
         />
-        <div v-if="addEther" style="flex: 1; max-width: 559px">
-          <div spacer style="height: 31px" />
-          <div style="display: flex; align-items: center">
-            <div spacer style="width: 28px" />
-            <img :src="require('../assets/token_icons/ETH.svg')" />
-            <div spacer style="width: 26px" />
-            <div style="color: #9EFFEE; font-size: 14px">ETH</div>
-            <div spacer style="width: 5px" />
-            <div style="color: white; font-size: 14px">{{loadBalance('ETH')}}</div>
-          </div>
-          <div spacer style="height: 31px" />
-          <AssetAmountField
-            asset="ETH"
-            :assetAmountState="addEtherAmountState"
-            v-model="addEtherAmount"
-          />
-        </div>
-
       </div>
+      <div spacer style="height: 23px" />
+      <AssetDropdown
+        activeAsset="ETH"
+        :loadBalance="loadBalance.bind(this)"
+        :editable="false"
+        :showIcon="false"
+      />
       <div spacer style="height: 16px" />
-      <div class="section-container">
-        <div class="title-text">Coordinator Fee</div>
-        <div spacer style="height: 23px" />
-        <div style="flex: 1; max-width: 559px">
-          <AssetAmountField
-            asset="ETH"
-            v-model="feeAmount"
-            :assetAmountState="feeAmountState"
-            :buttons="['Instant']"
-            :buttonClicked="setFeeAmount.bind(this)"
-          />
-        </div>
-        <div spacer style="height: 13px" />
-        <div class="detail-text">
-          Suggested fees are calculated based on current gas market.
-        </div>
+      <div style="flex: 1; max-width: 559px">
+        <AssetAmountField
+          asset="ETH"
+          v-model="etherDepositAmount"
+          :assetAmountState="etherAmountState"
+          :buttons="['Max']"
+          :buttonClicked="() => {
+            const balance = $store.state.account.balance
+            etherDepositAmount = isNaN(feeAmount) ? balance : Math.max(+balance - +feeAmount, 0)
+          }"
+        />
       </div>
-      <div spacer style="height: 20px" />
-      <Button
-        :onClick="deposit.bind(this)"
-        buttonStyle="background: #00FFD1; color: #0E2936"
-      >
-        Deposit
-      </Button>
     </div>
-  </div>
+    <div eth v-if="depositType === 1 || depositType === 2" class="section-container">
+      <div class="title-text" style="display: flex; align-items: center">
+        <div style="display: flex; align-items: center">
+          <div>Deposit</div>
+          <div spacer style="width: 10px" />
+          <img height="13px" :src="tryLoadAssetIcon(activeToken)" />
+        </div>
+        <div spacer style="display: flex; flex: 1" />
+        <InfoText
+          :text="depositType === 1 ? tooltips.DEPOSIT_ETH_TOKEN : tooltips.DEPOSIT_TOKEN"
+        />
+      </div>
+      <div spacer style="height: 23px" />
+      <AssetDropdown
+        :activeAsset="activeToken"
+        v-model="activeToken"
+        :loadBalance="loadBalance.bind(this)"
+        :showIcon="false"
+        :tokenOnly="true"
+      />
+      <div v-if="activeToken" spacer style="height: 16px" />
+      <div v-if="activeToken" style="flex: 1; max-width: 559px">
+        <AssetAmountField
+          :asset="activeToken"
+          v-model="tokenDepositAmount"
+          :assetAmountState="tokenAmountState"
+          :buttons="['Max']"
+          :buttonClicked="() => {
+            const balance = $store.state.account.tokenBalances[activeToken]
+            tokenDepositAmount = balance
+          }"
+        />
+      </div>
+    </div>
+    <div class="section-container">
+      <div style="display: flex; align-items: center">
+        <div class="title-text">Coordinator Fee</div>
+        <div style="display: flex; flex: 1" />
+        <InfoText
+          :text="tooltips.DEPOSIT_FEE"
+        />
+      </div>
+      <div spacer style="height: 23px" />
+      <div style="flex: 1; max-width: 559px">
+        <AssetAmountField
+          asset="ETH"
+          v-model="feeAmount"
+          :assetAmountState="feeAmountState"
+          :buttons="['Fast', 'Standard']"
+          :buttonClicked="setFeeAmount.bind(this)"
+        />
+      </div>
+    </div>
+    <div spacer style="height: 4px" />
+    <NextButton
+      :disabled="
+        (depositType === 1 && (etherAmountState !== 1 || tokenAmountState !== 1 || feeAmountState !== 1)) ||
+        (depositType === 2 && (tokenAmountState !== 1 || feeAmountState !== 1)) ||
+        (depositType === 3 && (etherAmountState !== 1 || feeAmountState !== 1))
+        "
+      :onNext="() => showDeposit()"
+      :onBack="() => $router.push(`/wallet/deposit/type?type=${depositType}`)"
+    />
+    <ConfirmDepositPopup
+      v-if="showingDepositConfirm"
+      :etherDepositAmount="etherDepositAmount"
+      :tokenDepositAmount="tokenDepositAmount"
+      :feeAmount="feeAmount"
+      :activeToken="activeToken"
+      :onClose="() => showingDepositConfirm = false"
+    />
+  </CenteredLeftMenu>
 </template>
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import Header from './components/Header'
 import AssetDropdown from './components/AssetDropdown'
 import AssetAmountField from './components/AssetAmountField'
-import Button from './components/Button'
 import { toWei, fromWei } from './utils/wei'
 import Checkbox from './components/Checkbox'
 import BN from 'bn.js'
+import CenteredLeftMenu from './components/CenteredLeftMenu'
+import NextButton from './components/NextButton'
+import ConfirmDepositPopup from './components/ConfirmDepositPopup'
+import measureText from './utils/measure-text'
+import tooltips from './tooltips'
+import InfoText from './components/InfoText'
+import decimalCount from './utils/decimal-count'
 
 @Component({
   name: 'Deposit',
-  components: { Header, AssetDropdown, AssetAmountField, Button, Checkbox, },
+  components: { AssetDropdown, AssetAmountField, Checkbox, NextButton, CenteredLeftMenu, ConfirmDepositPopup, InfoText, },
   watch: {
-    depositAmount() {
-      if (this.depositAmount === '') {
-        this.amountState = 0
-      } else if (isNaN(this.depositAmount)) {
-        this.amountState = 2
-      } else if (this.activeAsset === 'ETH') {
-        this.amountState = +this.depositAmount > this.$store.state.account.balance ? 2 : 1
-      } else {
-        this.amountState = 0
-      }
+    etherDepositAmount() {
+      this.updateEtherAmountState()
+    },
+    tokenDepositAmount() {
+      this.updateTokenAmountState()
     },
     feeAmount() {
-      if (this.feeAmount === '') {
-        this.feeAmountState = 0
-      } else if (isNaN(this.feeAmount)) {
-        this.feeAmountState = 2
-      } else if (+this.feeAmount > 0) {
-        this.feeAmountState = 1
-      } else {
-        this.feeAmountState = 2
-      }
+      this.updateEtherAmountState()
     },
-    addEtherAmount() {
-      if (this.depositAmount === '') {
-        this.addEtherAmountState = 0
-      } else if (isNaN(this.depositAmount)) {
-        this.addEtherAmountState = 2
-      } else {
-        this.addEtherAmountState = +this.depositAmount > this.$store.state.account.balance ? 2 : 1
-      }
-    },
-    activeAsset(newVal, oldVal) {
-      if (newVal === 'ETH' || oldVal === 'ETH') {
-        this.addEther = false
-        this.addEtherAmount = '0'
-        this.addEtherAmountState = 0
-      }
-    }
   }
 })
 export default class Deposit extends Vue {
-  activeAsset = 'ETH'
-  addEther = false
-  addEtherAmount = '0'
-  addEtherAmountState = 0
-  amountState = 0
-  depositAmount = '0'
+  tooltips = tooltips
+  activeToken = ''
+  etherAmountState = 0
+  etherDepositAmount = '0'
+  tokenAmountState = 0
+  tokenDepositAmount = '0'
   feeAmount = '0'
   feeAmountState = 0
+  depositType = 0
+  showingDepositConfirm = false
+  activeFeePromise = undefined
 
   mounted() {
-    if (this.$route.query.asset) {
-      this.activeAsset = this.$route.query.asset.toUpperCase()
+    const { type, asset } = this.$route.query
+    if (asset) {
+      this.activeToken = asset.toUpperCase()
+    }
+    if (type && !isNaN(type)) {
+      this.depositType = +type
     }
   }
 
@@ -165,92 +169,109 @@ export default class Deposit extends Vue {
   }
 
   async setFeeAmount(clickedButton) {
-    if (clickedButton === 'Instant') {
-      this.feeAmountState = 3
-      try {
-        const weiPerByte = await this.$store.dispatch('loadCurrentWeiPerByte')
-        // Assume 2000 bytes for a simple deposit tx in a block
-        const feeWeiAmount = new BN(weiPerByte).mul(new BN('200000'))
-        this.feeAmount = ''
-        Vue.nextTick(() => {
-          this.feeAmount = fromWei(feeWeiAmount, 9).toString()
-        })
-      } catch (err) {
-        this.feeAmountState = 2
-      }
+    const multiplier = clickedButton === 'Fast' ? new BN('200000') : new BN('100000')
+    this.feeAmountState = 3
+    try {
+      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      this.activeFeePromise = feePromise
+      const weiPerByte = await feePromise
+      if (this.activeFeePromise !== feePromise) return
+      this.activeFeePromise = undefined
+      // Assume 2000 bytes for a simple deposit tx in a block
+      const feeWeiAmount = new BN(weiPerByte).mul(multiplier)
+      this.feeAmount = ''
+      Vue.nextTick(() => {
+        if (this.activeFeePromise !== undefined) return
+        this.feeAmount = fromWei(feeWeiAmount, 9).toString()
+      })
+    } catch (err) {
+      if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined
+      this.feeAmountState = 2
     }
   }
 
-  async deposit() {
-    if (this.activeAsset === 'ETH' && this.amountState === 1) {
-      const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
-        toWei(this.depositAmount),
-        toWei(this.feeAmount),
-      )
-      await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data,
-          to,
-          value,
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
-      await onComplete()
-      await this.$store.dispatch('loadL2Balance')
+  showDeposit() {
+    this.showingDepositConfirm = true
+  }
+
+  updateEtherAmountState() {
+    if (this.feeAmount === '' || +this.feeAmount === 0) {
+      this.feeAmountState = 0
+    } else if (isNaN(this.feeAmount) || +this.feeAmount < 0) {
+      this.feeAmountState = 2
+    } else if (
+      +this.feeAmount <= +this.$store.state.account.balance &&
+      decimalCount(this.feeAmount) <= 18
+    ) {
+      this.feeAmountState = 1
     } else {
-      const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeAsset)
-      const amountDecimals = `${(+this.depositAmount)*(10**(+token.decimals))}`
-      const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
-        this.addEther ? toWei(this.addEtherAmount) : toWei(0),
-        token.address,
-        amountDecimals,
-        toWei(this.feeAmount),
-      )
-      const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(token.address)
-      const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
-      const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data: transferData,
-          to: token.address,
-          value: '0',
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
-      await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          data,
-          to,
-          value,
-          from: this.$store.state.account.accounts[0],
-        }]
-      })
-      await onComplete()
-      await this.$store.dispatch('loadL2Balance')
+      this.feeAmountState = 2
     }
-    this.$router.push({ path: '/wallet' })
+    if (this.etherDepositAmount === '') {
+      this.etherAmountState = 0
+    } else if (isNaN(this.etherDepositAmount) || +this.etherDepositAmount <= 0) {
+      this.etherAmountState = 2
+    } else if (
+      +this.etherDepositAmount <= +this.$store.state.account.balance &&
+      decimalCount(this.etherDepositAmount) <= 18
+    ) {
+      this.etherAmountState = 1
+    } else {
+      this.etherAmountState = 2
+    }
+    // check total amount if needed
+    if (isNaN(this.feeAmount)) return
+    if (isNaN(this.etherDepositAmount)) return
+    if (isNaN(this.$store.state.account.balance)) return
+    const total = +this.feeAmount + +this.etherDepositAmount
+    if (total > +this.$store.state.account.balance) {
+      this.feeAmountState = 2
+      this.etherAmountState = 2
+    }
+  }
+
+  updateTokenAmountState() {
+    const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
+      return symbol === this.activeToken
+    })
+    if (!token) {
+      this.tokenAmountState = 0
+      return
+    }
+    if (this.tokenDepositAmount === '' || +this.tokenDepositAmount === 0) {
+      this.tokenAmountState = 0
+    } else if (isNaN(this.tokenDepositAmount) || +this.tokenDepositAmount <= 0) {
+      this.tokenAmountState = 2
+    } else if (
+      +this.tokenDepositAmount <= +this.$store.state.account.tokenBalances[this.activeToken] &&
+      decimalCount(this.tokenDepositAmount) <= token.decimals
+    ) {
+      this.tokenAmountState = 1
+    } else {
+      this.tokenAmountState = 2
+    }
+  }
+
+  tryLoadAssetIcon(symbol) {
+    try {
+      return require(`../assets/token_icons/${symbol.toUpperCase()}.svg`)
+    } catch (_) {
+      return require('../assets/token_no_icon.png')
+    }
   }
 }
 </script>
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding-left: 8px;
-  padding-right: 8px;
-  color: #95A7AE;
-}
 .section-container {
   display: flex;
   flex-direction: column;
   max-width: 452px;
   width: 100vw;
-  background-color: #192C35;
+  background-color: #081B24;
+  border: 1px solid #2A3D46;
   border-radius: 8px;
-  padding: 16px;
+  padding: 14px;
+  margin-bottom: 16px;
 }
 .title-text {
   color: #F2F2F2;

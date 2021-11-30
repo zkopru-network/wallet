@@ -1,200 +1,132 @@
 <template>
-  <div class="container">
-    <Header showBackButton=true prevPath="/wallet" />
-    <h2 class="title">Transaction History</h2>
+  <HeaderLeftMenu>
     <div class="body-container">
-      <div class="period-picker">
-        <div class="month-picker">
-          <div 
-            v-for="month in months(selectedYear)"
-            :key="month"
-            class="picker-button"
-            :class="{selected: selectedMonth === month}"
-            @click="selectMonth(month)">
-            {{formatMonth(month)}}
-          </div>
-        </div>
-        <div class="year-picker">
-          <div
-            v-for="year in years"
-            :key="year"
-            class="picker-button"
-            :class="{selected: selectedYear === year}"
-            @click="selectYear(year)"
-          >{{year}}</div>
-        </div>
-      </div>
-      <div style="width: 80%;">
-        <HistoryListItem
-          v-for="historyItem in history"
-          :item="historyItem"
-          :key="historyItem.hash + historyItem.type"
+      <div class="header-container">
+        <SwitchSelector
+          :options="['Any', 'Sent', 'Received', 'Deposited', 'Withdrawn']"
+          :selectedOption="selectedType"
+          v-model="selectedType"
         />
       </div>
+      <div class="subheader-container">
+        <SwitchSelector
+          :options="['All Time', '1w', '4w', '1y', 'Mtd', 'Ytd']"
+          :selectedOption="selectedTimePeriod"
+          v-model="selectedTimePeriod"
+          style="font-size: 11px"
+        />
+        <div spacer style="display: flex; flex: 1" />
+        <div>
+          {{ activeTimePeriod }}
+        </div>
+      </div>
+      <HistoryCell
+        v-for="item of history"
+        :key="item.hash"
+        :transaction="item"
+        :isFirst="history.indexOf(item) === 0"
+        :isLast="history.indexOf(item) === history.length - 1"
+      />
     </div>
-  </div>
+  </HeaderLeftMenu>
 </template>
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import LeftMenu from './components/LeftMenu'
+import SwitchSelector from './components/SwitchSelector'
+import HistoryCell from './components/HistoryCell'
 import dayjs from 'dayjs'
-import Header from './components/Header'
-import Button from './components/Button'
-import HistoryListItem from './components/HistoryListItem.vue'
+import dayOfYear from 'dayjs/plugin/dayOfYear'
+import HeaderLeftMenu from './components/HeaderLeftMenu'
+
+dayjs.extend(dayOfYear)
 
 @Component({
   name: 'History',
-  components: { Header, Button, HistoryListItem }
+  components: { LeftMenu, SwitchSelector, HistoryCell, HeaderLeftMenu, }
 })
 export default class History extends Vue {
-  // set initial value to today
-  _selectedYear
-  _selectedMonth
+  selectedType = 0
+  selectedTimePeriod = 0
 
-  get selectedYear() {
-    if (this._selectedYear) return this._selectedYear
-    const history = this.$store.state.zkopru.history
-    if (history.length > 0) {
-      return dayjs.unix(history[0].timestamp).year()
+  get activeTimePeriod() {
+    const format = 'MMMM D, YYYY'
+    const now = dayjs().format(format)
+    if (this.selectedTimePeriod === 1) {
+      return `${dayjs().subtract(1, 'week').format(format)} - ${now}`
     }
-    return dayjs().year()
-  }
-  get selectedMonth() {
-    if (this._selectedYear) return this._selectedYear
-    const history = this.$store.state.zkopru.history
-    if (history.length > 0) {
-      return dayjs.unix(history[0].timestamp).month()
+    if (this.selectedTimePeriod === 2) {
+      return `${dayjs().subtract(4, 'week').format(format)} - ${now}`
     }
-    return dayjs().month()
+    if (this.selectedTimePeriod === 3) {
+      return `${dayjs().subtract(1, 'year').format(format)} - ${now}`
+    }
+    if (this.selectedTimePeriod === 4) {
+      return `${dayjs().date(1).format(format)} - ${now}`
+    }
+    if (this.selectedTimePeriod === 5) {
+      return `${dayjs().dayOfYear(1).format(format)} - ${now}`
+    }
+    return `All Time`
   }
 
   get history() {
     return this.$store.state.zkopru.history.filter(historyItem => {
-      return dayjs.unix(historyItem.timestamp).isSame(`${this.selectedYear}-${this.selectedMonth+1}-01`, 'month')
+      if (this.selectedType === 1 && historyItem.type !== 'Send') {
+        return false
+      }
+      if (this.selectedType === 2 && historyItem.type !== 'Receive') {
+        return false
+      }
+      if (this.selectedType === 3 && historyItem.type !== 'Deposit') {
+        return false
+      }
+      if (this.selectedType === 4 && historyItem.type !== 'Withdraw') {
+        return false
+      }
+      const itemTime = historyItem.proposal ? dayjs(historyItem.proposal.timestamp * 1000) : dayjs()
+      if (this.selectedTimePeriod === 1 && itemTime.isBefore(dayjs().subtract(1, 'week'))) {
+        return false
+      }
+      if (this.selectedTimePeriod === 2 && itemTime.isBefore(dayjs().subtract(4, 'week'))) {
+        return false
+      }
+      if (this.selectedTimePeriod === 3 && itemTime.isBefore(dayjs().subtract(1, 'year'))) {
+        return false
+      }
+      if (this.selectedTimePeriod === 4 && itemTime.isBefore(dayjs().date(1))) {
+        return false
+      }
+      if (this.selectedTimePeriod === 5 && itemTime.isBefore(dayjs().dayOfYear(1))) {
+        return false
+      }
+      return true
     })
-  }
-
-  get years() {
-    const history = this.$store.state.zkopru.history
-    if (history.length === 0) return []
-
-    const oldest = dayjs.unix(history[history.length-1].timestamp).year()
-    const latest = dayjs.unix(history[0].timestamp).year()
-    const years = []
-    for (let i = oldest; i <= latest; i++) {
-      years.push(i)
-    }
-    return years
-  }
-
-  months(year) {
-    const history = this.$store.state.zkopru.history
-    if (history.length === 0) return []
-
-    const oldest = dayjs.unix(history[history.length-1].timestamp)
-    const latest = dayjs.unix(history[0].timestamp)
-
-    if (latest.year() === oldest.year()) {
-      if (year !== latest.year()) {
-        throw new Error('cannot be reached')
-      }
-      const months = []
-      for (let i = oldest.month(); i <= latest.month(); i++) {
-        months.push(i)
-      }
-      return months
-    }
-
-    if (year === latest.year()) {
-      for (let i = 0; i <= latest.month(); i++) {
-        months.push(i)
-      }
-      return months
-    } else if (year === oldest.year()) {
-      for (let i = oldest.month(); i <= 11; i++) {
-        months.push(i)
-      }
-      return months
-    }
-
-    return [...new Array(0, 12)].map((_, i) => i)
-  }
-
-  startLoadHistory() {
-    this.$store.dispatch('loadHistory')
-  }
-
-  selectYear(year) {
-    this.selectedYear = year
-    const months = this.months(year)
-    this.selectedMonth = months[months.length - 1]
-  }
-
-  selectMonth(month) {
-    this.selectedMonth = month
-  }
-
-  formatMonth(month) {
-    return dayjs().month(month).format('MMMM')
   }
 }
 </script>
 <style scoped>
-.container {
+.header-container {
+  background: #081B24;
+  border-bottom: 1px solid #2A3D46;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+  padding: 24px;
+  font-size: 16px;
+}
+.subheader-container {
+  display: flex;
   flex: 1;
-  padding-left: 8px;
-  padding-right: 8px;
-  color: #95A7AE;
+  align-items: center;
+  color: white;
+  padding: 25px 12px;
+  font-size: 11px;
 }
 .body-container {
-  width: 80%;
-  max-width: 1320px;
-  margin: auto;
-  display: flex;
-  justify-content: space-between;
-}
-.title {
-  width: 80%;
-  max-width: 1320px;
-  margin-top: 72px;
-  padding-left: 132px;
-  padding-bottom: 7px;
-  color: #F2F2F2;
-  font-size: 12px;
-  box-shadow: 0px 1px 0px #2a3d46;
-  align-self: center;
-}
-.period-picker {
-  padding-left: 66px;
-}
-.month-picker {
-  margin-top: 64px;
-  max-height: 120px;
-  overflow-y: scroll;
-}
-.year-picker {
-  margin-top: 64px;
-  max-height: 120px;
-  overflow-y: scroll;
-}
-.picker-button {
-  background: #3F6767;
-  border-radius: 20px;
-  color: black;
-  font-size: 16px;
-  padding: 8px 36px;
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 16px;
-  margin-bottom: 16px;
-}
-.picker-button.selected {
-  background: #A2EFE1;
+  background: #081B24;
+  flex: 1;
+  bottom: 0px;
 }
 </style>

@@ -9,64 +9,82 @@
     </transition>
     <transition name="slide">
       <div class="settings-container" v-if="visible">
-        <div style="display: flex; justify-content: space-between">
-          <div class="settings-header-text">
-            zkopru settings
-          </div>
-          <img
-            style="cursor: pointer"
-            src="../../assets/close-settings.svg"
-            v-on:click="_onClose"
-            width="20px"
-            height="auto"
-          />
-        </div>
-        <div spacer style="height: 26px" />
         <div class="settings-subheader-text">
-          Account
+          Your Zkopru Address
         </div>
         <div spacer style="height: 26px" />
         <div class="settings-account-address">
           {{ $store.state.zkopru.zkAddress || 'No address authenticated' }}
         </div>
-        <div spacer style="height: 18px" />
-        <div class="horizontal-divider" />
-        <div spacer style="height: 18px" />
-        <div style="display: flex; justify-content: space-between">
-          <div class="settings-check-text">
-            Allow auto sync of Zkopru blockchain
+        <div spacer style="height: 26px" />
+        <div
+          class="gray-button-container"
+          style="display: flex; align-items: center; cursor: pointer"
+          v-on:click="copyAddress"
+        >
+          <ColorImage
+            :src="showingCopyCheckmark ?
+              require('../../assets/copy_checkmark.svg') :
+              require('../../assets/copy_icon.svg')"
+            :color="showingCopyCheckmark ? 'white' : '#95A7AE'"
+          />
+          <div spacer style="width: 10px" />
+          <div style="font-size: 14px; line-height: 140%; color: #95A7AE">
+            Copy to clipboard
           </div>
+        </div>
+        <div class="horizontal-divider" />
+        <div class="settings-subheader-text">
+          Zkopru Blockchain
+        </div>
+        <div spacer style="height: 24px" />
+        <div style="color: white; font-size: 14px; line-height: 140%">
+          Auto Sync is recommended
+        </div>
+        <div style="color: #95A7AE; font-size: 12px">
+          to see the most recent changes.
+        </div>
+        <div spacer style="height: 24px" />
+        <div style="display: flex; align-items: center">
           <Checkbox
             v-model:checked="$store.state.wallet.autosyncEnabled"
             :onChange="() => $store.dispatch('saveState')"
           />
+          <div class="settings-check-text">
+            Auto Sync
+          </div>
         </div>
-        <div spacer style="height: 24px" />
-        <Button :onClick="() => showingClearDataPopup = true">
-          Clear Data
-        </Button>
+        <div class="horizontal-divider" />
+        <div
+          class="gray-button-container"
+          v-on:click="showingClearDataPopup = true"
+        >
+          <img :src="require('../../assets/trash.svg')" />
+          <div style="width: 11px" />
+          <div>Clear Data</div>
+        </div>
         <ClearDataPopup
           :visible="showingClearDataPopup"
           :onCancel="() => showingClearDataPopup = false"
         />
-        <div spacer style="height: 40px" />
-        <DarkTextField placeholder="Number of TT tokens to send to you" v-model="mintAmount" />
-        <div spacer style="height: 24px" />
-        <Button :onClick="mintTokens.bind(this)">
-          Mint Test Tokens
-        </Button>
-        <div spacer style="height: 40px" />
-        <DarkTextField placeholder="Token address to register" v-model="tokenAddress" />
-        <div spacer style="height: 24px" />
-        <Button :onClick="registerToken.bind(this)">
-          Register Token
-        </Button>
-        <div spacer style="height: 18px" />
         <div class="horizontal-divider" />
-        <div spacer style="height: 18px" />
-        <Button :onClick="() => $store.dispatch('registerAddress')">
-          Alias Address
-        </Button>
+        <div
+          class="gray-button-container"
+          v-on:click="mintTokens(100000)"
+        >
+          <img :src="require('../../assets/mint_token.svg')" />
+          <div style="width: 11px" />
+          <div>Mint Test Token</div>
+        </div>
+        <div class="horizontal-divider" />
+        <div
+          class="gray-button-container"
+          v-on:click="$store.dispatch('registerAddress')"
+        >
+          <img :src="require('../../assets/alias_address.svg')" />
+          <div style="width: 11px" />
+          <div>Alias ENS Address</div>
+        </div>
         <div spacer style="flex: 1" />
         <div class="build-number">
           build {{ currentbuild }}
@@ -83,18 +101,18 @@ import Checkbox from './Checkbox'
 import Button from './Button'
 import ClearDataPopup from './ClearDataPopup'
 import buildnum from '../buildnum'
-import DarkTextField from './DarkTextField'
+import ColorImage from './ColorImage'
 
 @Component({
   name: 'SettingsPanel',
-  components: { Checkbox, Button, ClearDataPopup, DarkTextField, },
+  components: { Checkbox, Button, ClearDataPopup, ColorImage, },
   props: [ 'onClose', 'visible', ],
 })
 export default class SettingsPanel extends Vue {
   currentbuild = buildnum
   showingClearDataPopup = false
-  mintAmount = ''
   tokenAddress = ''
+  showingCopyCheckmark = ''
 
   _onClose() {
     if (typeof this.onClose === 'function') {
@@ -107,36 +125,56 @@ export default class SettingsPanel extends Vue {
     this.tokenAddress = ''
   }
 
-  async mintTokens() {
-    await this.$store.dispatch('mint', this.mintAmount)
-    this.mintAmount = ''
+  async mintTokens(amount) {
+    await this.$store.dispatch('mint', amount)
+  }
+
+  copyAddress() {
+    const ghostEl = document.createElement('div')
+    ghostEl.style.position = 'fixed'
+    ghostEl.style.top = '-99999999px'
+    ghostEl.style.left = '-99999999px'
+    const node = document.createTextNode(this.$store.state.zkopru.zkAddress)
+    ghostEl.appendChild(node)
+    document.body.appendChild(ghostEl)
+    if (document.selection) {
+      const range = document.body.createTextRange()
+      range.moveToElementText(ghostEl)
+      range.select()
+    } else if (window.getSelection) {
+      window.getSelection().empty()
+      const range = document.createRange()
+      range.selectNode(ghostEl)
+      window.getSelection().addRange(range)
+    }
+    document.execCommand('copy')
+    ghostEl.remove()
+    this.showingCopyCheckmark = true
+    setTimeout(() => {
+      this.showingCopyCheckmark = false
+    }, 2500)
   }
 }
 </script>
 
 <style scoped>
 .settings-container {
-  width: 508px;
+  width: 289px;
   position: fixed;
   top: 0px;
-  left: 0px;
+  right: 0px;
   height: calc(100vh - 32px);
-  background-color: #081B24;
-  padding: 16px;
+  background-color: #05141A;
+  padding: 16px 32px;
   z-index: 10;
   display: flex;
   flex-direction: column;
 }
-.settings-header-text {
-  font-size: 32px;
-  color: #D0FFF7;
-  font-weight: bold;
-}
 .settings-subheader-text {
-  font-size: 24px;
-  color: #D0FFF7;
-  letter-spacing: 0.1em;
+  font-size: 12px;
+  color: #95A7AE;
   font-weight: bold;
+  line-height: 140%;
 }
 .background-overlay {
   background-color: rgba(8, 27, 36, 0.5);
@@ -148,34 +186,45 @@ export default class SettingsPanel extends Vue {
   z-index: 10;
 }
 .settings-account-address {
-  color: white;
-  font-size: 18px;
+  color: #9EFFEE;
+  font-size: 12px;
   max-width: 100%;
   word-break: break-all;
 }
 .build-number {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.5);
+  align-self: flex-end;
 }
 .horizontal-divider {
   height: 1px;
-  background-color: #A3B1B7;
+  background-color: #2A3D46;
+  margin: 24px 0px;
 }
 .settings-check-text {
-  color: #D0FFF7;
-  font-size: 18px;
+  color: #9EFFEE;
+  font-size: 14px;
 }
 .slide-enter, .slide-leave-to {
   /* width + padding */
-  left: -540px;
+  right: -540px;
 }
 .slide-enter-active, .slide-leave-active {
-  transition: left 0.4s;
+  transition: right 0.4s;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
 }
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.4s;
+}
+.gray-button-container {
+  font-size: 14px;
+  line-height: 140%;
+  color: #95A7AE;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
 }
 </style>

@@ -2,11 +2,13 @@
   <div
     :class="blurClass"
     :style="`
-      filter: blur(${blurred ? this.blurRadius : '0px'});
-      -webkit-filter: blur(${blurred ? this.blurRadius : '0px'});
-    	-moz-filter: blur(${blurred ? this.blurRadius : '0px'});
-    	-o-filter: blur(${blurred ? this.blurRadius : '0px'});
-    	-ms-filter: blur(${blurred ? this.blurRadius : '0px'});
+      ${blurred ? `
+      filter: blur(${this.blurRadius});
+      -webkit-filter: blur(${this.blurRadius});
+    	-moz-filter: blur(${this.blurRadius});
+    	-o-filter: blur(${this.blurRadius});
+    	-ms-filter: blur(${this.blurRadius});
+      ` : ''}
     `"
   >
     <!-- consume clicks -->
