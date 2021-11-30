@@ -196,6 +196,8 @@ export default class ConfirmDepositPopup extends Vue {
             from: this.$store.state.account.accounts[0],
           }]
         })
+        this.loadingTitle = customMessage || 'Updating database'
+        this.loadingSubtitle = 'Please wait.'
         await onComplete()
       } catch (err) {
         this.depositState = 1
@@ -220,6 +222,8 @@ export default class ConfirmDepositPopup extends Vue {
             from: this.$store.state.account.accounts[0],
           }]
         })
+        this.loadingTitle = customMessage || 'Updating database'
+        this.loadingSubtitle = 'Please wait.'
         await onComplete()
       } catch (err) {
         this.depositState = 1
