@@ -266,7 +266,7 @@ export default {
       if (!state.wallet) {
         await dispatch('loadWallet')
       }
-      return state.wallet.loadCurrentPrice()
+      return state.wallet.calculateWeiPerByte()
     },
     resetDB: async ({ state, dispatch }) => {
       // take the db and empty it
