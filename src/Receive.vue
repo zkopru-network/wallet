@@ -21,7 +21,7 @@
       <div style="font-size: 14px; color: #F2F2F2">
         When receiving funds from another party, they will need to paste your public address in the send field.
       </div>
-      <div class="share-button">
+      <div class="share-button" v-on:click="shareTwitter">
         <img :src="require('../assets/twitter_logo.svg')" style="margin-right: 10px" /> Share
       </div>
     </div>
@@ -40,6 +40,11 @@ import NextButton from './components/NextButton'
 })
 export default class Receive extends Vue {
   showingCopyCheckmark = false
+
+  shareTwitter() {
+    const message = `I'm using ZKOPRU, you can send me Ether and tokens at this address:\n\n${this.$store.state.zkopru.zkAddress}`
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURI(message)}`, '_blank')
+  }
 
   copyAddress() {
     const ghostEl = document.createElement('div')
