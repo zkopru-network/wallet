@@ -155,9 +155,10 @@ export default class Transfer extends Vue {
   }
 
   async suggestedFee(clickedButton) {
+    let feePromise
     try {
       this.feeState = 3
-      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
       this.activeFeePromise = feePromise
       const weiPerByte = await feePromise
       if (this.activeFeePromise !== feePromise) return

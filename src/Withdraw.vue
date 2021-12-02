@@ -175,9 +175,10 @@ export default class Withdraw extends Vue {
   }
 
   async suggestedFee(clickedButton) {
+    let feePromise
     try {
       this.feeAmountState = 3
-      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
       this.activeFeePromise = feePromise
       const weiPerByte = await feePromise
       if (this.activeFeePromise !== feePromise) return
