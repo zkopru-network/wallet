@@ -103,8 +103,10 @@ export default {
       const uncleCount = await state.client.node.db.count('Proposal', {
         isUncle: true,
       })
+      const slashedCount = await state.client.node.db.count('Slash', {})
       state.proposalCount = highestProposal.proposalNum
       state.uncleCount = uncleCount
+      state.slashedCount = slashedCount
       const latestBlockHash = await state.client.node.layer2.latestBlock()
       const latestBlock = await state.client.node.layer2.getProposal(
         latestBlockHash,
@@ -120,7 +122,7 @@ export default {
         dispatch('loadHistory')
       // }
       if (state.latestBlock > 0) {
-        const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount)
+        const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount - state.slashedCount)
         state.syncPercent = newPercent.toFixed(2)
       } else {
         state.syncPercent = 100
