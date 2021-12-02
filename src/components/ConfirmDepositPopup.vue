@@ -182,11 +182,11 @@ export default class ConfirmDepositPopup extends Vue {
     this.loadingTitle = customMessage || 'Waiting for Metamask'
     this.loadingSubtitle = 'Please confirm the transaction to complete your deposit.'
     if (!this.activeToken) {
-      const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
-        toWei(this.etherDepositAmount),
-        toWei(this.feeAmount),
-      )
       try {
+        const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
+          toWei(this.etherDepositAmount),
+          toWei(this.feeAmount),
+        )
         await window.ethereum.request({
           method: 'eth_sendTransaction',
           params: [{
@@ -200,19 +200,20 @@ export default class ConfirmDepositPopup extends Vue {
         this.loadingSubtitle = 'Please wait.'
         await onComplete()
       } catch (err) {
+        console.log(err)
         this.depositState = 1
         return
       }
     } else {
       const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeToken)
       const amountDecimals = `${(+this.tokenDepositAmount)*(10**(+token.decimals))}`
-      const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
-        toWei(this.etherDepositAmount),
-        token.address,
-        amountDecimals,
-        toWei(this.feeAmount),
-      )
       try {
+        const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
+          toWei(this.etherDepositAmount),
+          token.address,
+          amountDecimals,
+          toWei(this.feeAmount),
+        )
         await window.ethereum.request({
           method: 'eth_sendTransaction',
           params: [{
@@ -226,6 +227,7 @@ export default class ConfirmDepositPopup extends Vue {
         this.loadingSubtitle = 'Please wait.'
         await onComplete()
       } catch (err) {
+        console.log(err)
         this.depositState = 1
         return
       }
