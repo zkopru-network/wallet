@@ -76,7 +76,7 @@ export default {
         await state.client.initNode()
         await dispatch('loadWallet')
         await state.client.start()
-        state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
+        // state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
         state.client.node.blockProcessor.on('processed', async () => dispatch('updateStatus'))
       }
