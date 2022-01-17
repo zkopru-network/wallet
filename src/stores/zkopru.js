@@ -219,7 +219,8 @@ export default {
         const info = {}
         for (const { asset } of notes) {
           // TODO: handle notes that have both an ERC20 balance and an eth balance
-          const token = state.tokensByAddress[`0x${asset.tokenAddr.toString(16)}`]
+          const addressPad = (num) => typeof num === 'number' ? `0x${num.toString(16).padStart(40 - num.toString(16).length, '0')}` : num
+          const token = state.tokensByAddress[addressPad(asset.tokenAddr)]
           const key = token ? token.symbol : 'ETH'
           const existing = info[key] || {}
           const count = existing.count ?? 0;
