@@ -6,6 +6,14 @@
       <div class="info-text">Your wallet and Zkopru transactions are private</div>
     </div>
     <div style="display: flex">
+      <div class="header-button grow-container" v-on:click="dropdownClick">
+        <div>Select Network</div>
+        <div v-if="showingNetwork" class="network-dropdown">
+          <div class="network-dropdown-row" v-on:click="selectNetwork(5)" >Goerli Testnet</div>
+          <div class="network-dropdown-row" v-on:click="selectNetwork(69)">Optimism Testnet</div>
+          </div>
+        <div spacer style="width: 24px" />
+      </div>
       <div class="header-button" v-on:click="openDocs()">
         <ColorImage color="#95A7AE" width="18px" height="18px" :src="require('../../assets/docs_icon.svg')" />
         <div spacer style="width: 4px" />
@@ -37,9 +45,23 @@ import SettingsPanel from './SettingsPanel'
 export default class HeaderSection extends Vue {
   showingSettings = false
 
+  showingNetwork = false
+
+  currentNetwork = 5 // default on goerli testnet
+
   openDocs() {
     window.open('https://docs.zkopru.network', '_blank')
   }
+
+  dropdownClick() {
+    this.showingNetwork = !this.showingNetwork
+  }
+
+  selectNetwork(networkId) {
+    this.currentNetwork = networkId
+    console.log(`current network id: ${this.currentNetwork}`)
+  }
+
 }
 </script>
 
@@ -64,4 +86,28 @@ export default class HeaderSection extends Vue {
   cursor: pointer;
   user-select: none;
 }
+.grow-container {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+.network-dropdown {
+  position: absolute;
+  top: 100%;
+  border: 1px solid #3B4E56;
+  border-top: 0px solid #3B4E56;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  z-index: 10;
+}
+.network-dropdown-row {
+  background-color: #081B24;
+  color: white;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  width: calc(100% - 13px - 13px);
+  padding: 13px;
+}
+
 </style>
