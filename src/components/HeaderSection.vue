@@ -9,9 +9,9 @@
       <div class="header-button grow-container" v-on:click="dropdownClick">
         <div>Select Network</div>
         <div v-if="showingNetwork" class="network-dropdown">
-          <div class="network-dropdown-row" v-on:click="selectNetwork(5)" >Goerli Testnet</div>
+          <div class="network-dropdown-row" v-on:click="selectNetwork(5)">Goerli Testnet</div>
           <div class="network-dropdown-row" v-on:click="selectNetwork(69)">Optimism Testnet</div>
-          </div>
+        </div>
         <div spacer style="width: 24px" />
       </div>
       <div class="header-button" v-on:click="openDocs()">
@@ -25,10 +25,7 @@
         <div>Settings</div>
       </div>
     </div>
-    <SettingsPanel
-      :visible="showingSettings"
-      :onClose="() => showingSettings = false"
-    />
+    <SettingsPanel :visible="showingSettings" :onClose="() => showingSettings = false" />
   </div>
 </template>
 
@@ -57,8 +54,42 @@ export default class HeaderSection extends Vue {
     this.showingNetwork = !this.showingNetwork
   }
 
-  selectNetwork(networkId) {
-    this.currentNetwork = networkId
+  async selectNetwork(networkId) {
+    // TODO: refactor this `currentNetwork` to vuex state
+    // await this.$store.dispatch('changeNetwork', networkId)
+
+    if (this.currentNetwork == networkId) {
+      console.log(`current chainId is same on ${networkId}`)
+      return
+    }
+    const targetChainId = `0x${networkId.toString(16)}`
+    try {
+      const params = [{ chainId: targetChainId }]
+      await window.ethereum.request({ method: 'wallet_switchEthereumChain', params })
+    } catch (error) {
+      // Error code 4902 - no added network in metamask
+      if (error.code == 4902) {
+        try {
+          const param = {
+            chainId: targetChainId,
+            chainName: 'Optimism-kovan',
+            nativeCurrency: {
+              name: 'Optimism ETH',
+              symbol: 'ETH',
+              decimals: 18
+            },
+            rpcUrls: ['https://kovan.optimism.io'],
+            blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
+          }
+          await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [param] })
+          this.currentNetwork = networkId // TODO let state on vuex
+        } catch (error) {
+          console.warn(`Adding new ethereum network Error: ${error}`)
+        }
+      } else {
+        console.warn(`Swich ethereum network(chain) Error: ${error}`)
+      }
+    }
     console.log(`current network id: ${this.currentNetwork}`)
   }
 
@@ -73,10 +104,12 @@ export default class HeaderSection extends Vue {
   height: 46px;
   border-bottom: 1px solid #2A3D46;
 }
+
 .info-text {
   color: #95A7AE;
   font-size: 11px;
 }
+
 .header-button {
   color: #95A7AE;
   font-size: 14px;
@@ -86,11 +119,13 @@ export default class HeaderSection extends Vue {
   cursor: pointer;
   user-select: none;
 }
+
 .grow-container {
   display: flex;
   width: 100%;
   justify-content: center;
 }
+
 .network-dropdown {
   position: absolute;
   top: 100%;
@@ -100,6 +135,7 @@ export default class HeaderSection extends Vue {
   border-bottom-right-radius: 8px;
   z-index: 10;
 }
+
 .network-dropdown-row {
   background-color: #081B24;
   color: white;
@@ -109,5 +145,4 @@ export default class HeaderSection extends Vue {
   width: calc(100% - 13px - 13px);
   padding: 13px;
 }
-
 </style>
