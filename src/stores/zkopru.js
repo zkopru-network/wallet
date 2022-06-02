@@ -51,7 +51,9 @@ export default {
         return state.lockedBalance || '0'
       }
       return state.lockedTokenBalances[assetSymbol.toUpperCase()] || '0'
-    }
+    },
+    // TODO: for checking database has own config .. create method for checking..
+
   },
   mutations: {
     setZkAddress: (state, address) => {
@@ -70,7 +72,9 @@ export default {
         state.client = new Zkopru.Node({
           websocket: URL,
           accounts: [new ZkAccount(state.walletKey)],
-        })
+        },
+        // TODO: adding, connector: SomeConnectorDB, for each network.
+        )
         state.syncing = true
         state.status = 'Preparing to synchronize'
         await state.client.initNode()
@@ -79,6 +83,12 @@ export default {
         // state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
         state.client.node.blockProcessor.on('processed', async () => dispatch('updateStatus'))
+      }
+    },
+    stopSync: async ({ state }) => {
+      if (state.client) {
+        await state.client.node.stop()
+        await state.client.stop()
       }
     },
     resetWallet: async ({ state, dispatch }) => {
