@@ -3,24 +3,24 @@ import { fromWei } from '../utils/wei'
 export default {
   state: {
     metamaskConnected: false,
-    chainId: -1,
     accounts: [],
     balance: 0,
     tokenBalances: {},
   },
   actions: {
-    connectMetamask: async ({ state, dispatch }) => {
+    connectMetamask: async ({ state, dispatch, rootState }) => {
       if (!window.ethereum) {
         throw new Error('Metamask not detected')
       }
       state.metamaskConnected = window.ethereum.isConnected()
-      state.chainId = window.ethereum.chainId
+      rootState.chainId = parseInt(window.ethereum.chainId)
       window.ethereum.removeAllListeners('chainChanged')
       window.ethereum.removeAllListeners('connect')
       window.ethereum.removeAllListeners('disconnect')
       window.ethereum.removeAllListeners('accountsChanged')
       window.ethereum.on('chainChanged', (chainId) => {
-        state.chainId = chainId
+        console.log(`eth-account/ metamask - chainId changed: ${chainId}`)
+        rootState.chainId = parseInt(chainId)
         dispatch('reloadState')
       })
       window.ethereum.on('connect', () => {
@@ -40,12 +40,14 @@ export default {
       dispatch('loadTokenBalances').catch(console.log)
     },
     reloadState: async ({ state, dispatch }) => {
+      await dispatch('stopSync')
       await Promise.all([
         dispatch('loadBalance'),
         dispatch('loadTokenBalances'),
         // reset the zkopru wallet state
         dispatch('resetWallet', null, { root: true }),
       ])
+      await dispatch(`startSync`)
     },
     loadBalance: async ({ state }) => {
       const hexBalance = await window.ethereum.request({
@@ -62,7 +64,7 @@ export default {
           tokenContract.methods.balanceOf(myAddress).call(),
           tokenContract.methods.decimals().call(),
         ])
-        const balanceDecimal = +balance.toString() / (10**+decimals.toString())
+        const balanceDecimal = +balance.toString() / (10 ** +decimals.toString())
         state.tokenBalances = { ...state.tokenBalances, [symbol]: balanceDecimal }
       }
     },

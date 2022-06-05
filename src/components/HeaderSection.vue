@@ -44,8 +44,6 @@ export default class HeaderSection extends Vue {
 
   showingNetwork = false
 
-  currentNetwork = 5 // default on goerli testnet
-
   openDocs() {
     window.open('https://docs.zkopru.network', '_blank')
   }
@@ -54,45 +52,9 @@ export default class HeaderSection extends Vue {
     this.showingNetwork = !this.showingNetwork
   }
 
-  async selectNetwork(networkId) {
-    // TODO: refactor this `currentNetwork` to vuex state
-    // await this.$store.dispatch('changeNetwork', networkId)
-
-    if (this.currentNetwork == networkId) {
-      console.log(`current chainId is same on ${networkId}`)
-      return
-    }
-    const targetChainId = `0x${networkId.toString(16)}`
-    try {
-      const params = [{ chainId: targetChainId }]
-      await window.ethereum.request({ method: 'wallet_switchEthereumChain', params })
-    } catch (error) {
-      // Error code 4902 - no added network in metamask
-      if (error.code == 4902) {
-        try {
-          const param = {
-            chainId: targetChainId,
-            chainName: 'Optimism-kovan',
-            nativeCurrency: {
-              name: 'Optimism ETH',
-              symbol: 'ETH',
-              decimals: 18
-            },
-            rpcUrls: ['https://kovan.optimism.io'],
-            blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
-          }
-          await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [param] })
-          this.currentNetwork = networkId // TODO let state on vuex
-        } catch (error) {
-          console.warn(`Adding new ethereum network Error: ${error}`)
-        }
-      } else {
-        console.warn(`Swich ethereum network(chain) Error: ${error}`)
-      }
-    }
-    console.log(`current network id: ${this.currentNetwork}`)
+  selectNetwork(networkId) {
+    this.$store.dispatch('changeNetwork', networkId)
   }
-
 }
 </script>
 
