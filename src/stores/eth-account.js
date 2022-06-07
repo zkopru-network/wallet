@@ -43,11 +43,11 @@ export default {
       await dispatch('stopSync')
       await Promise.all([
         dispatch('loadBalance'),
-        dispatch('loadTokenBalances'),
         // reset the zkopru wallet state
         dispatch('resetWallet', null, { root: true }),
       ])
       await dispatch(`startSync`)
+      await dispatch('loadTokenBalances')
     },
     loadBalance: async ({ state }) => {
       const hexBalance = await window.ethereum.request({

@@ -124,7 +124,7 @@ export default {
               blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
             }
             await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [param] })
-            rootState.chainId = networkId // TODO let state on vuex
+            rootState.chainId = networkId
           } catch (error) {
             console.warn(`Adding new ethereum network Error: ${error}`)
           }
@@ -136,7 +136,6 @@ export default {
     },
     startSync: async ({ state, dispatch, rootState }) => {
       const ZkopruPromise = import(/* webpackPrefetch: true */ '@zkopru/client/browser')
-      console.log(`rootState chainId:${rootState.chainId}, desiredChainId: ${rootState.desiredChainId}`)
       // const networks = getNetworks() // TODO: activate if added custom network configuration in future
       if (!state.client) {
         const { WEBSOCKET, ZKOPRU_ADDRESSES } = DEFAULT_NETWORKS[rootState.chainId]
@@ -146,14 +145,12 @@ export default {
           websocket: WEBSOCKET,
           address: ZKOPRU_ADDRESSES[0],
           accounts: [new ZkAccount(state.walletKey)],
-        }
-        ) // Index
+        })
         state.syncing = true
         state.status = 'Preparing to synchronize'
         await state.client.initNode()
         await dispatch('loadWallet')
         await state.client.start()
-        // state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
         state.client.node.blockProcessor.on('processed', async () => dispatch('updateStatus'))
       }
@@ -161,8 +158,9 @@ export default {
     stopSync: async ({ state }) => {
       if (state.client) {
         state.syncing = false
+        await state.client.node.synchronizer.removeAllListeners()
+        await state.client.node.blockProcessor.removeAllListeners()
         await state.client.stop()
-        console.log(`zkopru node stopped`)
         state.client = null
       }
     },
