@@ -6,13 +6,24 @@
       <div class="info-text">Your wallet and Zkopru transactions are private</div>
     </div>
     <div style="display: flex">
-      <div class="header-button grow-container" v-on:click="dropdownClick">
-        <div>Select Network</div>
-        <div v-if="showingNetwork" class="network-dropdown">
-          <div class="network-dropdown-row" v-on:click="selectNetwork(5)">Goerli Testnet</div>
-          <div class="network-dropdown-row" v-on:click="selectNetwork(69)">Optimism Testnet</div>
+      <div class="network-container" v-on:click="dropdownClick">
+        <div spacer style="height: 9.5px"></div>
+        <div class="network-button">
+          <img :src="require('../../assets/network_status_connected.svg')" />
+          <p class="network-font" style="padding-left: 8px; padding-right: 6px">{{ networks[this.$store.state.chainId.toString()].NAME }}</p>
+          <svg width="6" height="5" viewBox="0 0 6 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M2.80778 4.26953L0.759961 1.81215C0.325743 1.29109 0.696267 0.5 1.37454 0.5L4.62514 0.5C5.30341 0.5 5.67393 1.29109 5.23972 1.81215L3.19189 4.26953C3.09194 4.38947 2.90773 4.38947 2.80778 4.26953Z"
+              fill="#95A7AE" />
+          </svg>
         </div>
-        <div spacer style="width: 24px" />
+        <template v-if="showingNetwork">
+          <div v-for="chainId in Object.keys(networks)" :key="networks[chainId]" class="network-dropdown">
+            <div class="network-dropdown-row" v-if="isCurrentChainId(chainId)"
+              v-on:click="selectNetwork(parseInt(chainId))">{{ networks[chainId].NAME }}</div>
+          </div>
+        </template>
+        <div spacer style="height: 9.5px"></div>
       </div>
       <div class="header-button" v-on:click="openDocs()">
         <ColorImage color="#95A7AE" width="18px" height="18px" :src="require('../../assets/docs_icon.svg')" />
@@ -44,6 +55,8 @@ export default class HeaderSection extends Vue {
 
   showingNetwork = false
 
+  networks = this.$store.getters.networkList
+
   openDocs() {
     window.open('https://docs.zkopru.network', '_blank')
   }
@@ -52,8 +65,12 @@ export default class HeaderSection extends Vue {
     this.showingNetwork = !this.showingNetwork
   }
 
-  selectNetwork(networkId) {
-    this.$store.dispatch('changeNetwork', networkId)
+  isCurrentChainId(chainId) {
+    return this.$store.state.chainId.toString() != chainId
+  }
+
+  selectNetwork(chainId) {
+    this.$store.dispatch('changeNetwork', chainId)
   }
 }
 </script>
@@ -80,6 +97,32 @@ export default class HeaderSection extends Vue {
   align-items: center;
   cursor: pointer;
   user-select: none;
+}
+
+.network-container {
+  color: #95A7AE;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.network-button {
+  border: 1px solid #CFF5EE;
+  border-radius: 20px;
+  height: 25px;
+  width: 130px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+}
+
+.network-font {
+  font-family: Inter;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+  line-height: 25px;
 }
 
 .grow-container {

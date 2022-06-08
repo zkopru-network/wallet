@@ -4,12 +4,14 @@ import BN from 'bn.js'
 
 const DEFAULT_NETWORKS = {
   '5': {
+    NAME: 'Goerli testnet',
     WEBSOCKET: 'wss://goerli2.zkopru.network',
     ZKOPRU_ADDRESSES: [
       '0x48458C823DF628f0C053B0786d4111529B9fB7B0' // minimum stake amount 32 ETH
     ]
   },
   '69': {
+    NAME: 'Optimism testnet',
     WEBSOCKET: 'wss://optimism-kovan.zkopru.network',
     ZKOPRU_ADDRESSES: [
       '0x31f3E51Fc7BE2BD24F258af92B0E371fa0A48762' // minimum stake amount 1 ETH
@@ -88,8 +90,9 @@ export default {
       }
       return state.lockedTokenBalances[assetSymbol.toUpperCase()] || '0'
     },
-    // TODO: for checking database has own config .. create method for checking..
-
+    networkList: () => {
+      return DEFAULT_NETWORKS
+    }
   },
   mutations: {
     setZkAddress: (state, address) => {
