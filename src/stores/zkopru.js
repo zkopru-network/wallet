@@ -8,14 +8,36 @@ const DEFAULT_NETWORKS = {
     WEBSOCKET: 'wss://goerli2.zkopru.network',
     ZKOPRU_ADDRESSES: [
       '0x48458C823DF628f0C053B0786d4111529B9fB7B0' // minimum stake amount 32 ETH
-    ]
+    ],
+    METAMASK_PARAMS: {
+      chainId: '0x5',
+      chainName: 'Goerli',
+      nativeCurrency: {
+        name: 'Goerli ETH',
+        symbol: 'ETH',
+        decimals: 18
+      },
+      rpcUrls: ['https://goerli.infura.io/v3/'],
+      blockExplorerUrls: ['https://goerli.etherscan.io']
+    }
   },
   '69': {
     NAME: 'Optimism testnet',
     WEBSOCKET: 'wss://optimism-kovan.zkopru.network',
     ZKOPRU_ADDRESSES: [
       '0x31f3E51Fc7BE2BD24F258af92B0E371fa0A48762' // minimum stake amount 1 ETH
-    ]
+    ],
+    METAMASK_PARAMS: {
+      chainId: '0x45',
+      chainName: 'Optimism-kovan',
+      nativeCurrency: {
+        name: 'Optimism ETH',
+        symbol: 'ETH',
+        decimals: 18
+      },
+      rpcUrls: ['https://kovan.optimism.io'],
+      blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
+    }
   }
 }
 
@@ -102,32 +124,23 @@ export default {
     }
   },
   actions: {
-    changeNetwork: async ({ rootState }, networkId) => {
-      if (rootState.chainId == networkId) {
-        console.log(`current chainId is same on ${networkId}`)
+    changeNetwork: async ({ rootState }, chainId) => {
+      if (rootState.chainId.toString() == chainId) {
+        console.log(`current chainId is same on ${chainId}`)
         return
       }
-      const targetChainId = `0x${networkId.toString(16)}`
       try {
-        const params = [{ chainId: targetChainId }]
+        const params = [{ chainId: DEFAULT_NETWORKS[chainId].METAMASK_PARAMS.chainId }]
         await window.ethereum.request({ method: 'wallet_switchEthereumChain', params })
       } catch (error) {
         // Error code 4902 - no added network in metamask
-        if (error.code == 4902) {
+        if (error.code == 4902 || error.code) {
           try {
-            const param = {
-              chainId: targetChainId,
-              chainName: 'Optimism-kovan',
-              nativeCurrency: {
-                name: 'Optimism ETH',
-                symbol: 'ETH',
-                decimals: 18
-              },
-              rpcUrls: ['https://optimism-kovan.zkopru.network'],
-              blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
-            }
-            await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [param] })
-            rootState.chainId = networkId
+            await window.ethereum.request({ 
+              method: 'wallet_addEthereumChain', 
+              params: [DEFAULT_NETWORKS[chainId].METAMASK_PARAMS] 
+            })
+            rootState.chainId = chainId
           } catch (error) {
             console.warn(`Adding new ethereum network Error: ${error}`)
           }
