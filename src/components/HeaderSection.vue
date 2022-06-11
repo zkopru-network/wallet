@@ -19,12 +19,16 @@
               fill="#95A7AE" />
           </svg>
         </div>
-        <template v-if="showingNetwork">
-          <div v-for="chainId in Object.keys(networks)" :key="networks[chainId]" class="network-dropdown">
-            <div class="network-dropdown-row" v-if="isCurrentChainId(chainId)"
-              v-on:click="selectNetwork(parseInt(chainId))">{{ networks[chainId].NAME }}</div>
+        <div v-if="showingNetwork" class="network-dropdown">
+          <div v-for="(chainId, index) in Object.keys(networks)" :key="index">
+            <div v-if="isSelectableChainId(chainId)" class="network-dropdown-row"
+              v-on:click="selectNetwork(parseInt(chainId))">
+              <p class="network-font">
+                {{ networks[chainId].NAME }}
+              </p>
+            </div>
           </div>
-        </template>
+        </div>
         <div spacer style="height: 9.5px"></div>
       </div>
       <div class="header-button" v-on:click="openDocs()">
@@ -136,16 +140,22 @@ export default class HeaderSection extends Vue {
   border: 0.5px solid #4C5F67;
   border-radius: 4px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  padding-top: 9px;
+  padding-bottom: 9px;
   z-index: 10;
 }
 
 .network-dropdown-row {
-  display: flex;
+  margin: 0 auto;
   align-items: center;
-  width: 100%;
   height: 27px;
-  /* width: calc(100% - 13px - 13px); */
+  z-index: 100;
+}
+
+.network-dropdown-row p {
+  margin: 0 auto;
 }
 
 .network-dropdown-row:hover {
