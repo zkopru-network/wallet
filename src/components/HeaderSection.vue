@@ -8,9 +8,11 @@
     <div style="display: flex">
       <div class="network-container" v-on:click="dropdownClick">
         <div spacer style="height: 9.5px"></div>
-        <div class="network-button">
+        <div class="network-button" v-bind:style="showingNetwork ? { 'background-color': '#192C35' } : {}">
           <img :src="require('../../assets/network_status_connected.svg')" />
-          <p class="network-font" style="padding-left: 8px; padding-right: 6px">{{ networks[this.$store.state.chainId.toString()].NAME }}</p>
+          <p class="network-font" style="padding-left: 8px; padding-right: 6px">{{
+              networks[this.$store.state.chainId.toString()].NAME
+          }}</p>
           <svg width="6" height="5" viewBox="0 0 6 5" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M2.80778 4.26953L0.759961 1.81215C0.325743 1.29109 0.696267 0.5 1.37454 0.5L4.62514 0.5C5.30341 0.5 5.67393 1.29109 5.23972 1.81215L3.19189 4.26953C3.09194 4.38947 2.90773 4.38947 2.80778 4.26953Z"
@@ -65,13 +67,14 @@ export default class HeaderSection extends Vue {
     this.showingNetwork = !this.showingNetwork
   }
 
-  isCurrentChainId(chainId) {
+  isSelectableChainId(chainId) {
     return this.$store.state.chainId.toString() != chainId
   }
 
   selectNetwork(chainId) {
     this.$store.dispatch('changeNetwork', chainId)
   }
+
 }
 </script>
 
@@ -125,29 +128,27 @@ export default class HeaderSection extends Vue {
   line-height: 25px;
 }
 
-.grow-container {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-}
-
 .network-dropdown {
   position: absolute;
-  top: 100%;
-  border: 1px solid #3B4E56;
-  border-top: 0px solid #3B4E56;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  background-color: #05141A;
+  width: 130px;
+  top: 90%;
+  border: 0.5px solid #4C5F67;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
   z-index: 10;
 }
 
 .network-dropdown-row {
-  background-color: #081B24;
-  color: white;
-  font-size: 14px;
   display: flex;
   align-items: center;
-  width: calc(100% - 13px - 13px);
-  padding: 13px;
+  width: 100%;
+  height: 27px;
+  /* width: calc(100% - 13px - 13px); */
+}
+
+.network-dropdown-row:hover {
+  background-color: #192C35;
 }
 </style>
