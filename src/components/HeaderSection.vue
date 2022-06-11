@@ -112,6 +112,7 @@ export default class HeaderSection extends Vue {
   flex-direction: column;
   align-items: center;
   vertical-align: middle;
+  margin-right: 16px;
 }
 
 .network-button {
