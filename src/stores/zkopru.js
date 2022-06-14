@@ -153,8 +153,8 @@ export default {
     startSync: async ({ state, dispatch, rootState }) => {
       const ZkopruPromise = import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       // const networks = getNetworks() // TODO: activate if added custom network configuration in future
-      if (!state.client) {
-        const { WEBSOCKET, ZKOPRU_ADDRESSES } = DEFAULT_NETWORKS[rootState.chainId]
+      if (!state.client && DEFAULT_NETWORKS[rootState.chainId]) {
+        const { WEBSOCKET, ZKOPRU_ADDRESSES } = DEFAULT_NETWORKS[rootState.chainId.toString()]
         await dispatch('loadWalletKey')
         const { default: Zkopru, ZkAccount } = await ZkopruPromise
         state.client = new Zkopru.Node({

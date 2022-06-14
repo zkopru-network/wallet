@@ -12,7 +12,7 @@
           <img v-if="this.$store.state.zkopru.syncing" :src="require('../../assets/network_status_connected.svg')" />
           <img v-else :src="require('../../assets/network_status_disconnected.svg')" />
           <p class="network-font">{{
-              networks[this.$store.state.chainId.toString()].NAME
+              getNetworkName()
           }}</p>
           <svg width="6" height="5" style="padding-right: 12px" viewBox="0 0 6 5" fill="none"
             xmlns="http://www.w3.org/2000/svg">
@@ -77,10 +77,18 @@ export default class HeaderSection extends Vue {
     return this.$store.state.chainId.toString() != chainId
   }
 
+  getNetworkName() {
+    const network = this.networks[this.$store.state.chainId]
+    if (network) {
+      return network.NAME
+    } else {
+      return "Change Network"
+    }
+  }
+
   selectNetwork(chainId) {
     this.$store.dispatch('changeNetwork', chainId)
   }
-
 }
 </script>
 
