@@ -56,7 +56,6 @@ const getNetworks = () => {
   const customNetworks = JSON.parse(window.localStorage.getItem(`customNetworks`))
 
   for (const network of customNetworks) {
-    console.log(`customNetwork: ${network}`)
     const { chainId, websocket, address } = network
 
     networks[address] = { chainId, websocket: websocket || DEFAULT_NETWORKS[chainId].WEBSOCKET }
@@ -126,7 +125,6 @@ export default {
   actions: {
     changeNetwork: async ({ rootState }, chainId) => {
       if (rootState.chainId.toString() == chainId) {
-        console.log(`current chainId is same on ${chainId}`)
         return
       }
       try {
@@ -148,7 +146,6 @@ export default {
           console.warn(`Swich ethereum network(chain) Error: ${error}`)
         }
       }
-      console.log(`current network id: ${rootState.chainId}`)
     },
     startSync: async ({ state, dispatch, rootState }) => {
       const ZkopruPromise = import(/* webpackPrefetch: true */ '@zkopru/client/browser')
@@ -249,7 +246,6 @@ export default {
           ]
         }
       })
-      console.log(`zkopru/loadWalletKey - ${msgParams}`)
       const signedData = await window.ethereum.request({
         method: 'eth_signTypedData_v4',
         params: [rootState.account.accounts[0], msgParams]
