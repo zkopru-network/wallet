@@ -19,7 +19,6 @@ export default {
       window.ethereum.removeAllListeners('disconnect')
       window.ethereum.removeAllListeners('accountsChanged')
       window.ethereum.on('chainChanged', (chainId) => {
-        console.log(`eth-account/ metamask - chainId changed: ${chainId}`)
         rootState.chainId = parseInt(chainId)
         dispatch('reloadState')
       })
