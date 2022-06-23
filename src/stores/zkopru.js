@@ -2,9 +2,68 @@ import { fromWei } from '../utils/wei'
 import dayjs from 'dayjs'
 import BN from 'bn.js'
 
-// const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
-const URL = 'wss://goerli2.zkopru.network'
-// const URL = 'ws://localhost:8546'
+const DEFAULT_NETWORKS = {
+  '5': {
+    NAME: 'Goerli testnet',
+    WEBSOCKET: 'wss://goerli2.zkopru.network',
+    ZKOPRU_ADDRESSES: [
+      '0x48458C823DF628f0C053B0786d4111529B9fB7B0' // minimum stake amount 32 ETH
+    ],
+    METAMASK_PARAMS: {
+      chainId: '0x5',
+      chainName: 'Goerli',
+      nativeCurrency: {
+        name: 'Goerli ETH',
+        symbol: 'ETH',
+        decimals: 18
+      },
+      rpcUrls: ['https://goerli.infura.io/v3/'],
+      blockExplorerUrls: ['https://goerli.etherscan.io']
+    }
+  },
+  '69': {
+    NAME: 'Optimism testnet',
+    WEBSOCKET: 'wss://optimism-kovan.zkopru.network',
+    ZKOPRU_ADDRESSES: [
+      '0x31f3E51Fc7BE2BD24F258af92B0E371fa0A48762' // minimum stake amount 1 ETH
+    ],
+    METAMASK_PARAMS: {
+      chainId: '0x45',
+      chainName: 'Optimism-kovan',
+      nativeCurrency: {
+        name: 'Optimism ETH',
+        symbol: 'ETH',
+        decimals: 18
+      },
+      rpcUrls: ['https://kovan.optimism.io'],
+      blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
+    }
+  }
+}
+
+const getNetworks = () => {
+  let networks = {}
+  const chainIds = Object.keys(DEFAULT_NETWORKS)
+
+  for (const chainId of chainIds) {
+    const { WEBSOCKET, ZKOPRU_ADDRESSES } = DEFAULT_NETWORKS[chainId]
+    for (const zkopru of ZKOPRU_ADDRESSES) {
+      networks[zkopru] = { chainId, websocket: WEBSOCKET }
+    }
+  }
+
+  // TODO: add interface for custom network on localStorage
+  const customNetworks = JSON.parse(window.localStorage.getItem(`customNetworks`))
+
+  for (const network of customNetworks) {
+    const { chainId, websocket, address } = network
+
+    networks[address] = { chainId, websocket: websocket || DEFAULT_NETWORKS[chainId].WEBSOCKET }
+  }
+
+  // TODO: add verifying zkopruId process
+  return networks
+}
 
 export default {
   state: {
@@ -51,6 +110,9 @@ export default {
         return state.lockedBalance || '0'
       }
       return state.lockedTokenBalances[assetSymbol.toUpperCase()] || '0'
+    },
+    networkList: () => {
+      return DEFAULT_NETWORKS
     }
   },
   mutations: {
@@ -61,14 +123,40 @@ export default {
     }
   },
   actions: {
-    startSync: async ({ state, dispatch }) => {
+    changeNetwork: async ({ rootState }, chainId) => {
+      if (rootState.chainId.toString() == chainId) {
+        return
+      }
+      try {
+        const params = [{ chainId: DEFAULT_NETWORKS[chainId].METAMASK_PARAMS.chainId }]
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params })
+      } catch (error) {
+        // Error code 4902 - no added network in metamask
+        if (error.code == 4902 || error.code) {
+          try {
+            await window.ethereum.request({ 
+              method: 'wallet_addEthereumChain', 
+              params: [DEFAULT_NETWORKS[chainId].METAMASK_PARAMS] 
+            })
+            rootState.chainId = chainId
+          } catch (error) {
+            console.warn(`Adding new ethereum network Error: ${error}`)
+          }
+        } else {
+          console.warn(`Swich ethereum network(chain) Error: ${error}`)
+        }
+      }
+    },
+    startSync: async ({ state, dispatch, rootState }) => {
       const ZkopruPromise = import(/* webpackPrefetch: true */ '@zkopru/client/browser')
-      if (!state.client) {
+      // const networks = getNetworks() // TODO: activate if added custom network configuration in future
+      if (!state.client && DEFAULT_NETWORKS[rootState.chainId]) {
+        const { WEBSOCKET, ZKOPRU_ADDRESSES } = DEFAULT_NETWORKS[rootState.chainId.toString()]
         await dispatch('loadWalletKey')
         const { default: Zkopru, ZkAccount } = await ZkopruPromise
-        // initialize the client if it doesn't already exist
         state.client = new Zkopru.Node({
-          websocket: URL,
+          websocket: WEBSOCKET,
+          address: ZKOPRU_ADDRESSES[0],
           accounts: [new ZkAccount(state.walletKey)],
         })
         state.syncing = true
@@ -76,9 +164,17 @@ export default {
         await state.client.initNode()
         await dispatch('loadWallet')
         await state.client.start()
-        // state.client.node.synchronizer.on('onFetched', async () => dispatch('updateStatus'))
         state.client.node.synchronizer.on('status', async () => dispatch('updateStatus'))
         state.client.node.blockProcessor.on('processed', async () => dispatch('updateStatus'))
+      }
+    },
+    stopSync: async ({ state }) => {
+      if (state.client) {
+        state.syncing = false
+        await state.client.node.synchronizer.removeAllListeners()
+        await state.client.node.blockProcessor.removeAllListeners()
+        await state.client.stop()
+        state.client = null
       }
     },
     resetWallet: async ({ state, dispatch }) => {
@@ -117,9 +213,9 @@ export default {
       }
       state.latestBlock = latestBlock.canonicalNum
       // if (newPercent === 100 && state.syncPercent < 100) {
-        // load the l2 balance
-        dispatch('loadL2Balance')
-        dispatch('loadHistory')
+      // load the l2 balance
+      dispatch('loadL2Balance')
+      dispatch('loadHistory')
       // }
       if (state.latestBlock > 0) {
         const newPercent = 100 * +state.latestBlock / (+state.proposalCount - state.uncleCount - state.slashedCount)
@@ -134,7 +230,7 @@ export default {
       }
       const msgParams = JSON.stringify({
         domain: {
-          chainId: 5,
+          chainId: rootState.chainId,
           name: 'Zkopru Testnet',
           version: '0',
         },
@@ -204,7 +300,7 @@ export default {
           if (!token) continue
           state.tokenBalances = {
             ...state.tokenBalances,
-            [token.symbol]: (+erc20[_address].toString()/(10**(+token.decimals))),
+            [token.symbol]: (+erc20[_address].toString() / (10 ** (+token.decimals))),
           }
         }
         state.lockedTokenBalances = {}
@@ -213,7 +309,7 @@ export default {
           if (!token) continue
           state.lockedTokenBalances = {
             ...state.lockedTokenBalances,
-            [token.symbol]: (+locked.erc20[_address].toString()/(10**(+token.decimals))),
+            [token.symbol]: (+locked.erc20[_address].toString() / (10 ** (+token.decimals))),
           }
         }
         const info = {}
@@ -244,7 +340,7 @@ export default {
           }, new BN('0'))
           const decimals = token ? token.decimals : 18
           const offsetDecimals = Math.min(3, decimals)
-          const maxSpendDecimal = +maxSpend.div(new BN(`${10**(decimals - offsetDecimals)}`)).toString() / (10**offsetDecimals)
+          const maxSpendDecimal = +maxSpend.div(new BN(`${10 ** (decimals - offsetDecimals)}`)).toString() / (10 ** offsetDecimals)
           info[key] = {
             count: count + 1,
             total: total.add(amount),

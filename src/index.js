@@ -26,7 +26,8 @@ Vue.use(Vuex)
 Vue.use(Meta)
 const store = new Vuex.Store({
   state: {
-
+    chainId: -1,
+    // TODO: desiredChainId for network changing by two ways, by network change button, and metamask network change.
   },
   mutations: {
 
