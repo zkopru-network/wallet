@@ -140,7 +140,7 @@ export default class ConfirmDepositPopup extends Vue {
     this.loadingSubtitle = 'Please confirm the transaction to complete your deposit.'
     const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeToken)
     const amountDecimals = `${(+this.tokenDepositAmount)*(10**(+token.decimals))}`
-    const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
+    const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20(
       toWei(this.etherDepositAmount),
       token.address,
       amountDecimals,
@@ -150,7 +150,7 @@ export default class ConfirmDepositPopup extends Vue {
     const amount = new BN(this.tokenDepositAmount)
     const existingAllowance = await this.$store.dispatch('loadTokenAllowance', token.address)
     if (new BN(existingAllowance).lt(amount)) {
-      const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
+      const transferData = tokenContract.interface.functions.encode.approve(to, amountDecimals)
       try {
         const txHash = await window.ethereum.request({
           method: 'eth_sendTransaction',
@@ -182,8 +182,9 @@ export default class ConfirmDepositPopup extends Vue {
     this.loadingTitle = customMessage || 'Waiting for Metamask'
     this.loadingSubtitle = 'Please confirm the transaction to complete your deposit.'
     if (!this.activeToken) {
+      console.log(this.$store.state.zkopru.wallet.wallet.account.ethAddress)
       try {
-        const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
+        const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEther(
           toWei(this.etherDepositAmount),
           toWei(this.feeAmount),
         )
@@ -208,7 +209,7 @@ export default class ConfirmDepositPopup extends Vue {
       const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeToken)
       const amountDecimals = `${(+this.tokenDepositAmount)*(10**(+token.decimals))}`
       try {
-        const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
+        const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20(
           toWei(this.etherDepositAmount),
           token.address,
           amountDecimals,

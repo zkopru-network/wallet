@@ -7,11 +7,11 @@ export default {
     registerAddress: async ({ state, rootState }) => {
       const { web3 } = rootState.zkopru.client.node.layer1
       const addressBookContract = new web3.eth.Contract(ABI, address)
-      const data = await addressBookContract.methods.registerAddress(
+      const data = await addressBookContract.interface.functions.encode.registerAddress(
         rootState.zkopru.client.node.layer1.address,
         rootState.zkopru.wallet.wallet.account.zkAddress.toBuffer(),
         false,
-      ).encodeABI()
+      )
       await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
@@ -52,7 +52,7 @@ export default {
       const { web3 } = rootState.zkopru.client.node.layer1
       const addressBookContract = new web3.eth.Contract(ABI, address)
       try {
-        const resolvedAddr = await addressBookContract.methods.resolveENS(hash).call()
+        const resolvedAddr = await addressBookContract.resolveENS(hash)
         if (!resolvedAddr) return
         return {
           ethAddress: resolvedAddr,

@@ -139,7 +139,7 @@ export default class ConfirmWithdrawPopup extends Vue {
         return symbol.toUpperCase() === this.activeAsset
       })
       const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(address)
-      decimals = await tokenContract.methods.decimals().call()
+      decimals = await tokenContract.decimals()
       this.$store.state.zkopru.tokensByAddres
     }
     let instantWithdrawFeeNoDecimal = this.instantWithdrawFee
