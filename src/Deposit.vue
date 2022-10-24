@@ -171,14 +171,15 @@ export default class Deposit extends Vue {
   async setFeeAmount(clickedButton) {
     const multiplier = clickedButton === 'Fast' ? new BN('200000') : new BN('100000')
     this.feeAmountState = 3
+    let feePromise
     try {
-      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
       this.activeFeePromise = feePromise
       const weiPerByte = await feePromise
       if (this.activeFeePromise !== feePromise) return
       this.activeFeePromise = undefined
       // Assume 2000 bytes for a simple deposit tx in a block
-      const feeWeiAmount = new BN(weiPerByte).mul(multiplier)
+      const feeWeiAmount = new BN(weiPerByte.toString()).mul(multiplier)
       this.feeAmount = ''
       Vue.nextTick(() => {
         if (this.activeFeePromise !== undefined) return

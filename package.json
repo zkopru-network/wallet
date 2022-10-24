@@ -18,6 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.20.0",
+    "bignumber.js": "9.1.0",
     "compression": "^1.7.4",
     "dayjs": "^1.10.6",
     "especial": "0.0.4",

@@ -5,10 +5,9 @@ export default {
   },
   actions: {
     mint: async ({ state, rootState }, amount) => {
-      const { web3 } = rootState.zkopru.client.node.layer1
-      const tokenContract = new web3.eth.Contract(ABI, address)
+      const tokenContract = new ethers.Contract(ABI, address,rootState.zkopru.client.node.layer1.provider)
       const decimalAmount = ((+amount)*(10**decimals))
-      const data = await tokenContract.methods.mint(`${decimalAmount}`).encodeABI()
+      const data = await tokenContract.interface.encodeFunctionData('mint',[decimalAmount])
       await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{

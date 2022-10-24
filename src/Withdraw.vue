@@ -111,6 +111,7 @@ import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
 import InfoText from './components/InfoText'
 import tooltips from './tooltips'
 import decimalCount from './utils/decimal-count'
+import BigNumber from 'bignumber.js'
 
 @Component({
   name: 'Withdraw',
@@ -217,10 +218,10 @@ export default class Withdraw extends Vue {
       })
       const withdrawAmountDecimal = +this.withdrawAmount * (10 ** +decimals)
       const instantWithdrawFeeDecimal = +(this.instantWithdrawFee || 0) * (10 ** +decimals)
-      const decimalAmount = new BN(withdrawAmountDecimal).add(new BN(instantWithdrawFeeDecimal))
+      const decimalAmount = new BigNumber(withdrawAmountDecimal).plus(new BigNumber(instantWithdrawFeeDecimal))
       const tx = await this.$store.state.zkopru.wallet.generateTokenWithdrawal(
         this.$store.state.account.accounts[0],
-        decimalAmount,
+        decimalAmount.toString(),
         address,
         (+this.feeAmount * (10 ** 9)).toString(),
         '0',
