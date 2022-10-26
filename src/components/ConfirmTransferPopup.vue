@@ -28,7 +28,7 @@
         class="line-item"
       >
         <div>Layer 2 Fee</div>
-        <div>{{ feeAmount.toFixed(18) }} ETH</div>
+        <div>{{ feeAmount }} ETH</div>
       </div>
       <div
         class="line-item"

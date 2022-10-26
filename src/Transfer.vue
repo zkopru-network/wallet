@@ -89,7 +89,7 @@ import AddressField from './components/AddressField'
 import FeeField from './components/FeeField'
 import AssetAmountField from './components/AssetAmountField'
 import { toWei, fromWei } from './utils/wei'
-import BN from 'bn.js'
+import BigNumber from "bignumber.js"
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmTransferPopup from './components/ConfirmTransferPopup'
@@ -187,8 +187,8 @@ export default class Transfer extends Vue {
           toWei(this.transferAmount),
           (+this.fee * (10 ** 9)).toString()
         )
-        this.totalFee = fromWei(tx.fee.toString(), 8)
-        this.totalEther = fromWei(new BN(tx.fee).add(new BN(toWei(this.transferAmount))).toString())
+        this.totalFee = fromWei(tx.fee, 9)
+        this.totalEther = fromWei(new BigNumber(tx.fee).plus(toWei(this.transferAmount)))
         this.tx = tx
       } else {
         const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
@@ -202,7 +202,7 @@ export default class Transfer extends Vue {
           (+this.fee * (10 ** 9)).toString()
         )
         this.totalFee = fromWei(tx.fee.toString(), 8)
-        this.totalEther = fromWei(new BN(tx.fee)).toString()
+        this.totalEther = fromWei(new BigNumber(tx.fee.toString()))
         this.tx = tx
       }
     } catch (err) {
@@ -214,6 +214,7 @@ export default class Transfer extends Vue {
           this.amountState = 2
         }
       }
+      console.log(err)
     }
   }
 

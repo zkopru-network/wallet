@@ -1,6 +1,6 @@
 const Zkopru = require('@zkopru/client').default
 const { sha512_256 } = require('js-sha512')
-const BN = require('bn.js')
+const { default: BigNumber } = require('bignumber.js')
 
 // const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
 const URL = 'ws://192.168.1.198:9546'
@@ -54,11 +54,11 @@ const PUBLIC_KEY = '0x3537256fFB47da602871bE7FB26d9fe7e42dD055'
 function fromWei(amount, decimals = 3) {
   let bnAmount
   if (typeof amount === 'string' && amount.indexOf('0x') === 0) {
-    bnAmount = new BN(amount.slice(2), 16)
+    bnAmount = new BigNumber(amount.slice(2), 16)
   } else {
-    bnAmount = new BN(amount)
+    bnAmount = new BigNumber(amount.toString())
   }
-  const finney = bnAmount.div(new BN(`${10 ** (18 - decimals)}`)).toString()
+  const finney = bnAmount.div(new BigNumber(`${10 ** (18 - decimals)}`)).toString()
   const ether = +finney / (10 ** decimals)
   return ether
 }
@@ -70,6 +70,6 @@ function toWei(amount) {
     decimalCount = amount.toString().length - decimalIndex
   }
   const baseAmount = +amount.toString() * (10 ** decimalCount)
-  const wei = new BN(baseAmount.toString()).mul(new BN('10').pow(new BN(18 - decimalCount)))
-  return wei.toString()
+  const wei = new BigNumber(baseAmount.toString()).multipliedBy(new BigNumber('10').pow(18 - decimalCount))
+  return wei.toString(10)
 }

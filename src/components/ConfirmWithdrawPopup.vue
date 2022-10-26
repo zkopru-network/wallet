@@ -92,7 +92,7 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import NextButton from './NextButton'
 import { fromWei } from '../utils/wei'
-import BN from 'bn.js'
+import BigNumber from "bignumber.js"
 import lottie from 'lottie-web'
 
 @Component({
@@ -150,13 +150,13 @@ export default class ConfirmWithdrawPopup extends Vue {
     }
     console.log(decimals)
     console.log(instantWithdrawFeeNoDecimal)
-    const instantWithdrawFeeDecimal = `0x${new BN(instantWithdrawFeeNoDecimal)
-      .mul(new BN('10').pow(new BN(decimals)))
-      .div(new BN('10').pow(new BN(precision)))
-      .toString('hex')}`
+    const instantWithdrawFeeDecimal = `0x${new BigNumber(instantWithdrawFeeNoDecimal.toString())
+      .multipliedBy(new BigNumber('10').pow(decimals))
+      .div(new BigNumber('10').pow(precision))
+      .toString(16)}`
     const msgParams = {
       domain: {
-        chainId: 5,
+        chainId: 31337,
         name: 'Zkopru',
         verifyingContract: this.$store.state.zkopru.client.node.layer1.address,
         version: '1',
@@ -179,7 +179,7 @@ export default class ConfirmWithdrawPopup extends Vue {
       },
       message: {
         prepayer: '0x0000000000000000000000000000000000000000',
-        withdrawalHash: `0x${withdrawal.hash().toString('hex')}`,
+        withdrawalHash: withdrawal.hash().toHexString(),
         prepayFeeInEth: this.activeAsset === 'ETH' ? instantWithdrawFeeDecimal : 0,
         prepayFeeInToken: this.activeAsset === 'ETH' ? 0 : instantWithdrawFeeDecimal,
         expiration: Math.floor(+new Date() / 1000) + 24*3600,

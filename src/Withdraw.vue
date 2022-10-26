@@ -104,7 +104,6 @@ import AssetAmountField from './components/AssetAmountField'
 import Button from './components/Button'
 import Checkbox from './components/Checkbox'
 import { toWei, fromWei } from './utils/wei'
-import BN from 'bn.js'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
@@ -207,10 +206,10 @@ export default class Withdraw extends Vue {
         (+this.feeAmount * (10 ** 9)).toString(),
         toWei(this.instantWithdrawFee || '0')
       )
-      this.totalFee = fromWei(tx.fee.toString(), 8)
-      this.totalEther = fromWei(new BN(tx.fee)
-        .add(new BN(toWei(this.withdrawAmount)))
-        .toString())
+      this.totalFee = new BigNumber(fromWei(tx.fee, 8))
+      this.totalEther = new BigNumber(fromWei(tx.fee))
+        .plus(new BigNumber(toWei(this.withdrawAmount)))
+        .toString()
       this.tx = tx
     } else {
       const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
@@ -226,9 +225,8 @@ export default class Withdraw extends Vue {
         (+this.feeAmount * (10 ** 9)).toString(),
         '0',
       )
-      this.totalFee = fromWei(tx.fee.toString(), 8)
-      this.totalEther = fromWei(new BN(tx.fee)
-        .toString())
+      this.totalFee = fromWei(tx.fee, 8)
+      this.totalEther = fromWei(tx.fee)
       this.tx = tx
     }
   }

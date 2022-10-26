@@ -53,7 +53,7 @@ export default {
         method: 'eth_getBalance',
         params: [state.accounts[0], 'latest'],
       })
-      state.balance = fromWei(hexBalance).toString()
+      state.balance = fromWei(hexBalance)
     },
     loadTokenBalances: async ({ state, rootState }) => {
       for (const { address, symbol } of rootState.zkopru.registeredTokens) {

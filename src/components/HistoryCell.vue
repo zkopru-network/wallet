@@ -115,12 +115,12 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import dayjs from 'dayjs'
 import { fromWei } from '../utils/wei'
-import BN from 'bn.js'
 import AddressLink from './AddressLink'
 import ColorImage from './ColorImage'
 import { tryLoadAssetIcon } from '../utils/token'
 import InfoText from './InfoText'
 import tooltips from '../tooltips'
+import BigNumber from 'bignumber.js'
 
 @Component({
   name: 'HistoryCell',
@@ -155,7 +155,7 @@ export default class HistoryCell extends Vue {
       return +token.address === +tokenAddr
     })
     const { decimals, symbol } = t
-    const tokenAmount = new BN(amount)
+    const tokenAmount = new BigNumber(amount)
     return `${+tokenAmount.toString() / (10 ** +decimals)} ${symbol}`
   }
 

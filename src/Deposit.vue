@@ -114,7 +114,7 @@ import AssetDropdown from './components/AssetDropdown'
 import AssetAmountField from './components/AssetAmountField'
 import { toWei, fromWei } from './utils/wei'
 import Checkbox from './components/Checkbox'
-import BN from 'bn.js'
+import BigNumber from 'bignumber.js'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmDepositPopup from './components/ConfirmDepositPopup'
@@ -169,7 +169,7 @@ export default class Deposit extends Vue {
   }
 
   async setFeeAmount(clickedButton) {
-    const multiplier = clickedButton === 'Fast' ? new BN('200000') : new BN('100000')
+    const multiplier = clickedButton === 'Fast' ? new BigNumber('200000') : new BigNumber('100000')
     this.feeAmountState = 3
     let feePromise
     try {
@@ -179,11 +179,11 @@ export default class Deposit extends Vue {
       if (this.activeFeePromise !== feePromise) return
       this.activeFeePromise = undefined
       // Assume 2000 bytes for a simple deposit tx in a block
-      const feeWeiAmount = new BN(weiPerByte.toString()).mul(multiplier)
+      const feeWeiAmount = new BigNumber(weiPerByte.toString()).multipliedBy(multiplier)
       this.feeAmount = ''
       Vue.nextTick(() => {
         if (this.activeFeePromise !== undefined) return
-        this.feeAmount = fromWei(feeWeiAmount, 9).toString()
+        this.feeAmount = fromWei(feeWeiAmount.toString(), 9)
       })
     } catch (err) {
       if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined

@@ -1,6 +1,5 @@
 import { fromWei } from '../utils/wei'
 import dayjs from 'dayjs'
-import BN from 'bn.js'
 import BigNumber from "bignumber.js"
 
 const DEFAULT_NETWORKS = {
@@ -340,7 +339,7 @@ export default {
           const key = token ? token.symbol : 'ETH'
           const existing = info[key] || {}
           const count = existing.count ?? 0;
-          const total = existing.total ?? new BigNumber(0);
+          const total = existing.total ?? new BigNumber('0');
           const largestNotes = existing.largestNotes || []
           const amount = key === 'ETH' ? asset.eth : asset.erc20Amount.add(asset.nft)
           if (largestNotes.length < 4) {
@@ -357,10 +356,10 @@ export default {
           }
           const maxSpend = largestNotes.reduce((total, current) => {
             return total.plus(current)
-          }, new BigNumber(0))
+          }, new BigNumber('0'))
           const decimals = token ? token.decimals : 18
           const offsetDecimals = Math.min(3, decimals)
-          const maxSpendDecimal = +maxSpend.div(new BN(`${10 ** (decimals - offsetDecimals)}`)).toString() / (10 ** offsetDecimals)
+          const maxSpendDecimal = +maxSpend.div(new BigNumber(`${10 ** (decimals - offsetDecimals)}`)).toString() / (10 ** offsetDecimals)
           info[key] = {
             count: count + 1,
             total: total.plus(amount),
