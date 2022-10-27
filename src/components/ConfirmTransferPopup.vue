@@ -111,21 +111,22 @@ export default class ConfirmDepositPopup extends Vue {
   async send() {
     if (!this.tx) return
     this.sending = true
-    try {
-      this.currentMessageIndex = 0
-      const zkTx = await this.$store.state.zkopru.wallet.wallet.shieldTx({
-        tx: this.tx,
-      })
-      this.currentMessageIndex = 1
-      await this.$store.state.zkopru.wallet.wallet.sendLayer2Tx(zkTx)
-      await this.$store.dispatch('loadL2Balance')
-      await this.$store.dispatch('loadHistory')
+    this.currentMessageIndex = 0
+    const zkTx = await this.$store.state.zkopru.wallet.wallet.shieldTx({
+      tx: this.tx,
+    })
+    this.currentMessageIndex = 1
+    const response = await this.$store.state.zkopru.wallet.wallet.sendLayer2Tx(zkTx)
+    if (response.status !== 200) {
       this.sending = false
-      this.sendComplete = true
-    } catch (err) {
-      this.sending = false
-      console.log(err)
+      await this.$store.state.zkopru.wallet.wallet.unlockUtxos(this.tx.inflow)
+      await this.$store.state.zkopru.wallet.wallet.unlockUtxos(this.tx.outflow)
+      throw Error(await response.text())
     }
+    await this.$store.dispatch('loadL2Balance')
+    await this.$store.dispatch('loadHistory')
+    this.sending = false
+    this.sendComplete = true
   }
   closeClicked() {
     if (typeof this.onClose === 'function') {
