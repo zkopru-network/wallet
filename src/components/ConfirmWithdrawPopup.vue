@@ -156,7 +156,7 @@ export default class ConfirmWithdrawPopup extends Vue {
       .toString(16)}`
     const msgParams = {
       domain: {
-        chainId: 31337,
+        chainId: this.$store.state.chainId,
         name: 'Zkopru',
         verifyingContract: this.$store.state.zkopru.client.node.layer1.address,
         version: '1',
