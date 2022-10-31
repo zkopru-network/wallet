@@ -103,8 +103,7 @@ import FeeField from './components/FeeField'
 import AssetAmountField from './components/AssetAmountField'
 import Button from './components/Button'
 import Checkbox from './components/Checkbox'
-import { toWei, fromWei } from './utils/wei'
-import BN from 'bn.js'
+import { ethers } from 'ethers'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmWithdrawPopup from './components/ConfirmWithdrawPopup'
@@ -159,6 +158,7 @@ export default class Withdraw extends Vue {
   withdrawType = 0
   showingWithdrawConfirm = false
   activeFeePromise = undefined
+  ethers = ethers
 
   mounted() {
     const { type, asset } = this.$route.query
@@ -202,32 +202,29 @@ export default class Withdraw extends Vue {
     if (this.activeAsset === 'ETH') {
       const tx = await this.$store.state.zkopru.wallet.generateWithdrawal(
         this.$store.state.account.accounts[0],
-        toWei(this.withdrawAmount),
-        (+this.feeAmount * (10 ** 9)).toString(),
-        toWei(this.instantWithdrawFee || '0')
+        ethers.utils.parseEther(this.withdrawAmount.toString()),
+        ethers.utils.parseUnits(this.feeAmount, 'gwei').toString(),
+        ethers.utils.parseEther(this.instantWithdrawFee.toString() || '0')
       )
-      this.totalFee = fromWei(tx.fee.toString(), 8)
-      this.totalEther = fromWei(new BN(tx.fee)
-        .add(new BN(toWei(this.withdrawAmount)))
-        .toString())
+      this.totalFee = ethers.utils.parseEther(tx.fee.toString())
+      this.totalEther = ethers.utils.parseEther(this.withdrawAmount).add(this.totalFee)
       this.tx = tx
     } else {
       const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
         return symbol === this.activeAsset
       })
-      const withdrawAmountDecimal = +this.withdrawAmount * (10 ** +decimals)
-      const instantWithdrawFeeDecimal = +(this.instantWithdrawFee || 0) * (10 ** +decimals)
-      const decimalAmount = new BN(withdrawAmountDecimal).add(new BN(instantWithdrawFeeDecimal))
+      const withdrawAmountDecimal = ethers.utils.parseUnits(this.withdrawAmount, decimals.toString())
+      const instantWithdrawFeeDecimal = ethers.utils.parseUnits((this.instantWithdrawFee || 0), decimals.toString())
+      const decimalAmount = withdrawAmountDecimal.add(instantWithdrawFeeDecimal).toString()
       const tx = await this.$store.state.zkopru.wallet.generateTokenWithdrawal(
         this.$store.state.account.accounts[0],
         decimalAmount,
         address,
-        (+this.feeAmount * (10 ** 9)).toString(),
+        ethers.utils.parseUnits(this.feeAmount, 'gwei').toString(),
         '0',
       )
-      this.totalFee = fromWei(tx.fee.toString(), 8)
-      this.totalEther = fromWei(new BN(tx.fee)
-        .toString())
+      this.totalFee = ethers.utils.parseEther(tx.fee.toString())
+      this.totalEther = this.totalFee
       this.tx = tx
     }
   }
