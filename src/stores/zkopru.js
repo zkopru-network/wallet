@@ -1,6 +1,5 @@
-import { fromWei } from '../utils/wei'
-import dayjs from 'dayjs'
-import BigNumber from "bignumber.js"
+const ethers = require('ethers');
+import { BigNumber } from "@ethersproject/bignumber";
 
 const DEFAULT_NETWORKS = {
   '5': {
@@ -312,7 +311,7 @@ export default {
           }
         }, {})
         const { erc20, erc721, eth } = spendable
-        state.balance = fromWei(eth.toString())
+        state.balance = ethers.utils.formatEther(eth.toString())
         state.tokenBalances = {}
         for (const _address of Object.keys(erc20)) {
           const token = state.tokensByAddress[_address.toLowerCase()]
@@ -339,7 +338,7 @@ export default {
           const key = token ? token.symbol : 'ETH'
           const existing = info[key] || {}
           const count = existing.count ?? 0;
-          const total = existing.total ?? new BigNumber('0');
+          const total = existing.total ?? BigNumber.from('0');
           const largestNotes = existing.largestNotes || []
           const amount = key === 'ETH' ? asset.eth : asset.erc20Amount.add(asset.nft)
           if (largestNotes.length < 4) {
@@ -355,14 +354,14 @@ export default {
             }
           }
           const maxSpend = largestNotes.reduce((total, current) => {
-            return total.plus(current)
-          }, new BigNumber('0'))
+            return total.add(current)
+          }, BigNumber.from('0'))
           const decimals = token ? token.decimals : 18
           const offsetDecimals = Math.min(3, decimals)
-          const maxSpendDecimal = +maxSpend.div(new BigNumber(`${10 ** (decimals - offsetDecimals)}`)).toString() / (10 ** offsetDecimals)
+          const maxSpendDecimal = +maxSpend.div(BigNumber.from(10).pow(decimals - offsetDecimals)).toString() / (10 ** offsetDecimals)
           info[key] = {
             count: count + 1,
-            total: total.plus(amount),
+            total: total.add(amount),
             largestNotes,
             maxSpend,
             maxSpendDecimal,
@@ -376,7 +375,7 @@ export default {
       }
       {
         const { erc20, erc721, eth } = locked
-        state.lockedBalance = fromWei(eth.toString())
+        state.lockedBalance = ethers.utils.formatEther(eth.toString())
       }
       state.l2BalanceLoaded = true
     },

@@ -57,7 +57,7 @@
           </div>
           <div v-if="!!transaction.proposal" style="height: 16px; width: 1px; background: #4C5F67; margin: 0px 8px;" />
           <div>
-            Fee {{ fromWei(transaction.fee, 8) }} Eth
+            Fee {{ ethers.utils.formatEther(transaction.fee) }} Eth
           </div>
           <div v-if="transaction.proposal" style="height: 16px; width: 1px; background: #4C5F67; margin: 0px 8px;" />
           <div class="view-more-text" v-if="transaction.proposal" v-on:click="isExpanded = !isExpanded">
@@ -101,7 +101,7 @@
         </div>
         <div v-if="transaction.tokenAddr && +transaction.tokenAddr !== 0 && +transaction.eth > 0" style="height: 4px"></div>
         <div v-if="+transaction.eth > 0 || !transaction.tokenAddr || +transaction.tokenAddr === 0" style="display: flex">
-          <div>{{ fromWei(transaction.eth) }} ETH</div>
+          <div>{{ ethers.utils.formatEther(transaction.eth) }} ETH</div>
           <div spacer style="width: 8px" />
           <img height="18px" :src="tryLoadAssetIcon('ETH')" />
         </div>
@@ -114,13 +114,13 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import dayjs from 'dayjs'
-import { fromWei } from '../utils/wei'
+import { ethers } from 'ethers'
 import AddressLink from './AddressLink'
 import ColorImage from './ColorImage'
 import { tryLoadAssetIcon } from '../utils/token'
 import InfoText from './InfoText'
 import tooltips from '../tooltips'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from "@ethersproject/bignumber";
 
 @Component({
   name: 'HistoryCell',
@@ -130,7 +130,7 @@ import BigNumber from 'bignumber.js'
 export default class HistoryCell extends Vue {
   tooltips = tooltips
   dayjs = dayjs
-  fromWei = fromWei
+  ethers = ethers
   tryLoadAssetIcon = tryLoadAssetIcon
 
   isExpanded = false
@@ -155,8 +155,8 @@ export default class HistoryCell extends Vue {
       return +token.address === +tokenAddr
     })
     const { decimals, symbol } = t
-    const tokenAmount = new BigNumber(amount)
-    return `${+tokenAmount.toString() / (10 ** +decimals)} ${symbol}`
+    const tokenAmount = BigNumber.from(amount)
+    return `${ethers.utils.formatUnits(tokenAmount, decimals)} ${symbol}`
   }
 
   tokenSymbol(tokenAddr) {

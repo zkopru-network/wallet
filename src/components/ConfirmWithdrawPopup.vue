@@ -91,8 +91,8 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import NextButton from './NextButton'
-import { fromWei } from '../utils/wei'
-import BigNumber from "bignumber.js"
+import { ethers } from 'ethers'
+import { BigNumber } from "@ethersproject/bignumber";
 import lottie from 'lottie-web'
 
 @Component({
@@ -109,7 +109,7 @@ import lottie from 'lottie-web'
   ],
   computed: {
     etherFee() {
-      return fromWei(this.tx.fee, 8)
+      return ethers.utils.formatEther(this.tx.fee)
     }
   }
 })
@@ -118,6 +118,7 @@ export default class ConfirmWithdrawPopup extends Vue {
   prepayInfo = undefined
   loadingTitle = ''
   loadingSubtitle = ''
+  ethers = ethers
 
   mounted() {
     lottie.loadAnimation({
@@ -150,10 +151,10 @@ export default class ConfirmWithdrawPopup extends Vue {
     }
     console.log(decimals)
     console.log(instantWithdrawFeeNoDecimal)
-    const instantWithdrawFeeDecimal = `0x${new BigNumber(instantWithdrawFeeNoDecimal.toString())
-      .multipliedBy(new BigNumber('10').pow(decimals))
-      .div(new BigNumber('10').pow(precision))
-      .toString(16)}`
+    const instantWithdrawFeeDecimal = BigNumber.from(instantWithdrawFeeNoDecimal.toString())
+      .mul(BigNumber.from('10').pow(decimals))
+      .div(BigNumber.from('10').pow(precision))
+      .toHexString()
     const msgParams = {
       domain: {
         chainId: this.$store.state.chainId,
@@ -220,7 +221,7 @@ export default class ConfirmWithdrawPopup extends Vue {
     await this.$store.dispatch('loadHistory')
     this.withdrawState = 3
   }
-
+  
   async withdraw() {
     if (this.withdrawType === 2 && this.withdrawState === 0) {
       this.withdrawState = 5

@@ -88,8 +88,7 @@ import Button from './components/Button'
 import AddressField from './components/AddressField'
 import FeeField from './components/FeeField'
 import AssetAmountField from './components/AssetAmountField'
-import { toWei, fromWei } from './utils/wei'
-import BigNumber from "bignumber.js"
+import { ethers } from 'ethers'
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmTransferPopup from './components/ConfirmTransferPopup'
@@ -133,6 +132,7 @@ export default class Transfer extends Vue {
   tx = undefined
   showingTransferConfirm = false
   activeFeePromise = undefined
+  ethers = ethers
 
   mounted() {
     if (this.$route.query.asset) {
@@ -184,25 +184,24 @@ export default class Transfer extends Vue {
       if (this.activeAsset === 'ETH') {
         const tx = await this.$store.state.zkopru.wallet.generateEtherTransfer(
           this.zkAddress,
-          toWei(this.transferAmount),
-          (+this.fee * (10 ** 9)).toString()
+          ethers.utils.parseEther(this.transferAmount.toString()).toString(),
+          ethers.utils.parseUnits(this.fee.toString(), 'gwei').toString(),
         )
-        this.totalFee = fromWei(tx.fee, 9)
-        this.totalEther = fromWei(new BigNumber(tx.fee).plus(toWei(this.transferAmount)))
+        this.totalFee = ethers.utils.formatEther(tx.fee.toString())
+        this.totalEther = this.totalFee.add(ethers.utils.parseEther(this.transferAmount))
         this.tx = tx
       } else {
         const { address, decimals } = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => {
           return symbol === this.activeAsset
         })
-        const decimalAmount = `${+this.transferAmount * (10 ** +decimals)}`
         const tx = await this.$store.state.zkopru.wallet.generateTokenTransfer(
           this.zkAddress,
-          decimalAmount,
+          ethers.utils.parseUnits(this.transferAmount.toString(), decimals),
           address,
-          (+this.fee * (10 ** 9)).toString()
+          ethers.utils.parseUnits(this.fee.toString(), 'gwei').toString(),
         )
-        this.totalFee = fromWei(tx.fee.toString(), 8)
-        this.totalEther = fromWei(new BigNumber(tx.fee.toString()))
+        this.totalFee = ethers.utils.formatEther(tx.fee.toString())
+        this.totalEther = this.totalFee
         this.tx = tx
       }
     } catch (err) {

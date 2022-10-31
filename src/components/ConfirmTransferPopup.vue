@@ -74,7 +74,6 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import NextButton from './NextButton'
-import { toWei, fromWei } from '../utils/wei'
 import lottie from 'lottie-web'
 
 @Component({
