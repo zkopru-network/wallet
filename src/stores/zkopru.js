@@ -255,6 +255,11 @@ export default {
         },
         primaryType: 'ZkopruKey',
         types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+          ],
           ZkopruKey: [
             { name: 'info', type: 'string', },
             { name: 'warning', type: 'string', },
