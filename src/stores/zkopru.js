@@ -1,5 +1,4 @@
 import { fromWei } from '../utils/wei'
-import dayjs from 'dayjs'
 import BN from 'bn.js'
 
 const DEFAULT_NETWORKS = {
@@ -21,22 +20,45 @@ const DEFAULT_NETWORKS = {
       blockExplorerUrls: ['https://goerli.etherscan.io']
     }
   },
-  '69': {
-    NAME: 'Optimism testnet',
-    WEBSOCKET: 'wss://optimism-kovan.zkopru.network',
+  // After merged this optimism testnet deprecated
+  // '69': {
+  //   NAME: 'Optimism testnet',
+  //   WEBSOCKET: 'wss://optimism-kovan.zkopru.network',
+  //   ZKOPRU_ADDRESSES: [
+  //     '0x31f3E51Fc7BE2BD24F258af92B0E371fa0A48762' // minimum stake amount 1 ETH
+  //   ],
+  //   METAMASK_PARAMS: {
+  //     chainId: '0x45',
+  //     chainName: 'Optimism-kovan',
+  //     nativeCurrency: {
+  //       name: 'Optimism ETH',
+  //       symbol: 'ETH',
+  //       decimals: 18
+  //     },
+  //     rpcUrls: ['https://kovan.optimism.io'],
+  //     blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
+  //   }
+  // }
+}
+
+if (process.env.NODE_ENV == "development") {
+  let chainId = '0x7A69' // 31337
+  if (process.env.CHAINID) chainId = `0x${parseInt(process.env.CHAINID).toString(16)}` 
+
+  DEFAULT_NETWORKS[process.env.CHAINID ?? '31337'] = {
+    NAME: 'hardhat node',
+    WEBSOCKET: process.env.WEBSOCKET ?? 'ws://localhost:8546',
     ZKOPRU_ADDRESSES: [
-      '0x31f3E51Fc7BE2BD24F258af92B0E371fa0A48762' // minimum stake amount 1 ETH
+      process.env.ZKOPRU_ADDRESS ?? '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE' //
     ],
     METAMASK_PARAMS: {
-      chainId: '0x45',
-      chainName: 'Optimism-kovan',
+      chainId,
+      chainName: 'testnet',
       nativeCurrency: {
-        name: 'Optimism ETH',
+        name: 'hardhat ETH',
         symbol: 'ETH',
         decimals: 18
       },
-      rpcUrls: ['https://kovan.optimism.io'],
-      blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
     }
   }
 }
@@ -134,9 +156,9 @@ export default {
         // Error code 4902 - no added network in metamask
         if (error.code == 4902 || error.code) {
           try {
-            await window.ethereum.request({ 
-              method: 'wallet_addEthereumChain', 
-              params: [DEFAULT_NETWORKS[chainId].METAMASK_PARAMS] 
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [DEFAULT_NETWORKS[chainId].METAMASK_PARAMS]
             })
             rootState.chainId = chainId
           } catch (error) {
