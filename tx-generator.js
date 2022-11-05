@@ -15,7 +15,8 @@ const PUBLIC_KEY = '0x3537256fFB47da602871bE7FB26d9fe7e42dD055'
   await client.start(':memory:')
   const wallet = new Zkopru.Wallet(
     client,
-    key
+    key,
+    rootState.account.accounts[0]
   )
   for (;;) {
     try {

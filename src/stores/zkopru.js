@@ -275,12 +275,13 @@ export default {
       console.log('rootState.account.accounts[0]', rootState.account.accounts[0])
       return state.walletKey
     },
-    loadWallet: async ({ state, commit, dispatch }) => {
+    loadWallet: async ({ state, commit, dispatch, rootState }) => {
       const key = await dispatch('loadWalletKey')
       const { default: Zkopru } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       state.wallet = new Zkopru.Wallet(
         state.client,
-        key
+        key,
+        rootState.account.accounts[0]
       )
       const { address } = state.wallet.wallet.account.zkAddress
       console.log('zkAddress', address)
