@@ -13,3 +13,6 @@ wrangler.toml
 workers-site
 
 .vercel
+
+# dev module
+zkopru
