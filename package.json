@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "install-dev": "npm install --no-package-lock --no-save shelljs && node scripts/setupLocaldev.js && npm install",
+    "install-dev": "npm install --no-package-lock --no-save shelljs && node scripts/setupLocaldev.js",
     "start": "NODE_ENV=development node server.js",
     "dev": "webpack-dev-server",
     "buildnum": "node scripts/buildversion",
