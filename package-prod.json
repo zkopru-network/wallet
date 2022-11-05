@@ -9,6 +9,7 @@
     "dev": "webpack-dev-server",
     "buildnum": "node scripts/buildversion",
     "build": "webpack --config webpack.prod.js --progress",
+    "build:dev": "webpack --progress",
     "clean": "rm -rf build",
     "server": "node server",
     "ipfs": "npm run clean && npm run build && node scripts/ipfsify.js",

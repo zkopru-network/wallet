@@ -20,25 +20,6 @@ const DEFAULT_NETWORKS = {
       blockExplorerUrls: ['https://goerli.etherscan.io']
     }
   },
-  // After merged this optimism testnet deprecated
-  // '69': {
-  //   NAME: 'Optimism testnet',
-  //   WEBSOCKET: 'wss://optimism-kovan.zkopru.network',
-  //   ZKOPRU_ADDRESSES: [
-  //     '0x31f3E51Fc7BE2BD24F258af92B0E371fa0A48762' // minimum stake amount 1 ETH
-  //   ],
-  //   METAMASK_PARAMS: {
-  //     chainId: '0x45',
-  //     chainName: 'Optimism-kovan',
-  //     nativeCurrency: {
-  //       name: 'Optimism ETH',
-  //       symbol: 'ETH',
-  //       decimals: 18
-  //     },
-  //     rpcUrls: ['https://kovan.optimism.io'],
-  //     blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
-  //   }
-  // }
 }
 
 if (process.env.NODE_ENV == "development") {
