@@ -98,9 +98,9 @@ export default class AddTokenPopup extends Vue {
     try {
       const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(this.tokenAddress)
       const [ decimals, symbol, name ] = await Promise.all([
-        tokenContract.methods.decimals().call(),
-        tokenContract.methods.symbol().call(),
-        tokenContract.methods.name().call(),
+        tokenContract.decimals(),
+        tokenContract.symbol(),
+        tokenContract.name(),
       ])
       this.tokenInfo = { decimals, symbol, name }
       if (this.$store.state.zkopru.tokensByAddress[this.tokenAddress]) {

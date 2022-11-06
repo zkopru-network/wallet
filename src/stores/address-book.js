@@ -5,13 +5,12 @@ export default {
   state: {},
   actions: {
     registerAddress: async ({ state, rootState }) => {
-      const { web3 } = rootState.zkopru.client.node.layer1
-      const addressBookContract = new web3.eth.Contract(ABI, address)
-      const data = await addressBookContract.methods.registerAddress(
+      const addressBookContract = new ethers.Contract(ABI, address, rootState.zkopru.client.node.layer1.provider)
+      const data = await addressBookContract.interface.encodeFunctionData('registerAddress',[
         rootState.zkopru.client.node.layer1.address,
         rootState.zkopru.wallet.wallet.account.zkAddress.toBuffer(),
         false,
-      ).encodeABI()
+      ])
       await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
@@ -23,8 +22,7 @@ export default {
       })
     },
     resolveAddress: async ({ state, rootState }, _address) => {
-      const { web3 } = rootState.zkopru.client.node.layer1
-      const addressBookContract = new web3.eth.Contract(ABI, address)
+      const addressBookContract = new ethers.Contract(ABI, address, rootState.zkopru.client.node.layer1.provider)
       const events = await addressBookContract.getPastEvents('L2AddrChanged', {
         filter: {
           ownerAddr: _address,
@@ -49,10 +47,9 @@ export default {
     },
     resolveENS: async ({ state, rootState, dispatch }, ensAddress) => {
       const hash = namehash.hash(ensAddress)
-      const { web3 } = rootState.zkopru.client.node.layer1
-      const addressBookContract = new web3.eth.Contract(ABI, address)
+      const addressBookContract = new ethers.Contract(ABI, address, rootState.zkopru.client.node.layer1.provider)
       try {
-        const resolvedAddr = await addressBookContract.methods.resolveENS(hash).call()
+        const resolvedAddr = await addressBookContract.resolveENS(hash)
         if (!resolvedAddr) return
         return {
           ethAddress: resolvedAddr,

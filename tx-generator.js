@@ -1,6 +1,6 @@
 const Zkopru = require('@zkopru/client').default
 const { sha512_256 } = require('js-sha512')
-const BN = require('bn.js')
+const ethers = require('ethers');
 
 // const URL = 'wss://goerli.infura.io/ws/v3/5b122dbc87ed4260bf9a2031e8a0e2aa'
 const URL = 'ws://192.168.1.198:9546'
@@ -15,7 +15,8 @@ const PUBLIC_KEY = '0x3537256fFB47da602871bE7FB26d9fe7e42dD055'
   await client.start(':memory:')
   const wallet = new Zkopru.Wallet(
     client,
-    key
+    key,
+    rootState.account.accounts[0]
   )
   for (;;) {
     try {
@@ -28,8 +29,8 @@ const PUBLIC_KEY = '0x3537256fFB47da602871bE7FB26d9fe7e42dD055'
       }
       console.log(`Current gas price: ${+gasPrice / 10**9} gwei`)
       const { to, data, value, onComplete } = wallet.wallet.depositEtherTx(
-        toWei('0.0001'),
-        toWei('0.0004')
+        ethers.utils.parseEther('0.0001'),
+        ethers.utils.parseEther('0.0004')
       )
       // sign/send tx
       console.log(gasPrice, to, data, value)
@@ -51,25 +52,3 @@ const PUBLIC_KEY = '0x3537256fFB47da602871bE7FB26d9fe7e42dD055'
   }
 })()
 
-function fromWei(amount, decimals = 3) {
-  let bnAmount
-  if (typeof amount === 'string' && amount.indexOf('0x') === 0) {
-    bnAmount = new BN(amount.slice(2), 16)
-  } else {
-    bnAmount = new BN(amount)
-  }
-  const finney = bnAmount.div(new BN(`${10 ** (18 - decimals)}`)).toString()
-  const ether = +finney / (10 ** decimals)
-  return ether
-}
-
-function toWei(amount) {
-  const decimalIndex = amount.toString().indexOf('.')
-  let decimalCount = 0
-  if (decimalIndex !== -1) {
-    decimalCount = amount.toString().length - decimalIndex
-  }
-  const baseAmount = +amount.toString() * (10 ** decimalCount)
-  const wei = new BN(baseAmount.toString()).mul(new BN('10').pow(new BN(18 - decimalCount)))
-  return wei.toString()
-}

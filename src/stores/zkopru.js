@@ -1,6 +1,5 @@
-import { fromWei } from '../utils/wei'
-import dayjs from 'dayjs'
-import BN from 'bn.js'
+const ethers = require('ethers');
+import { BigNumber } from "@ethersproject/bignumber";
 
 const DEFAULT_NETWORKS = {
   '5': {
@@ -37,6 +36,22 @@ const DEFAULT_NETWORKS = {
       },
       rpcUrls: ['https://kovan.optimism.io'],
       blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
+    }
+  },
+  '31337': {
+    NAME: 'hardhat testnet',
+    WEBSOCKET: 'ws://localhost:8545',
+    ZKOPRU_ADDRESSES: [
+      '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
+    ],
+    METAMASK_PARAMS: {
+      chainId: '0x7A69',
+      chainName: 'hardhat',
+      nativeCurrency: {
+        name: 'hardhat ETH',
+        symbol: 'ETH',
+        decimals: 18
+      },
     }
   }
 }
@@ -240,6 +255,11 @@ export default {
         },
         primaryType: 'ZkopruKey',
         types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+          ],
           ZkopruKey: [
             { name: 'info', type: 'string', },
             { name: 'warning', type: 'string', },
@@ -252,16 +272,20 @@ export default {
       })
       const { sha512_256 } = await import(/* webpackPrefetch: true */ 'js-sha512')
       state.walletKey = sha512_256(signedData)
+      console.log('rootState.account.accounts[0]', rootState.account.accounts[0])
       return state.walletKey
     },
-    loadWallet: async ({ state, commit, dispatch }) => {
+    loadWallet: async ({ state, commit, dispatch, rootState }) => {
       const key = await dispatch('loadWalletKey')
       const { default: Zkopru } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       state.wallet = new Zkopru.Wallet(
         state.client,
-        key
+        key,
+        rootState.account.accounts[0]
       )
       const { address } = state.wallet.wallet.account.zkAddress
+      console.log('zkAddress', address)
+      console.dir(state.wallet.wallet.account.ethAccount)
       commit('setZkAddress', address)
       await dispatch('loadL2Balance')
       await dispatch('loadHistory')
@@ -293,7 +317,7 @@ export default {
           }
         }, {})
         const { erc20, erc721, eth } = spendable
-        state.balance = fromWei(eth.toString())
+        state.balance = ethers.utils.formatEther(eth.toString())
         state.tokenBalances = {}
         for (const _address of Object.keys(erc20)) {
           const token = state.tokensByAddress[_address.toLowerCase()]
@@ -320,7 +344,7 @@ export default {
           const key = token ? token.symbol : 'ETH'
           const existing = info[key] || {}
           const count = existing.count ?? 0;
-          const total = existing.total ?? new BN('0');
+          const total = existing.total ?? BigNumber.from('0');
           const largestNotes = existing.largestNotes || []
           const amount = key === 'ETH' ? asset.eth : asset.erc20Amount.add(asset.nft)
           if (largestNotes.length < 4) {
@@ -337,10 +361,10 @@ export default {
           }
           const maxSpend = largestNotes.reduce((total, current) => {
             return total.add(current)
-          }, new BN('0'))
+          }, BigNumber.from('0'))
           const decimals = token ? token.decimals : 18
           const offsetDecimals = Math.min(3, decimals)
-          const maxSpendDecimal = +maxSpend.div(new BN(`${10 ** (decimals - offsetDecimals)}`)).toString() / (10 ** offsetDecimals)
+          const maxSpendDecimal = +maxSpend.div(BigNumber.from(10).pow(decimals - offsetDecimals)).toString() / (10 ** offsetDecimals)
           info[key] = {
             count: count + 1,
             total: total.add(amount),
@@ -357,7 +381,7 @@ export default {
       }
       {
         const { erc20, erc721, eth } = locked
-        state.lockedBalance = fromWei(eth.toString())
+        state.lockedBalance = ethers.utils.formatEther(eth.toString())
       }
       state.l2BalanceLoaded = true
     },
@@ -365,9 +389,10 @@ export default {
       if (!state.wallet) {
         await dispatch('loadWallet')
       }
-      return state.wallet.calculateWeiPerByte()
+      return await state.wallet.calculateWeiPerByte()
     },
     resetDB: async ({ state, dispatch }) => {
+      console.log('== RESET DB ==')
       // take the db and empty it
       const { default: Zkopru } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       if (!state.client) {
@@ -396,8 +421,6 @@ export default {
       })
     },
     loadHistory: async ({ state, rootState }) => {
-      const { layer2, db } = state.client.node
-      const { web3 } = state.client.node.layer1
       const l2Address = state.wallet.wallet.account.zkAddress.toString()
       const l1Address = rootState.account.accounts[0]
       const { history, pending } = await state.wallet.transactionsFor(l2Address, l1Address)
