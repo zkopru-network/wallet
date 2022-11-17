@@ -10,7 +10,7 @@ Draft accessible [here](https://alpha.wallet.zkopru.network/).
 
 Install modules as usual with `npm install`.
 
-It will download `@zkopru/client` module whilch is published on npm.
+It will download `@zkopru/client` module which is published on npm.
 
 ## Development
 
@@ -18,7 +18,7 @@ A development server with hot reload can be started with `npm run dev` it will b
 
 ## Development setup
 
-There are two options to using local `@zkopru/client` package without download from npm.
+There are two options to using local `@zkopru/client` package without downloading from npm.
 
 1. Using `yarn link` 
 
