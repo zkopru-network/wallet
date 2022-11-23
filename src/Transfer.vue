@@ -60,7 +60,7 @@
     </div>
     <NextButton
       :disabled="fee == '' || amountState != 1"
-      :onNext="() => (showingTransferConfirm = true)"
+      :onNext="() => transferAmount <= transferableAmount ? showingTransferConfirm = true : showingLimitNotification = true"
     />
     <ConfirmTransferPopup
       v-if="showingTransferConfirm"
@@ -70,6 +70,16 @@
       :zkAddress="zkAddress"
       :tx="tx"
       :onClose="() => (showingTransferConfirm = false)"
+    />
+    <LimitNotificationPopup
+      v-if="showingLimitNotification"
+      :transferAmount="transferAmount"
+      :transferableAmount="transferableAmount"
+      :feeAmount="totalFee"
+      :activeToken="activeAsset"
+      :zkAddress="zkAddress"
+      :tx="tx"
+      :onClose="() => (showingLimitNotification = false)"
     />
   </CenteredLeftMenu>
 </template>
@@ -87,6 +97,7 @@ import BN from "bn.js";
 import CenteredLeftMenu from "./components/CenteredLeftMenu";
 import NextButton from "./components/NextButton";
 import ConfirmTransferPopup from "./components/ConfirmTransferPopup";
+import LimitNotificationPopup from "./components/LimitNotificationPopup";
 import tooltips from "./tooltips";
 import InfoText from "./components/InfoText";
 import decimalCount from "./utils/decimal-count";
@@ -103,6 +114,7 @@ import decimalCount from "./utils/decimal-count";
     CenteredLeftMenu,
     NextButton,
     ConfirmTransferPopup,
+    LimitNotificationPopup,
     InfoText,
   },
   watch: {
@@ -110,14 +122,17 @@ import decimalCount from "./utils/decimal-count";
       this.generateTx();
       this.updateAmountStates();
       this.effectiveAmount();
+      this.printProperties();
     },
     zkAddress() {
       this.generateTx();
+      this.effectiveAmount();
     },
     fee() {
       this.generateTx();
       this.updateAmountStates();
       this.effectiveAmount();
+      this.printProperties(); 
     },
     etherAmount() {
       this.updateAmountStates();
@@ -125,13 +140,13 @@ import decimalCount from "./utils/decimal-count";
     },
     activeAsset(newVal, oldVal) {
       if (newVal === oldVal) return;
-      this.transferAmount = "";
+      this.transferAmount = "0";
     },
   },
 })
 export default class Transfer extends Vue {
   tooltips = tooltips;
-  activeAsset = "";
+  activeAsset = "ETH";
   transferAmount = "0";
   transferableAmount = 0;
   amountState = 0;
@@ -141,6 +156,7 @@ export default class Transfer extends Vue {
   totalFee = "-";
   tx = undefined;
   showingTransferConfirm = false;
+  showingLimitNotification = false;
   activeFeePromise = undefined;
 
   mounted() {
@@ -183,6 +199,7 @@ export default class Transfer extends Vue {
   }
 
   async generateTx() {
+    this.transferableAmount = 0
     if (!this.zkAddress || !this.fee || !this.transferAmount || !this.transferableAmount) {
       this.totalFee = "-";
       this.tx = undefined;
@@ -249,9 +266,16 @@ export default class Transfer extends Vue {
     // maximum 4 utxo can be selected
     // at least one note is Eth
     let noteLimit = 3;
-    if (this.activeAsset.toUpperCase() != "ETH") noteLimit += 1; 
+    if (this.activeAsset && this.activeAsset.toUpperCase() != "ETH") noteLimit += 1; 
 
-    const notes = this.$store.state.noteInfo[this.activeAsset];
+    // const notes = this.$store.state.zkopru.noteInfo[this.activeAsset];
+    const notes = {
+      count: 5,
+      total: 170,
+      largestNotes: [12, 23, 34, 45, 67],
+      maxSpend: 170
+    }
+    console.log(`notes: ${this.activeAsset} ${JSON.stringify(notes)}`)
     const { count, largestNotes } = notes;
 
     if (count <= noteLimit) {
