@@ -40,9 +40,9 @@ const DEFAULT_NETWORKS = {
   },
   '31337': {
     NAME: 'hardhat testnet',
-    WEBSOCKET: 'ws://localhost:8545',
+    WEBSOCKET: 'ws://10.8.0.2:8546',
     ZKOPRU_ADDRESSES: [
-      '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
+      '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE'
     ],
     METAMASK_PARAMS: {
       chainId: '0x7A69',
@@ -331,7 +331,8 @@ export default {
           }
         }
         const info = {}
-        for (const { asset } of notes) {
+        console.log(`notes: ${JSON.stringify(notes)}`)
+        for (const { asset, status } of notes) {
           // TODO: handle notes that have both an ERC20 balance and an eth balance
           const addressPad = (num) => typeof num === 'number' ? `0x${num.toString(16).padStart(40 - num.toString(16).length, '0')}` : num
           const token = state.tokensByAddress[addressPad(asset.tokenAddr)]
@@ -340,6 +341,7 @@ export default {
           const count = existing.count ?? 0;
           const total = existing.total ?? BigNumber.from('0');
           const largestNotes = existing.largestNotes || []
+          const spendableNotes = existing.spendableNotes || []
           const amount = key === 'ETH' ? asset.eth : asset.erc20Amount.add(asset.nft)
           if (largestNotes.length < 4) {
             largestNotes.push(amount)
@@ -353,9 +355,29 @@ export default {
               largestNotes[0] = amount
             }
           }
+          console.log(`note: asset.UtxoStatus: ${status}`)
+          console.log(`note: ${JSON.stringify(asset)}`)
+          // TODO: Current, status always 0, due to `getUtxo` method in `zk-wallet-account`
+          // always return `UtxoStatus.NON_INCLUDED`
+          if (status < 2 && spendableNotes.length < 4) {
+            spendableNotes.push(amount)
+          } else {
+            spendableNotes.sort((a, b) => {
+              if (a.eq(b)) return 0
+              if (a.gt(b)) return 1
+              return -1
+            })
+            if (spendableNotes.length > 0 && spendableNotes[0].lt(amount)) {
+              spendableNotes[0] = amount
+            }
+          }
           const maxSpend = largestNotes.reduce((total, current) => {
             return total.add(current)
           }, BigNumber.from('0'))
+          const maxSpendable = spendableNotes.reduce((total, current) => {
+            return total.add(current)
+          }, BigNumber.from('0'))
+          if (maxSpendable == BigNumber.from('0')) maxSpendable = []
           const decimals = token ? token.decimals : 18
           const offsetDecimals = Math.min(3, decimals)
           const maxSpendDecimal = +maxSpend.div(BigNumber.from(10).pow(decimals - offsetDecimals)).toString() / (10 ** offsetDecimals)
@@ -363,12 +385,15 @@ export default {
             count: count + 1,
             total: total.add(amount),
             largestNotes,
+            spendableNotes, // Only Unspent Notes
             maxSpend,
+            maxSpendable,
             maxSpendDecimal,
           }
         }
 
         state.noteInfo = info
+        console.log(`zkopru.js - loadL2Balance`)
         // state.tokenBalances = erc20
         // load l1 token balances
         dispatch('loadTokenBalances', { root: true })
