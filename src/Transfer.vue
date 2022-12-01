@@ -124,6 +124,7 @@ export default class Transfer extends Vue {
   tooltips = tooltips
   activeAsset = ''
   transferAmount = '0'
+  transferableAmount = '0'
   amountState = 0
   zkAddress = ''
   fee = ''
@@ -144,7 +145,9 @@ export default class Transfer extends Vue {
     return `${this.zkAddress}-${this.fee}-${this.transferAmount}`
   }
 
+  // TODO: Not exceed maximum 4 UTXO.
   async maxAmount() {
+    // user input
     if (this.activeAsset === 'ETH') {
       const fee = isNaN(this.totalFee) ? 0 : +this.totalFee
       this.transferAmount = +this.$store.state.zkopru.balance - fee
@@ -152,6 +155,28 @@ export default class Transfer extends Vue {
       const balance = this.$store.state.zkopru.tokenBalances[this.activeAsset]
       this.transferAmount = balance
     }
+    
+    // maximum 4 utxo can be selected and Atleast on enote should be Eth
+    let noteLimit = 3;    
+    if (this.activeAsset && this.activeAsset.toUpperCase() != 'ETH') noteLimit += 1
+
+    const ethNotes = this.$store.state.zkopru.noteInfo["ETH"]
+    if (ethNotes.maxSpend.sub(BN.from(fee)).cmp(new BN('0')) == -1) {
+      console.log(`remain eth cannot use fee `)
+      this.transferAmount = 0
+    } else {
+      const notes = this.$store.state.zkopru.noteInfo[this.activeAsset]
+      console.log(`notes: ${this.activeAsset} ${JSON.stringify(notes)}`)
+      const { count, largestNotes } = notes
+
+      if (count <= noteLimit) {
+        this.transferableAmount = this.transferAmount
+      } else {
+        for (let i = 0; i < noteLimit; i++) {
+          this.transferableAmount += largestNotes[i];
+        }
+      }
+    }    
   }
 
   async suggestedFee(clickedButton) {
