@@ -112,13 +112,12 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import AssetDropdown from './components/AssetDropdown'
 import AssetAmountField from './components/AssetAmountField'
-import { toWei, fromWei } from './utils/wei'
+import { ethers } from 'ethers'
 import Checkbox from './components/Checkbox'
-import BN from 'bn.js'
+import { BigNumber } from "@ethersproject/bignumber";
 import CenteredLeftMenu from './components/CenteredLeftMenu'
 import NextButton from './components/NextButton'
 import ConfirmDepositPopup from './components/ConfirmDepositPopup'
-import measureText from './utils/measure-text'
 import tooltips from './tooltips'
 import InfoText from './components/InfoText'
 import decimalCount from './utils/decimal-count'
@@ -150,6 +149,7 @@ export default class Deposit extends Vue {
   depositType = 0
   showingDepositConfirm = false
   activeFeePromise = undefined
+  ethers = ethers
 
   mounted() {
     const { type, asset } = this.$route.query
@@ -169,20 +169,22 @@ export default class Deposit extends Vue {
   }
 
   async setFeeAmount(clickedButton) {
-    const multiplier = clickedButton === 'Fast' ? new BN('200000') : new BN('100000')
+    const multiplier = clickedButton === 'Fast' ? BigNumber.from('200000') : BigNumber.from('100000')
     this.feeAmountState = 3
+    let feePromise
     try {
-      const feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
+      feePromise = this.$store.dispatch('loadCurrentWeiPerByte')
       this.activeFeePromise = feePromise
       const weiPerByte = await feePromise
       if (this.activeFeePromise !== feePromise) return
       this.activeFeePromise = undefined
       // Assume 2000 bytes for a simple deposit tx in a block
-      const feeWeiAmount = new BN(weiPerByte).mul(multiplier)
+      const feeWeiAmount = BigNumber.from(weiPerByte.toString()).mul(multiplier)
+      console.log(feeWeiAmount)
       this.feeAmount = ''
       Vue.nextTick(() => {
         if (this.activeFeePromise !== undefined) return
-        this.feeAmount = fromWei(feeWeiAmount, 9).toString()
+        this.feeAmount = ethers.utils.formatEther(feeWeiAmount)
       })
     } catch (err) {
       if (this.activeFeePromise === feePromise) this.activeFeePromise = undefined

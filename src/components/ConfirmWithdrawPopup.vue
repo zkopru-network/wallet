@@ -91,8 +91,8 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import NextButton from './NextButton'
-import { fromWei } from '../utils/wei'
-import BN from 'bn.js'
+import { ethers } from 'ethers'
+import { BigNumber } from "@ethersproject/bignumber";
 import lottie from 'lottie-web'
 
 @Component({
@@ -109,7 +109,7 @@ import lottie from 'lottie-web'
   ],
   computed: {
     etherFee() {
-      return fromWei(this.tx.fee, 8)
+      return ethers.utils.formatEther(this.tx.fee)
     }
   }
 })
@@ -118,6 +118,7 @@ export default class ConfirmWithdrawPopup extends Vue {
   prepayInfo = undefined
   loadingTitle = ''
   loadingSubtitle = ''
+  ethers = ethers
 
   mounted() {
     lottie.loadAnimation({
@@ -139,7 +140,7 @@ export default class ConfirmWithdrawPopup extends Vue {
         return symbol.toUpperCase() === this.activeAsset
       })
       const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(address)
-      decimals = await tokenContract.methods.decimals().call()
+      decimals = await tokenContract.decimals()
       this.$store.state.zkopru.tokensByAddres
     }
     let instantWithdrawFeeNoDecimal = this.instantWithdrawFee
@@ -150,13 +151,13 @@ export default class ConfirmWithdrawPopup extends Vue {
     }
     console.log(decimals)
     console.log(instantWithdrawFeeNoDecimal)
-    const instantWithdrawFeeDecimal = `0x${new BN(instantWithdrawFeeNoDecimal)
-      .mul(new BN('10').pow(new BN(decimals)))
-      .div(new BN('10').pow(new BN(precision)))
-      .toString('hex')}`
+    const instantWithdrawFeeDecimal = BigNumber.from(instantWithdrawFeeNoDecimal.toString())
+      .mul(BigNumber.from('10').pow(decimals))
+      .div(BigNumber.from('10').pow(precision))
+      .toHexString()
     const msgParams = {
       domain: {
-        chainId: 5,
+        chainId: this.$store.state.chainId,
         name: 'Zkopru',
         verifyingContract: this.$store.state.zkopru.client.node.layer1.address,
         version: '1',
@@ -179,7 +180,7 @@ export default class ConfirmWithdrawPopup extends Vue {
       },
       message: {
         prepayer: '0x0000000000000000000000000000000000000000',
-        withdrawalHash: `0x${withdrawal.hash().toString('hex')}`,
+        withdrawalHash: withdrawal.hash().toHexString(),
         prepayFeeInEth: this.activeAsset === 'ETH' ? instantWithdrawFeeDecimal : 0,
         prepayFeeInToken: this.activeAsset === 'ETH' ? 0 : instantWithdrawFeeDecimal,
         expiration: Math.floor(+new Date() / 1000) + 24*3600,
@@ -220,7 +221,7 @@ export default class ConfirmWithdrawPopup extends Vue {
     await this.$store.dispatch('loadHistory')
     this.withdrawState = 3
   }
-
+  
   async withdraw() {
     if (this.withdrawType === 2 && this.withdrawState === 0) {
       this.withdrawState = 5

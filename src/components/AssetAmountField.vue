@@ -9,6 +9,7 @@
         ${amountState === 0 ? 'border-color: #5D7078' : ''}
         ${amountState === 1 ? 'border-color: #00FFD1' : ''}
         ${amountState === 2 ? 'border-color: #F49F2F' : ''}
+        ${amountState === 4 ? 'border-color: #F49F2F' : ''}
       `"
     />
     <div class="asset-buttons">
@@ -39,6 +40,7 @@ import Component from 'vue-class-component'
   ],
   computed: {
     // 0 = empty, 1 = valid, 2 = invalid
+    // 4 = over maximum amount
     amountState() {
       if (typeof this.assetAmountState !== 'undefined') {
         return this.assetAmountState

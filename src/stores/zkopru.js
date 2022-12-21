@@ -1,6 +1,5 @@
-import { fromWei } from '../utils/wei'
-import dayjs from 'dayjs'
-import BN from 'bn.js'
+const ethers = require('ethers');
+import { BigNumber } from "@ethersproject/bignumber";
 
 const DEFAULT_NETWORKS = {
   '5': {
@@ -37,6 +36,22 @@ const DEFAULT_NETWORKS = {
       },
       rpcUrls: ['https://kovan.optimism.io'],
       blockExplorerUrls: ['https://kovan-optimistic.etherscan.io']
+    }
+  },
+  '31337': {
+    NAME: 'hardhat testnet',
+    WEBSOCKET: 'ws://10.8.0.2:8546',
+    ZKOPRU_ADDRESSES: [
+      '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE'
+    ],
+    METAMASK_PARAMS: {
+      chainId: '0x7A69',
+      chainName: 'hardhat',
+      nativeCurrency: {
+        name: 'hardhat ETH',
+        symbol: 'ETH',
+        decimals: 18
+      },
     }
   }
 }
@@ -293,7 +308,7 @@ export default {
           }
         }, {})
         const { erc20, erc721, eth } = spendable
-        state.balance = fromWei(eth.toString())
+        state.balance = ethers.utils.formatEther(eth.toString())
         state.tokenBalances = {}
         for (const _address of Object.keys(erc20)) {
           const token = state.tokensByAddress[_address.toLowerCase()]
@@ -313,15 +328,16 @@ export default {
           }
         }
         const info = {}
-        for (const { asset } of notes) {
+        for (const { asset, status } of notes) {
           // TODO: handle notes that have both an ERC20 balance and an eth balance
           const addressPad = (num) => typeof num === 'number' ? `0x${num.toString(16).padStart(40 - num.toString(16).length, '0')}` : num
           const token = state.tokensByAddress[addressPad(asset.tokenAddr)]
           const key = token ? token.symbol : 'ETH'
           const existing = info[key] || {}
           const count = existing.count ?? 0;
-          const total = existing.total ?? new BN('0');
+          const total = existing.total ?? BigNumber.from('0');
           const largestNotes = existing.largestNotes || []
+          const spendableNotes = existing.spendableNotes || []
           const amount = key === 'ETH' ? asset.eth : asset.erc20Amount.add(asset.nft)
           if (largestNotes.length < 4) {
             largestNotes.push(amount)
@@ -335,17 +351,37 @@ export default {
               largestNotes[0] = amount
             }
           }
+          // TODO: Current, status always 0, due to `getUtxo` method in `zk-wallet-account`
+          // always return `UtxoStatus.NON_INCLUDED`
+          if (status < 2 && spendableNotes.length < 4) {
+            spendableNotes.push(amount)
+          } else {
+            spendableNotes.sort((a, b) => {
+              if (a.eq(b)) return 0
+              if (a.gt(b)) return 1
+              return -1
+            })
+            if (spendableNotes.length > 0 && spendableNotes[0].lt(amount)) {
+              spendableNotes[0] = amount
+            }
+          }
           const maxSpend = largestNotes.reduce((total, current) => {
             return total.add(current)
-          }, new BN('0'))
+          }, BigNumber.from('0'))
+          const maxSpendable = spendableNotes.reduce((total, current) => {
+            return total.add(current)
+          }, BigNumber.from('0'))
+          if (maxSpendable == BigNumber.from('0')) maxSpendable = []
           const decimals = token ? token.decimals : 18
           const offsetDecimals = Math.min(3, decimals)
-          const maxSpendDecimal = +maxSpend.div(new BN(`${10 ** (decimals - offsetDecimals)}`)).toString() / (10 ** offsetDecimals)
+          const maxSpendDecimal = +maxSpend.div(BigNumber.from(10).pow(decimals - offsetDecimals)).toString() / (10 ** offsetDecimals)
           info[key] = {
             count: count + 1,
             total: total.add(amount),
             largestNotes,
+            spendableNotes, // Only Unspent Notes
             maxSpend,
+            maxSpendable,
             maxSpendDecimal,
           }
         }
@@ -357,7 +393,7 @@ export default {
       }
       {
         const { erc20, erc721, eth } = locked
-        state.lockedBalance = fromWei(eth.toString())
+        state.lockedBalance = ethers.utils.formatEther(eth.toString())
       }
       state.l2BalanceLoaded = true
     },
@@ -365,9 +401,10 @@ export default {
       if (!state.wallet) {
         await dispatch('loadWallet')
       }
-      return state.wallet.calculateWeiPerByte()
+      return await state.wallet.calculateWeiPerByte()
     },
     resetDB: async ({ state, dispatch }) => {
+      console.log('== RESET DB ==')
       // take the db and empty it
       const { default: Zkopru } = await import(/* webpackPrefetch: true */ '@zkopru/client/browser')
       if (!state.client) {
@@ -396,8 +433,6 @@ export default {
       })
     },
     loadHistory: async ({ state, rootState }) => {
-      const { layer2, db } = state.client.node
-      const { web3 } = state.client.node.layer1
       const l2Address = state.wallet.wallet.account.zkAddress.toString()
       const l1Address = rootState.account.accounts[0]
       const { history, pending } = await state.wallet.transactionsFor(l2Address, l1Address)

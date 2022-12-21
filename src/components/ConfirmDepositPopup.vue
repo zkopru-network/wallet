@@ -92,9 +92,9 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import NextButton from './NextButton'
-import { toWei, fromWei } from '../utils/wei'
 import lottie from 'lottie-web'
-import BN from 'bn.js'
+import { BigNumber } from "@ethersproject/bignumber";
+import { ethers } from "ethers"
 
 @Component({
   name: 'ConfirmDepositPopup',
@@ -139,18 +139,18 @@ export default class ConfirmDepositPopup extends Vue {
     this.loadingTitle = 'Waiting for Metamask'
     this.loadingSubtitle = 'Please confirm the transaction to complete your deposit.'
     const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeToken)
-    const amountDecimals = `${(+this.tokenDepositAmount)*(10**(+token.decimals))}`
+    const amountDecimals = ethers.utils.parseUnits(this.tokenDepositAmount, token.decimals)
     const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
-      toWei(this.etherDepositAmount),
+      ethers.utils.parseEther(this.etherDepositAmount),
       token.address,
       amountDecimals,
-      toWei(this.feeAmount),
+      ethers.utils.parseEther(this.feeAmount),
     )
     const tokenContract = await this.$store.state.zkopru.client.getERC20Contract(token.address)
-    const amount = new BN(this.tokenDepositAmount)
+    const amount = BigNumber.from(this.tokenDepositAmount.toString())
     const existingAllowance = await this.$store.dispatch('loadTokenAllowance', token.address)
-    if (new BN(existingAllowance).lt(amount)) {
-      const transferData = tokenContract.methods.approve(to, amountDecimals).encodeABI()
+    if ((BigNumber.from(existingAllowance.toString())).lt(amount)) {
+      const transferData = tokenContract.interface.encodeFunctionData('approve', [to, amountDecimals])
       try {
         const txHash = await window.ethereum.request({
           method: 'eth_sendTransaction',
@@ -183,9 +183,9 @@ export default class ConfirmDepositPopup extends Vue {
     this.loadingSubtitle = 'Please confirm the transaction to complete your deposit.'
     if (!this.activeToken) {
       try {
-        const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositEtherTx(
-          toWei(this.etherDepositAmount),
-          toWei(this.feeAmount),
+        const { to, data, value, onComplete } = await this.$store.state.zkopru.wallet.wallet.depositEtherTx(
+          ethers.utils.parseEther(this.etherDepositAmount),
+          ethers.utils.parseEther(this.feeAmount),
         )
         await window.ethereum.request({
           method: 'eth_sendTransaction',
@@ -206,13 +206,12 @@ export default class ConfirmDepositPopup extends Vue {
       }
     } else {
       const token = this.$store.state.zkopru.registeredTokens.find(({ symbol }) => symbol === this.activeToken)
-      const amountDecimals = `${(+this.tokenDepositAmount)*(10**(+token.decimals))}`
       try {
         const { to, data, value, onComplete } = this.$store.state.zkopru.wallet.wallet.depositERC20Tx(
-          toWei(this.etherDepositAmount),
+          ethers.utils.parseEther(this.etherDepositAmount),
           token.address,
-          amountDecimals,
-          toWei(this.feeAmount),
+          ethers.utils.parseUnits(this.tokenDepositAmount, token.decimals),
+          ethers.utils.parseEther(this.feeAmount),
         )
         await window.ethereum.request({
           method: 'eth_sendTransaction',

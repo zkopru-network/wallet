@@ -1,4 +1,4 @@
-import { fromWei } from '../utils/wei'
+const ethers = require('ethers');
 
 export default {
   state: {
@@ -53,15 +53,15 @@ export default {
         method: 'eth_getBalance',
         params: [state.accounts[0], 'latest'],
       })
-      state.balance = fromWei(hexBalance).toString()
+      state.balance = ethers.utils.formatEther(hexBalance)
     },
     loadTokenBalances: async ({ state, rootState }) => {
       for (const { address, symbol } of rootState.zkopru.registeredTokens) {
         const tokenContract = await rootState.zkopru.client.getERC20Contract(address)
         const myAddress = state.accounts[0]
         const [balance, decimals] = await Promise.all([
-          tokenContract.methods.balanceOf(myAddress).call(),
-          tokenContract.methods.decimals().call(),
+          tokenContract.balanceOf(myAddress),
+          tokenContract.decimals(),
         ])
         const balanceDecimal = +balance.toString() / (10 ** +decimals.toString())
         state.tokenBalances = { ...state.tokenBalances, [symbol]: balanceDecimal }
@@ -70,10 +70,10 @@ export default {
     loadTokenAllowance: async ({ state, rootState }, address) => {
       const tokenContract = await rootState.zkopru.client.getERC20Contract(address)
       const myAddress = state.accounts[0]
-      const allowance = await tokenContract.methods.allowance(
+      const allowance = await tokenContract.allowance(
         myAddress,
         rootState.zkopru.client.node.layer1.address
-      ).call()
+      )
       return allowance
     }
   }
