@@ -267,7 +267,6 @@ export default {
       })
       const { sha512_256 } = await import(/* webpackPrefetch: true */ 'js-sha512')
       state.walletKey = sha512_256(signedData)
-      console.log('rootState.account.accounts[0]', rootState.account.accounts[0])
       return state.walletKey
     },
     loadWallet: async ({ state, commit, dispatch }) => {
@@ -278,8 +277,6 @@ export default {
         key
       )
       const { address } = state.wallet.wallet.account.zkAddress
-      console.log('zkAddress', address)
-      console.dir(state.wallet.wallet.account.ethAccount)
       commit('setZkAddress', address)
       await dispatch('loadL2Balance')
       await dispatch('loadHistory')
@@ -331,7 +328,6 @@ export default {
           }
         }
         const info = {}
-        console.log(`notes: ${JSON.stringify(notes)}`)
         for (const { asset, status } of notes) {
           // TODO: handle notes that have both an ERC20 balance and an eth balance
           const addressPad = (num) => typeof num === 'number' ? `0x${num.toString(16).padStart(40 - num.toString(16).length, '0')}` : num
@@ -355,8 +351,6 @@ export default {
               largestNotes[0] = amount
             }
           }
-          console.log(`note: asset.UtxoStatus: ${status}`)
-          console.log(`note: ${JSON.stringify(asset)}`)
           // TODO: Current, status always 0, due to `getUtxo` method in `zk-wallet-account`
           // always return `UtxoStatus.NON_INCLUDED`
           if (status < 2 && spendableNotes.length < 4) {
@@ -393,7 +387,6 @@ export default {
         }
 
         state.noteInfo = info
-        console.log(`zkopru.js - loadL2Balance`)
         // state.tokenBalances = erc20
         // load l1 token balances
         dispatch('loadTokenBalances', { root: true })

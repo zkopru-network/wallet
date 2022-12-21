@@ -48,12 +48,10 @@ export default {
     },
     resolveENS: async ({ state, rootState, dispatch }, ensAddress) => {
       const hash = namehash.hash(ensAddress)
-      console.log(`ensHash: ${hash}`)
       const addressBookContract = new ethers.Contract(ABI, address, rootState.zkopru.client.node.layer1.provider)
       try {
         const resolvedAddr = await addressBookContract.resolveENS(hash)
         if (!resolvedAddr) return
-        console.log(`resolvedAddr: ${resolvedAddr}`)
         return {
           ethAddress: resolvedAddr,
           zkAddress: await dispatch('resolveAddress', resolvedAddr)

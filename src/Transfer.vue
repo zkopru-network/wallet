@@ -260,8 +260,6 @@ export default class Transfer extends Vue {
             parsedFee = '0'
           } else if (this.totalFee == Infinity) {
             parsedFee = '0'
-          } else {
-            parsedFee = this.totalFee
           }
           // 
           const diffEther = ethers.utils.parseEther(parsedFee.toString()).sub(ethers.utils.parseUnits(tx.fee.toString(), 'wei'))
@@ -289,7 +287,7 @@ export default class Transfer extends Vue {
           address,
           ethers.utils.parseUnits(this.fee.toString(), 'gwei').toString(),
         )
-        this.totalFee = ethers.utils.formatEther(tx.fee.toString())
+        this.totalFee = ethers.utils.formatEther(tx.fee.toString()).toString()
         this.totalEther = this.totalFee
         this.tx = tx
       }
